@@ -1,0 +1,18 @@
+[package]
+name = "spodeian-web-utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Universal web DOM utilities: file downloads, binary blobs, and clipboard integration across WASM and native"
+
+[dependencies]
+tracing = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+web-sys = { workspace = true }
+
+[lints]
+workspace = true
