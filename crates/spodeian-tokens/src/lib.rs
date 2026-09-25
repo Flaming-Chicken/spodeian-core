@@ -32,6 +32,38 @@ impl ThemeMode {
         }
     }
 
+    pub fn toggle(self) -> Self {
+        self.next()
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Dark => "dark",
+            Self::Light => "light",
+            Self::HighContrastDark => "high-contrast-dark",
+            Self::HighContrastLight => "high-contrast-light",
+        }
+    }
+
+    #[allow(clippy::should_implement_trait)]
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "light" => Self::Light,
+            "high-contrast-dark" => Self::HighContrastDark,
+            "high-contrast-light" => Self::HighContrastLight,
+            _ => Self::Dark,
+        }
+    }
+
+    pub fn display_label(self) -> &'static str {
+        match self {
+            Self::Dark => "Dark",
+            Self::Light => "Warm Light",
+            Self::HighContrastDark => "HC Dark",
+            Self::HighContrastLight => "HC Light",
+        }
+    }
+
     pub fn label(self) -> &'static str {
         match self {
             Self::Dark => "Dark",
@@ -50,6 +82,7 @@ impl ThemeMode {
         }
     }
 }
+
 
 /// Standard 8-bit RGBA color representation with WCAG luminance calculations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
