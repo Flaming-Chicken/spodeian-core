@@ -83,6 +83,15 @@ impl ThemeMode {
     }
 }
 
+impl std::str::FromStr for ThemeMode {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from_str(s))
+    }
+}
+
+
 
 /// Standard 8-bit RGBA color representation with WCAG luminance calculations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
