@@ -22,6 +22,33 @@ impl ThemeMode {
     pub fn is_dark(self) -> bool {
         matches!(self, Self::Dark | Self::HighContrastDark)
     }
+
+    pub fn next(self) -> Self {
+        match self {
+            Self::Dark => Self::Light,
+            Self::Light => Self::HighContrastDark,
+            Self::HighContrastDark => Self::HighContrastLight,
+            Self::HighContrastLight => Self::Dark,
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Dark => "Dark",
+            Self::Light => "Warm Light",
+            Self::HighContrastDark => "High Contrast (Dark)",
+            Self::HighContrastLight => "High Contrast (Light)",
+        }
+    }
+
+    pub fn icon(self) -> &'static str {
+        match self {
+            Self::Dark => "🌙",
+            Self::Light => "☀️",
+            Self::HighContrastDark => "⬛",
+            Self::HighContrastLight => "⬜",
+        }
+    }
 }
 
 /// Standard 8-bit RGBA color representation with WCAG luminance calculations.

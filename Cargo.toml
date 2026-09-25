@@ -3,6 +3,10 @@ resolver = "3"
 members = [
     "crates/spodeian-cache",
     "crates/spodeian-tokens",
+    "crates/spodeian-telemetry",
+    "crates/spodeian-export",
+    "crates/spodeian-web-utils",
+    "crates/spodeian-ui",
 ]
 
 [workspace.package]
@@ -11,12 +15,16 @@ authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage (Cache API / IndexedDB / OPFS), design tokens, and KaTeX rendering"
+description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, and unified egui UI components"
 repository = "https://github.com/Spodeian/spodeian-core"
 
 [workspace.dependencies]
 spodeian-cache = { path = "crates/spodeian-cache" }
 spodeian-tokens = { path = "crates/spodeian-tokens" }
+spodeian-telemetry = { path = "crates/spodeian-telemetry" }
+spodeian-export = { path = "crates/spodeian-export" }
+spodeian-web-utils = { path = "crates/spodeian-web-utils" }
+spodeian-ui = { path = "crates/spodeian-ui" }
 
 # Serialization & Cryptography
 serde = { version = "1.0", features = ["derive"] }
@@ -25,10 +33,17 @@ thiserror = "2.0"
 anyhow = "1.0"
 sha2 = "0.10"
 base64 = "0.22"
+bson = "2"
+miniz_oxide = "0.8"
 
 # Logging & Telemetry
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "ansi", "tracing-log"] }
+tracing-web = "0.1"
+console_error_panic_hook = "0.1.7"
+
+# UI
+egui = { version = "0.36", default-features = false, features = ["default_fonts"] }
 
 # WASM Web Bindings
 wasm-bindgen = "0.2"
@@ -54,6 +69,14 @@ web-sys = { version = "0.3", features = [
     "FileSystemDirectoryHandle",
     "FileSystemFileHandle",
     "Headers",
+    "HtmlCanvasElement",
+    "Element",
+    "Url",
+    "HtmlAnchorElement",
+    "HtmlDocument",
+    "Location",
+    "Navigator",
+    "Clipboard",
 ] }
 
 # Benchmarking

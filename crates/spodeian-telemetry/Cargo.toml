@@ -1,0 +1,21 @@
+[package]
+name = "spodeian-telemetry"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Universal, zero-overhead tracing and panic telemetry initializer across native and WASM runtimes"
+
+[dependencies]
+tracing = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tracing-subscriber = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tracing-subscriber = { workspace = true }
+tracing-web = { workspace = true }
+console_error_panic_hook = { workspace = true }
+
+[lints]
+workspace = true
