@@ -1,0 +1,89 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/spodeian-cache",
+    "crates/spodeian-tokens",
+]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Liam <spodeian@proton.me>"]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage (Cache API / IndexedDB / OPFS), design tokens, and KaTeX rendering"
+repository = "https://github.com/Spodeian/spodeian-core"
+
+[workspace.dependencies]
+spodeian-cache = { path = "crates/spodeian-cache" }
+spodeian-tokens = { path = "crates/spodeian-tokens" }
+
+# Serialization & Cryptography
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+sha2 = "0.10"
+base64 = "0.22"
+
+# Logging & Telemetry
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# WASM Web Bindings
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Document",
+    "Storage",
+    "Cache",
+    "CacheStorage",
+    "Response",
+    "ResponseInit",
+    "Request",
+    "Blob",
+    "BlobPropertyBag",
+    "IdbFactory",
+    "IdbDatabase",
+    "IdbTransaction",
+    "IdbObjectStore",
+    "IdbOpenDbRequest",
+    "IdbRequest",
+    "FileSystemDirectoryHandle",
+    "FileSystemFileHandle",
+    "Headers",
+] }
+
+# Benchmarking
+criterion = "0.5"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+needless_range_loop = "allow"
+too_many_arguments = "allow"
+needless_borrow = "allow"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+overflow-checks = false
+incremental = false
+
+[profile.bench]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+debug = true
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
