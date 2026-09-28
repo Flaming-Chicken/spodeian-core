@@ -224,4 +224,86 @@ impl LakeRegistry {
         let registry: Self = serde_json::from_str(&content)?;
         Ok(registry)
     }
+
+    /// Applies a WAL entry directly in-memory.
+    pub fn apply_wal_entry(&mut self, entry: &LakeWalEntry) {
+        match entry {
+            LakeWalEntry::Register(meta) => self.register(meta.clone()),
+            LakeWalEntry::Remove { dataset_id, partition_key } => {
+                self.unregister(dataset_id, partition_key);
+            }
+            LakeWalEntry::Feedback { dataset_id, partition_key, utility, anomaly_score, epochs_increment } => {
+                self.record_training_feedback(dataset_id, partition_key, *utility, *anomaly_score, *epochs_increment);
+            }
+            LakeWalEntry::Pin { dataset_id, partition_key, is_pinned } => {
+                self.set_pinned(dataset_id, partition_key, *is_pinned);
+            }
+        }
+    }
+
+    /// Appends a single WAL entry to the append-only log file.
+    pub fn append_wal(wal_path: &Path, entry: &LakeWalEntry) -> Result<(), RegistryError> {
+        use std::io::Write;
+        if let Some(parent) = wal_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(wal_path)?;
+        let line = serde_json::to_string(entry)?;
+        writeln!(file, "{}", line)?;
+        Ok(())
+    }
+
+    /// Loads registry from snapshot and replays any trailing WAL entries.
+    pub fn load_with_wal(snapshot_path: &Path, wal_path: &Path) -> Result<Self, RegistryError> {
+        let mut registry = Self::load_from_file(snapshot_path)?;
+        if wal_path.exists() {
+            use std::io::{BufRead, BufReader};
+            let file = std::fs::File::open(wal_path)?;
+            let reader = BufReader::new(file);
+            for line_res in reader.lines() {
+                let line = line_res?;
+                if line.trim().is_empty() {
+                    continue;
+                }
+                if let Ok(entry) = serde_json::from_str::<LakeWalEntry>(&line) {
+                    registry.apply_wal_entry(&entry);
+                }
+            }
+        }
+        Ok(registry)
+    }
+
+    /// Flushes and compacts WAL: saves snapshot and removes the WAL log file.
+    pub fn compact_wal(&self, snapshot_path: &Path, wal_path: &Path) -> Result<(), RegistryError> {
+        self.save_to_file(snapshot_path)?;
+        if wal_path.exists() {
+            let _ = std::fs::remove_file(wal_path);
+        }
+        Ok(())
+    }
+}
+
+/// Append-only Write-Ahead Log (WAL) mutation entry for LakeRegistry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LakeWalEntry {
+    Register(DatasetMetadata),
+    Remove {
+        dataset_id: String,
+        partition_key: String,
+    },
+    Feedback {
+        dataset_id: String,
+        partition_key: String,
+        utility: f64,
+        anomaly_score: Option<f64>,
+        epochs_increment: usize,
+    },
+    Pin {
+        dataset_id: String,
+        partition_key: String,
+        is_pinned: bool,
+    },
 }
