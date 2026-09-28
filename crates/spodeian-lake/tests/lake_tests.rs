@@ -236,3 +236,29 @@ fn test_debounced_wal_persistence_and_replay() {
 
     let _ = std::fs::remove_dir_all(&temp_dir);
 }
+
+#[test]
+fn test_load_partitions_range_streaming() {
+    let temp_dir = std::env::temp_dir().join(format!("spodeian_range_test_{}", std::process::id()));
+    let config = DataLakeConfig {
+        lake_root: temp_dir.clone(),
+        max_storage_bytes: 10 * 1024 * 1024,
+        default_ttl_seconds: None,
+    };
+
+    let mut lake = WindowsDataLake::new(config).expect("Failed to initialize lake");
+    let dataset1 = create_mock_market_dataset();
+    let dataset2 = create_mock_market_dataset();
+
+    // Store across different epochs
+    lake.store_parquet("ticks", "day_1", &dataset1, None, 1000).unwrap();
+    lake.store_parquet("ticks", "day_2", &dataset2, None, 2000).unwrap();
+    lake.store_parquet("ticks", "day_3", &dataset1, None, 5000).unwrap();
+
+    // Query range [500, 2500]: should load day_1 and day_2 (total 6 rows)
+    let range_data = lake.load_partitions_range("ticks", 500, 2500).expect("Range query failed");
+    assert_eq!(range_data.num_rows, 6);
+    assert_eq!(range_data.float_columns.get("close").unwrap().len(), 6);
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}

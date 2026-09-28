@@ -407,6 +407,28 @@ impl WindowsDataLake {
         Ok(dataset)
     }
 
+    /// Loads and concatenates all partitions for a given dataset within `[start_epoch, end_epoch]`
+    /// sorted in chronological order with SHA-256 verification.
+    pub fn load_partitions_range(
+        &mut self,
+        dataset_id: &str,
+        start_epoch: u64,
+        end_epoch: u64,
+    ) -> Result<TabularDataset, LakeError> {
+        let metas = self.registry.get_partitions_in_range(dataset_id, start_epoch, end_epoch);
+        if metas.is_empty() {
+            return Ok(TabularDataset::new());
+        }
+
+        let mut combined = TabularDataset::new();
+        for meta in &metas {
+            let part = self.load_parquet(dataset_id, &meta.partition_key, end_epoch)?;
+            combined.extend_from(&part)?;
+        }
+
+        Ok(combined)
+    }
+
     /// Prunes stale partitions whose TTL has expired relative to `current_epoch_s`.
     pub fn prune_stale(&mut self, current_epoch_s: u64) -> Result<usize, LakeError> {
         let stale_keys = self.registry.get_stale_partitions(current_epoch_s);
