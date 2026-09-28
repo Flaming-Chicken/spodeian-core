@@ -110,6 +110,43 @@ impl TabularDataset {
         Ok(())
     }
 
+    /// Concatenates rows from another `TabularDataset` with matching column schema.
+    pub fn extend_from(&mut self, other: &TabularDataset) -> Result<(), ParquetError> {
+        if other.num_rows == 0 {
+            return Ok(());
+        }
+        if self.column_names.is_empty() {
+            *self = other.clone();
+            return Ok(());
+        }
+
+        // Validate schema
+        for name in &self.column_names {
+            if !other.column_names.contains(name) {
+                return Err(ParquetError::ColumnNotFound(name.clone()));
+            }
+        }
+
+        for (col, data) in &other.float_columns {
+            if let Some(target) = self.float_columns.get_mut(col) {
+                target.extend_from_slice(data);
+            }
+        }
+        for (col, data) in &other.int_columns {
+            if let Some(target) = self.int_columns.get_mut(col) {
+                target.extend_from_slice(data);
+            }
+        }
+        for (col, data) in &other.string_columns {
+            if let Some(target) = self.string_columns.get_mut(col) {
+                target.extend_from_slice(data);
+            }
+        }
+
+        self.num_rows += other.num_rows;
+        Ok(())
+    }
+
     /// Converts tabular dataset into an Apache Arrow `RecordBatch`.
     pub fn to_record_batch(&self) -> Result<RecordBatch, ParquetError> {
         let mut fields = Vec::with_capacity(self.column_names.len());

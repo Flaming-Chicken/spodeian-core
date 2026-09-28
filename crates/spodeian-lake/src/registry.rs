@@ -164,6 +164,28 @@ impl LakeRegistry {
             .collect()
     }
 
+    /// Returns all partitions for a given dataset_id created within `[start_epoch, end_epoch]`, sorted chronologically.
+    pub fn get_partitions_in_range(
+        &self,
+        dataset_id: &str,
+        start_epoch: u64,
+        end_epoch: u64,
+    ) -> Vec<DatasetMetadata> {
+        let mut list: Vec<DatasetMetadata> = self
+            .partitions
+            .values()
+            .filter(|meta| {
+                meta.dataset_id == dataset_id
+                    && meta.created_at_epoch_s >= start_epoch
+                    && meta.created_at_epoch_s <= end_epoch
+            })
+            .cloned()
+            .collect();
+
+        list.sort_by_key(|meta| meta.created_at_epoch_s);
+        list
+    }
+
     /// Returns partitions sorted in ascending order of retention priority (lowest priority first).
     /// Used for value-aware eviction when the data lake reaches capacity.
     pub fn get_eviction_candidates_by_priority(&self, current_epoch_s: u64) -> Vec<DatasetMetadata> {
