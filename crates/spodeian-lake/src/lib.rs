@@ -178,6 +178,130 @@ impl WindowsDataLake {
         Ok(metadata)
     }
 
+    /// Ingests a batch of tabular dataset partitions in parallel using Rayon multicore threads.
+    /// Concurrently serializes Parquet buffers, writes files to disk, and calculates SHA-256 hashes.
+    pub fn store_parquet_batch_parallel(
+        &mut self,
+        items: &[(&str, &str, &TabularDataset, Option<u64>, f64, bool)],
+        current_epoch_s: u64,
+    ) -> Result<Vec<DatasetMetadata>, LakeError> {
+        if items.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        use rayon::prelude::*;
+
+        // Prepare file paths and ensure parents exist
+        let paths: Vec<PathBuf> = items
+            .iter()
+            .map(|(ds, part, ..)| self.partition_path(ds, part))
+            .collect();
+
+        for path in &paths {
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+        }
+
+        let default_ttl = self.config.default_ttl_seconds;
+
+        // Concurrently serialize Parquet, calculate SHA-256 checksums, and write to disk
+        let serialized_results: Result<Vec<DatasetMetadata>, LakeError> = items
+            .par_iter()
+            .zip(paths.par_iter())
+            .map(|(&(ds_id, part_key, dataset, ttl, anomaly, pinned), file_path)| {
+                let mut buffer = Vec::new();
+                dataset.write_to_parquet(&mut buffer).map_err(LakeError::Parquet)?;
+                let byte_size = buffer.len() as u64;
+
+                let mut hasher = Sha256::new();
+                hasher.update(&buffer);
+                let sha256_checksum = format!("{:x}", hasher.finalize());
+
+                fs::write(file_path, &buffer).map_err(LakeError::Io)?;
+
+                Ok(DatasetMetadata {
+                    dataset_id: ds_id.to_string(),
+                    partition_key: part_key.to_string(),
+                    file_path: file_path.clone(),
+                    record_count: dataset.num_rows,
+                    byte_size,
+                    sha256_checksum,
+                    created_at_epoch_s: current_epoch_s,
+                    last_accessed_epoch_s: current_epoch_s,
+                    ttl_seconds: ttl.or(default_ttl),
+                    training_utility: 1.0,
+                    anomaly_score: anomaly.clamp(0.0, 1.0),
+                    training_epochs_seen: 0,
+                    is_pinned: pinned,
+                })
+            })
+            .collect();
+
+        let metadata_list = serialized_results?;
+
+        // Batch update registry
+        for meta in &metadata_list {
+            self.registry.register(meta.clone());
+        }
+        self.persist_registry()?;
+        self.enforce_capacity(current_epoch_s)?;
+
+        Ok(metadata_list)
+    }
+
+    /// Concurrently validates the SHA-256 integrity of multiple partitions using Rayon.
+    /// Returns Ok(true) if all verified correctly, or LakeError on corruption or failure.
+    pub fn verify_partitions_parallel(
+        &self,
+        partition_keys: &[(&str, &str)],
+    ) -> Result<bool, LakeError> {
+        if partition_keys.is_empty() {
+            return Ok(true);
+        }
+
+        use rayon::prelude::*;
+
+        let metas: Result<Vec<DatasetMetadata>, LakeError> = partition_keys
+            .iter()
+            .map(|&(ds_id, part_key)| {
+                self.registry
+                    .get(ds_id, part_key)
+                    .cloned()
+                    .ok_or_else(|| LakeError::PartitionNotFound(ds_id.to_string(), part_key.to_string()))
+            })
+            .collect();
+
+        let metas = metas?;
+
+        let verification_results: Result<Vec<()>, LakeError> = metas
+            .par_iter()
+            .map(|meta| {
+                if !meta.file_path.exists() {
+                    return Err(LakeError::PartitionNotFound(
+                        meta.dataset_id.clone(),
+                        meta.partition_key.clone(),
+                    ));
+                }
+                let bytes = fs::read(&meta.file_path).map_err(LakeError::Io)?;
+                let mut hasher = Sha256::new();
+                hasher.update(&bytes);
+                let actual = format!("{:x}", hasher.finalize());
+
+                if actual != meta.sha256_checksum {
+                    Err(LakeError::IntegrityFailure {
+                        expected: meta.sha256_checksum.clone(),
+                        actual,
+                    })
+                } else {
+                    Ok(())
+                }
+            })
+            .collect();
+
+        verification_results.map(|_| true)
+    }
+
     /// Records training feedback (loss/reconstruction error and exposure count) from ML training loops.
     pub fn record_training_feedback(
         &mut self,

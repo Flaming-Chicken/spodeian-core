@@ -156,3 +156,40 @@ fn test_value_aware_training_retention_and_pruning() {
 
     let _ = std::fs::remove_dir_all(&temp_dir);
 }
+
+#[test]
+fn test_parallel_batch_ingestion_and_verification() {
+    let temp_dir = std::env::temp_dir().join(format!("spodeian_parallel_test_{}", std::process::id()));
+    let config = DataLakeConfig {
+        lake_root: temp_dir.clone(),
+        max_storage_bytes: 10 * 1024 * 1024,
+        default_ttl_seconds: None,
+    };
+
+    let mut lake = WindowsDataLake::new(config).expect("Failed to initialize lake");
+    let dataset1 = create_mock_market_dataset();
+    let dataset2 = create_mock_market_dataset();
+    let dataset3 = create_mock_market_dataset();
+
+    let batch = vec![
+        ("asx", "part_1", &dataset1, None, 0.1, false),
+        ("asx", "part_2", &dataset2, None, 0.2, false),
+        ("asx", "part_3", &dataset3, None, 0.9, true),
+    ];
+
+    // Parallel batch storage
+    let metas = lake.store_parquet_batch_parallel(&batch, 1000).expect("Parallel batch store failed");
+    assert_eq!(metas.len(), 3);
+    assert_eq!(lake.summary().total_partitions, 3);
+
+    // Parallel partition integrity verification
+    let to_verify = vec![
+        ("asx", "part_1"),
+        ("asx", "part_2"),
+        ("asx", "part_3"),
+    ];
+    let verified = lake.verify_partitions_parallel(&to_verify).expect("Parallel verification failed");
+    assert!(verified);
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}
