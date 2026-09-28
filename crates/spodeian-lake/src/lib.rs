@@ -64,6 +64,8 @@ pub struct WindowsDataLake {
     config: DataLakeConfig,
     registry: LakeRegistry,
     registry_path: PathBuf,
+    wal_path: PathBuf,
+    unflushed_wal_entries: usize,
 }
 
 impl WindowsDataLake {
@@ -74,12 +76,15 @@ impl WindowsDataLake {
         fs::create_dir_all(&data_dir)?;
 
         let registry_path = config.lake_root.join("lake_registry.json");
-        let registry = LakeRegistry::load_from_file(&registry_path)?;
+        let wal_path = config.lake_root.join("lake_registry.wal");
+        let registry = LakeRegistry::load_with_wal(&registry_path, &wal_path)?;
 
         Ok(Self {
             config,
             registry,
             registry_path,
+            wal_path,
+            unflushed_wal_entries: 0,
         })
     }
 
@@ -93,10 +98,16 @@ impl WindowsDataLake {
         &self.config
     }
 
-    /// Persists the registry to disk.
-    fn persist_registry(&self) -> Result<(), LakeError> {
-        self.registry.save_to_file(&self.registry_path)?;
+    /// Flushes and compacts the append-only WAL into the full JSON registry snapshot.
+    pub fn flush_wal(&mut self) -> Result<(), LakeError> {
+        self.registry.compact_wal(&self.registry_path, &self.wal_path)?;
+        self.unflushed_wal_entries = 0;
         Ok(())
+    }
+
+    /// Persists the registry to disk, compacting any pending WAL logs.
+    fn persist_registry(&mut self) -> Result<(), LakeError> {
+        self.flush_wal()
     }
 
     /// Computes a relative or absolute file path for a partition.
@@ -319,7 +330,18 @@ impl WindowsDataLake {
             epochs_increment,
         );
         if updated {
-            self.persist_registry()?;
+            let entry = registry::LakeWalEntry::Feedback {
+                dataset_id: dataset_id.to_string(),
+                partition_key: partition_key.to_string(),
+                utility,
+                anomaly_score,
+                epochs_increment,
+            };
+            LakeRegistry::append_wal(&self.wal_path, &entry)?;
+            self.unflushed_wal_entries += 1;
+            if self.unflushed_wal_entries >= 100 {
+                self.flush_wal()?;
+            }
         }
         Ok(updated)
     }
@@ -328,7 +350,16 @@ impl WindowsDataLake {
     pub fn set_pinned(&mut self, dataset_id: &str, partition_key: &str, pinned: bool) -> Result<bool, LakeError> {
         let updated = self.registry.set_pinned(dataset_id, partition_key, pinned);
         if updated {
-            self.persist_registry()?;
+            let entry = registry::LakeWalEntry::Pin {
+                dataset_id: dataset_id.to_string(),
+                partition_key: partition_key.to_string(),
+                is_pinned: pinned,
+            };
+            LakeRegistry::append_wal(&self.wal_path, &entry)?;
+            self.unflushed_wal_entries += 1;
+            if self.unflushed_wal_entries >= 100 {
+                self.flush_wal()?;
+            }
         }
         Ok(updated)
     }

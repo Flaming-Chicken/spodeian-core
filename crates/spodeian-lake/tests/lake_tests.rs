@@ -193,3 +193,46 @@ fn test_parallel_batch_ingestion_and_verification() {
 
     let _ = std::fs::remove_dir_all(&temp_dir);
 }
+
+#[test]
+fn test_debounced_wal_persistence_and_replay() {
+    let temp_dir = std::env::temp_dir().join(format!("spodeian_wal_test_{}", std::process::id()));
+    let config = DataLakeConfig {
+        lake_root: temp_dir.clone(),
+        max_storage_bytes: 10 * 1024 * 1024,
+        default_ttl_seconds: None,
+    };
+
+    let dataset = create_mock_market_dataset();
+
+    {
+        let mut lake = WindowsDataLake::new(config.clone()).expect("Failed to initialize lake");
+        lake.store_parquet("market", "tick_partition", &dataset, None, 1000).unwrap();
+
+        // Perform fast training feedback updates that write to append-only WAL
+        lake.record_training_feedback("market", "tick_partition", 0.42, Some(0.15), 5).unwrap();
+        lake.set_pinned("market", "tick_partition", true).unwrap();
+
+        // Check that wal file exists before full flush
+        let wal_path = temp_dir.join("lake_registry.wal");
+        assert!(wal_path.exists(), "WAL file should be created for fast append");
+    }
+
+    // Now re-open data lake from disk: should replay WAL entries seamlessly
+    {
+        let mut lake = WindowsDataLake::new(config).expect("Failed to re-initialize lake with WAL replay");
+        let meta = lake.load_parquet("market", "tick_partition", 1010).expect("Load after WAL replay failed");
+        assert_eq!(meta.num_rows, 3);
+
+        // Verify replayed in-memory state
+        let retrieved = lake.summary();
+        assert_eq!(retrieved.total_partitions, 1);
+
+        // Explicitly flush / compact WAL
+        lake.flush_wal().expect("Flush WAL failed");
+        let wal_path = temp_dir.join("lake_registry.wal");
+        assert!(!wal_path.exists(), "WAL file should be removed upon compaction");
+    }
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}
