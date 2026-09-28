@@ -7,6 +7,8 @@ members = [
     "crates/spodeian-export",
     "crates/spodeian-web-utils",
     "crates/spodeian-ui",
+    "crates/spodeian-lake",
+    "crates/spodeian-py-bridge",
 ]
 
 [workspace.package]
@@ -15,7 +17,7 @@ authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, and unified egui UI components"
+description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, unified egui UI, local data lake, and PyO3 desktop bridge"
 repository = "https://github.com/Spodeian/spodeian-core"
 
 [workspace.dependencies]
@@ -25,6 +27,7 @@ spodeian-telemetry = { path = "crates/spodeian-telemetry" }
 spodeian-export = { path = "crates/spodeian-export" }
 spodeian-web-utils = { path = "crates/spodeian-web-utils" }
 spodeian-ui = { path = "crates/spodeian-ui" }
+spodeian-lake = { path = "crates/spodeian-lake" }
 
 # Serialization & Cryptography
 serde = { version = "1.0", features = ["derive"] }
@@ -35,6 +38,15 @@ sha2 = "0.10"
 base64 = "0.22"
 bson = "2"
 miniz_oxide = "0.8"
+
+# Columnar Parquet & Arrow
+parquet = { version = "53", default-features = false, features = ["arrow", "flate2"] }
+arrow-schema = "53"
+arrow-array = "53"
+bytes = "1.10"
+
+# Python FFI Bridge
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
 
 # Logging & Telemetry
 tracing = "0.1"
