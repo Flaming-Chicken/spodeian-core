@@ -26,6 +26,14 @@ pub struct DatasetMetadata {
     pub last_accessed_epoch_s: u64,
     pub ttl_seconds: Option<u64>,
 
+    // Provenance, attribution & ethical metadata lineage
+    #[serde(default)]
+    pub author: Option<String>,
+    #[serde(default)]
+    pub doi_or_url: Option<String>,
+    #[serde(default)]
+    pub license: Option<String>,
+
     // Value-aware training telemetry & regime retention flags
     pub training_utility: f64,       // Reconstruction/loss signal in [0.0, 1.0] (high = model still learning)
     pub anomaly_score: f64,          // Tail-risk / rare regime index in [0.0, 1.0] (high = crisis/rare)
