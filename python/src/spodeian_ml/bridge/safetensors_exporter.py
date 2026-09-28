@@ -17,10 +17,12 @@ def export_encoder_to_safetensors(
     output_path: Path,
     prefix_filter: Optional[str] = "encoder",
     manifest_path: Optional[Path] = None,
+    dtype: str = "float32",
 ) -> Path:
     """
     Exports encoder weights to a clean .safetensors file for zero-overhead loading in Candle.
     Drops optimizer state, reconstruction decoders, and non-inference tensors.
+    Supports "float32" and "float16" half-precision quantization.
     """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -34,8 +36,12 @@ def export_encoder_to_safetensors(
         if prefix_filter and not key.startswith(prefix_filter):
             continue
 
-        # Ensure contiguous CPU float32 tensor
         clean_tensor = tensor.detach().cpu().contiguous()
+        if dtype.lower() == "float16":
+            clean_tensor = clean_tensor.half()
+        elif dtype.lower() == "float32":
+            clean_tensor = clean_tensor.float()
+
         exported_tensors[key] = clean_tensor
 
         manifest_entries[key] = {

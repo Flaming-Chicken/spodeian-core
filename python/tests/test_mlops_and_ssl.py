@@ -19,6 +19,12 @@ from spodeian_ml.ssl.contrastive import InfoNCELoss
 from spodeian_ml.heads.linear_probe import LinearProbeHead
 from spodeian_ml.heads.mlp import MLPProjectionHead
 from spodeian_ml.heads.temporal import TemporalHead
+from spodeian_ml.heads.quantile import QuantileHead, pinball_loss
+from spodeian_ml.heads.attention_pool import AttentionPoolingHead
+from spodeian_ml.heads.multi_task import MultiHorizonHead
+from spodeian_ml.heads.flow import FlowVelocityHead
+from spodeian_ml.heads.regime import RegimeClassificationHead
+from spodeian_ml.ssl.vicreg import VICRegLoss
 from spodeian_ml.bridge.safetensors_exporter import export_encoder_to_safetensors
 
 
@@ -168,3 +174,110 @@ def test_safetensors_export_and_integrity():
                 tensor = f.get_tensor(key)
                 assert isinstance(tensor, torch.Tensor)
                 assert tensor.dtype == torch.float32
+
+
+def test_quantile_head_and_loss():
+    latent = torch.randn(16, 64)
+    targets = torch.randn(16, 1)
+
+    head = QuantileHead(in_features=64, quantiles=[0.05, 0.50, 0.95])
+    loss, preds = head.compute_loss(latent, targets)
+
+    assert preds.shape == (16, 3)
+    assert loss.item() >= 0.0, "Pinball loss must be non-negative"
+
+
+def test_attention_pooling_head():
+    seq_latent = torch.randn(16, 20, 64)  # (Batch 16, Seq 20, Dim 64)
+    flat_latent = torch.randn(16, 64)
+
+    head = AttentionPoolingHead(in_features=64, out_features=1, attn_dim=32)
+
+    # 3D sequence test
+    out_seq = head(seq_latent)
+    assert out_seq.shape == (16, 1)
+
+    # 2D flat test
+    out_flat = head(flat_latent)
+    assert out_flat.shape == (16, 1)
+
+
+def test_multi_horizon_head():
+    latent = torch.randn(16, 64)
+    targets = {
+        "h1": torch.randn(16, 1),
+        "h5": torch.randn(16, 1),
+        "h21": torch.randn(16, 1),
+    }
+
+    head = MultiHorizonHead(in_features=64, horizons=["h1", "h5", "h21"])
+    preds = head(latent)
+
+    assert set(preds.keys()) == {"h1", "h5", "h21"}
+    assert preds["h1"].shape == (16, 1)
+
+    loss, task_losses = head.compute_loss(preds, targets)
+    assert loss.item() is not None
+    assert len(task_losses) == 3
+
+
+def test_flow_velocity_head():
+    x_0 = torch.randn(16, 32)
+    x_1 = torch.randn(16, 32)
+    t = torch.rand(16, 1)
+
+    head = FlowVelocityHead(state_dim=32, hidden_dim=64, time_embed_dim=16)
+    v_pred = head(x_0, t)
+    assert v_pred.shape == (16, 32)
+
+    loss, _ = head.compute_flow_matching_loss(x_0, x_1, t)
+    assert loss.item() >= 0.0
+
+
+def test_regime_classification_head():
+    latent = torch.randn(16, 64)
+    labels = torch.randint(0, 4, (16,))
+
+    head = RegimeClassificationHead(in_features=64, num_classes=4)
+    probs = head.predict_probabilities(latent)
+    assert probs.shape == (16, 4)
+    # Probabilities must sum to 1.0 across classes
+    assert torch.allclose(probs.sum(dim=-1), torch.ones(16), atol=1e-5)
+
+    loss, logits = head.compute_loss(latent, labels)
+    assert logits.shape == (16, 4)
+    assert loss.item() > 0.0
+
+
+def test_vicreg_loss():
+    z_a = torch.randn(32, 64)
+    z_b = z_a + torch.randn_like(z_a) * 0.05
+
+    vicreg = VICRegLoss()
+    total_loss, sim, std, cov = vicreg(z_a, z_b)
+
+    assert total_loss.item() > 0.0
+    assert sim.item() >= 0.0
+    assert std.item() >= 0.0
+    assert cov.item() >= 0.0
+
+
+def test_safetensors_float16_export():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        fp16_file = tmp_path / "model_fp16.safetensors"
+
+        mae = MaskedAutoencoder(input_dim=8, hidden_dim=16, latent_dim=8, num_layers=1)
+        export_encoder_to_safetensors(
+            model=mae,
+            output_path=fp16_file,
+            prefix_filter="encoder",
+            dtype="float16",
+        )
+
+        assert fp16_file.exists()
+        with safe_open(str(fp16_file), framework="pt", device="cpu") as f:
+            for key in f.keys():
+                tensor = f.get_tensor(key)
+                assert tensor.dtype == torch.float16, f"Expected float16 tensor, got {tensor.dtype} for {key}"
+
