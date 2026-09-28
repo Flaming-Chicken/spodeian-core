@@ -14,7 +14,7 @@ pub enum RegistryError {
 }
 
 /// Metadata record for a single dataset partition in the Spodeian Data Lake.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DatasetMetadata {
     pub dataset_id: String,
     pub partition_key: String,
@@ -25,20 +25,58 @@ pub struct DatasetMetadata {
     pub created_at_epoch_s: u64,
     pub last_accessed_epoch_s: u64,
     pub ttl_seconds: Option<u64>,
+
+    // Value-aware training telemetry & regime retention flags
+    pub training_utility: f64,       // Reconstruction/loss signal in [0.0, 1.0] (high = model still learning)
+    pub anomaly_score: f64,          // Tail-risk / rare regime index in [0.0, 1.0] (high = crisis/rare)
+    pub training_epochs_seen: usize, // Saturation count (higher = diminishing returns)
+    pub is_pinned: bool,             // If true, permanently exempt from automated eviction (e.g. crisis memories)
 }
 
 impl DatasetMetadata {
-    /// Determines whether the partition has exceeded its time-to-live.
+    /// Determines whether the partition has exceeded its absolute time-to-live.
     pub fn is_stale(&self, current_epoch_s: u64) -> bool {
+        // Pinned partitions or partitions with significant training utility are never stale
+        if self.is_pinned || self.training_utility > 0.4 || self.anomaly_score > 0.6 {
+            return false;
+        }
         if let Some(ttl) = self.ttl_seconds {
             current_epoch_s > self.created_at_epoch_s.saturating_add(ttl)
         } else {
             false
         }
     }
+
+    /// Computes the Composite Retention Priority score P.
+    /// Higher score = more valuable to retain for ongoing model training.
+    /// Lowest scores are selected first for pruning/eviction.
+    pub fn compute_retention_priority(&self, current_epoch_s: u64) -> f64 {
+        if self.is_pinned {
+            return f64::MAX;
+        }
+
+        let utility_weight = 0.45;
+        let anomaly_weight = 0.35;
+        let recency_weight = 0.15;
+        let saturation_penalty = 0.05;
+
+        // Recency factor decays logarithmically over time
+        let age_seconds = current_epoch_s.saturating_sub(self.last_accessed_epoch_s) as f64;
+        let recency_factor = 1.0 / (1.0 + (age_seconds / 86400.0).ln_1p());
+
+        // Saturation factor increases as the model sees this partition repeatedly without high error
+        let saturation = (self.training_epochs_seen as f64 / 20.0).min(1.0);
+
+        let priority = (utility_weight * self.training_utility.clamp(0.0, 1.0))
+            + (anomaly_weight * self.anomaly_score.clamp(0.0, 1.0))
+            + (recency_weight * recency_factor)
+            - (saturation_penalty * saturation);
+
+        priority.max(0.0)
+    }
 }
 
-/// Registry managing active dataset partitions, staleness detection, and LRU eviction tracking.
+/// Registry managing active dataset partitions, training utility, and value-aware eviction tracking.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LakeRegistry {
     partitions: HashMap<String, DatasetMetadata>,
@@ -78,19 +116,71 @@ impl LakeRegistry {
         }
     }
 
+    /// Updates training utility, anomaly score, and epoch count from ML telemetry feedback.
+    pub fn record_training_feedback(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+        utility: f64,
+        anomaly_score: Option<f64>,
+        epochs_increment: usize,
+    ) -> bool {
+        let key = Self::composite_key(dataset_id, partition_key);
+        if let Some(entry) = self.partitions.get_mut(&key) {
+            entry.training_utility = utility.clamp(0.0, 1.0);
+            if let Some(anomaly) = anomaly_score {
+                entry.anomaly_score = anomaly.clamp(0.0, 1.0);
+            }
+            entry.training_epochs_seen += epochs_increment;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Pins or unpins a partition to protect or unprotect it from eviction.
+    pub fn set_pinned(&mut self, dataset_id: &str, partition_key: &str, pinned: bool) -> bool {
+        let key = Self::composite_key(dataset_id, partition_key);
+        if let Some(entry) = self.partitions.get_mut(&key) {
+            entry.is_pinned = pinned;
+            true
+        } else {
+            false
+        }
+    }
+
     /// Unregisters and removes a partition, returning its metadata.
     pub fn unregister(&mut self, dataset_id: &str, partition_key: &str) -> Option<DatasetMetadata> {
         let key = Self::composite_key(dataset_id, partition_key);
         self.partitions.remove(&key)
     }
 
-    /// Returns a list of partitions that have exceeded their TTL.
+    /// Returns a list of partitions that have exceeded their TTL and have low training utility.
     pub fn get_stale_partitions(&self, current_epoch_s: u64) -> Vec<(String, String)> {
         self.partitions
             .values()
             .filter(|meta| meta.is_stale(current_epoch_s))
             .map(|meta| (meta.dataset_id.clone(), meta.partition_key.clone()))
             .collect()
+    }
+
+    /// Returns partitions sorted in ascending order of retention priority (lowest priority first).
+    /// Used for value-aware eviction when the data lake reaches capacity.
+    pub fn get_eviction_candidates_by_priority(&self, current_epoch_s: u64) -> Vec<DatasetMetadata> {
+        let mut list: Vec<DatasetMetadata> = self
+            .partitions
+            .values()
+            .filter(|meta| !meta.is_pinned) // Never evict pinned partitions
+            .cloned()
+            .collect();
+
+        list.sort_by(|a, b| {
+            let score_a = a.compute_retention_priority(current_epoch_s);
+            let score_b = b.compute_retention_priority(current_epoch_s);
+            score_a.partial_cmp(&score_b).unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        list
     }
 
     /// Returns all partitions sorted in ascending order of last accessed time (LRU order).
