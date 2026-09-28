@@ -123,6 +123,25 @@ impl WindowsDataLake {
             fs::create_dir_all(parent)?;
         }
 
+        self.store_parquet_with_options(dataset_id, partition_key, dataset, ttl_seconds, 0.0, false, current_epoch_s)
+    }
+
+    /// Stores a `TabularDataset` with explicit regime anomaly flags and crisis memory pinning.
+    pub fn store_parquet_with_options(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+        dataset: &TabularDataset,
+        ttl_seconds: Option<u64>,
+        anomaly_score: f64,
+        is_pinned: bool,
+        current_epoch_s: u64,
+    ) -> Result<DatasetMetadata, LakeError> {
+        let file_path = self.partition_path(dataset_id, partition_key);
+        if let Some(parent) = file_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
         // Serialize Parquet in memory first to compute SHA-256 and byte size
         let mut buffer = Vec::new();
         dataset.write_to_parquet(&mut buffer)?;
@@ -144,15 +163,50 @@ impl WindowsDataLake {
             created_at_epoch_s: current_epoch_s,
             last_accessed_epoch_s: current_epoch_s,
             ttl_seconds: ttl_seconds.or(self.config.default_ttl_seconds),
+            training_utility: 1.0, // Freshly ingested data starts with maximal training utility
+            anomaly_score: anomaly_score.clamp(0.0, 1.0),
+            training_epochs_seen: 0,
+            is_pinned,
         };
 
         self.registry.register(metadata.clone());
         self.persist_registry()?;
 
-        // Automatically enforce maximum storage capacity if exceeded
-        self.enforce_capacity()?;
+        // Automatically enforce maximum storage capacity if exceeded using value-aware priority
+        self.enforce_capacity(current_epoch_s)?;
 
         Ok(metadata)
+    }
+
+    /// Records training feedback (loss/reconstruction error and exposure count) from ML training loops.
+    pub fn record_training_feedback(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+        utility: f64,
+        anomaly_score: Option<f64>,
+        epochs_increment: usize,
+    ) -> Result<bool, LakeError> {
+        let updated = self.registry.record_training_feedback(
+            dataset_id,
+            partition_key,
+            utility,
+            anomaly_score,
+            epochs_increment,
+        );
+        if updated {
+            self.persist_registry()?;
+        }
+        Ok(updated)
+    }
+
+    /// Pins or unpins a partition to protect it from automated pruning (e.g. historical crisis memories).
+    pub fn set_pinned(&mut self, dataset_id: &str, partition_key: &str, pinned: bool) -> Result<bool, LakeError> {
+        let updated = self.registry.set_pinned(dataset_id, partition_key, pinned);
+        if updated {
+            self.persist_registry()?;
+        }
+        Ok(updated)
     }
 
     /// Loads a `TabularDataset` partition from disk and updates LRU telemetry.
@@ -218,8 +272,35 @@ impl WindowsDataLake {
         Ok(evicted_count)
     }
 
-    /// Evicts least-recently-used (LRU) partitions when the total storage exceeds `max_storage_bytes`.
-    pub fn enforce_capacity(&mut self) -> Result<usize, LakeError> {
+    /// Prunes partitions whose training utility has decayed below `threshold` and are not crisis memories.
+    pub fn prune_low_utility(&mut self, threshold: f64) -> Result<usize, LakeError> {
+        let mut evicted_count = 0;
+        let candidates: Vec<(String, String)> = self
+            .registry
+            .get_eviction_candidates_by_priority(0)
+            .into_iter()
+            .filter(|m| m.training_utility < threshold && !m.is_pinned && m.anomaly_score < 0.5)
+            .map(|m| (m.dataset_id, m.partition_key))
+            .collect();
+
+        for (dataset_id, partition_key) in candidates {
+            if let Some(removed) = self.registry.unregister(&dataset_id, &partition_key) {
+                if removed.file_path.exists() {
+                    let _ = fs::remove_file(&removed.file_path);
+                }
+                evicted_count += 1;
+            }
+        }
+
+        if evicted_count > 0 {
+            self.persist_registry()?;
+        }
+        Ok(evicted_count)
+    }
+
+    /// Evicts partitions when total storage exceeds `max_storage_bytes` using training retention priority.
+    /// Lowest-value partitions (low loss, zero crisis indicators, high epoch saturation) are pruned first.
+    pub fn enforce_capacity(&mut self, current_epoch_s: u64) -> Result<usize, LakeError> {
         let mut evicted_count = 0;
         let mut total = self.registry.total_bytes();
 
@@ -227,8 +308,8 @@ impl WindowsDataLake {
             return Ok(0);
         }
 
-        let lru_list = self.registry.get_lru_sorted();
-        for meta in lru_list {
+        let candidates = self.registry.get_eviction_candidates_by_priority(current_epoch_s);
+        for meta in candidates {
             if total <= self.config.max_storage_bytes {
                 break;
             }
