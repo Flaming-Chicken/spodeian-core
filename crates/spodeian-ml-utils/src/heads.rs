@@ -1,6 +1,6 @@
 //! Dynamic multi-horizon, monotonic non-crossing quantile, and continuous flow heads for Candle.
 
-use candle_core::{Device, Result as CandleResult, Tensor};
+use candle_core::{DType, Device, Result as CandleResult, Tensor};
 use candle_nn::{linear, Linear, Module, VarBuilder};
 
 /// Dynamic Multi-Horizon Forecast Head.
@@ -23,6 +23,17 @@ impl DynamicMultiHorizonHead {
             input_dim,
             projection,
         })
+    }
+
+    /// Create an initialized mock multi-horizon head with zero weights.
+    pub fn new_mock(input_dim: usize, horizons: &[usize], device: &Device) -> CandleResult<Self> {
+        let mut tensors = std::collections::HashMap::new();
+        let weight = Tensor::zeros((horizons.len(), input_dim), DType::F32, device)?;
+        let bias = Tensor::zeros(horizons.len(), DType::F32, device)?;
+        tensors.insert("multi_horizon.weight".to_string(), weight);
+        tensors.insert("multi_horizon.bias".to_string(), bias);
+        let vb = VarBuilder::from_tensors(tensors, DType::F32, device);
+        Self::new(vb, input_dim, horizons.to_vec())
     }
 
     /// Forward pass producing predictions for all horizons: shape $(B, K)$ where $K = \text{horizons.len()}$.
@@ -83,6 +94,31 @@ impl MonotonicQuantileHead {
             base_linear,
             delta_linears,
         })
+    }
+
+    /// Create an initialized mock monotonic quantile head with zero weights.
+    pub fn new_mock(input_dim: usize, quantiles: &[f32], device: &Device) -> CandleResult<Self> {
+        let mut tensors = std::collections::HashMap::new();
+        tensors.insert(
+            "quantile_base.weight".to_string(),
+            Tensor::zeros((1, input_dim), DType::F32, device)?,
+        );
+        tensors.insert(
+            "quantile_base.bias".to_string(),
+            Tensor::zeros(1, DType::F32, device)?,
+        );
+        for i in 1..quantiles.len() {
+            tensors.insert(
+                format!("quantile_delta_{i}.weight"),
+                Tensor::zeros((1, input_dim), DType::F32, device)?,
+            );
+            tensors.insert(
+                format!("quantile_delta_{i}.bias"),
+                Tensor::zeros(1, DType::F32, device)?,
+            );
+        }
+        let vb = VarBuilder::from_tensors(tensors, DType::F32, device);
+        Self::new(vb, input_dim, quantiles.to_vec())
     }
 
     /// Forward pass returning monotonic quantile predictions of shape $(B, M)$.
