@@ -1,9 +1,11 @@
 //! Automated Windows Data Lake with LRU staleness eviction, metadata tracking,
 //! and Apache Parquet streaming for the Spodeian AI ecosystem.
 
+pub mod citation;
 pub mod parquet_io;
 pub mod registry;
 
+pub use citation::{CitationDistiller, CitationFormat};
 use registry::{DatasetMetadata, LakeRegistry, RegistryError};
 pub use parquet_io::{ParquetError, TabularDataset};
 use sha2::{Digest, Sha256};
@@ -174,6 +176,9 @@ impl WindowsDataLake {
             created_at_epoch_s: current_epoch_s,
             last_accessed_epoch_s: current_epoch_s,
             ttl_seconds: ttl_seconds.or(self.config.default_ttl_seconds),
+            author: None,
+            doi_or_url: None,
+            license: None,
             training_utility: 1.0, // Freshly ingested data starts with maximal training utility
             anomaly_score: anomaly_score.clamp(0.0, 1.0),
             training_epochs_seen: 0,
@@ -241,6 +246,9 @@ impl WindowsDataLake {
                     created_at_epoch_s: current_epoch_s,
                     last_accessed_epoch_s: current_epoch_s,
                     ttl_seconds: ttl.or(default_ttl),
+                    author: None,
+                    doi_or_url: None,
+                    license: None,
                     training_utility: 1.0,
                     anomaly_score: anomaly.clamp(0.0, 1.0),
                     training_epochs_seen: 0,

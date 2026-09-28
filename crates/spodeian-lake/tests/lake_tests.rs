@@ -262,3 +262,59 @@ fn test_load_partitions_range_streaming() {
 
     let _ = std::fs::remove_dir_all(&temp_dir);
 }
+
+#[test]
+fn test_citation_distillation_formats() {
+    use spodeian_lake::{CitationDistiller, CitationFormat};
+    use spodeian_lake::registry::DatasetMetadata;
+    use std::path::PathBuf;
+
+    let mut meta = DatasetMetadata {
+        dataset_id: "asx_order_book".to_string(),
+        partition_key: "2026_09_28".to_string(),
+        file_path: PathBuf::from("data/asx.parquet"),
+        record_count: 50000,
+        byte_size: 1048576,
+        sha256_checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string(),
+        created_at_epoch_s: 1780000000,
+        last_accessed_epoch_s: 1780000000,
+        ttl_seconds: Some(86400),
+        author: Some("Australian Financial Markets Research Lab".to_string()),
+        doi_or_url: Some("https://doi.org/10.1000/182".to_string()),
+        license: Some("CC-BY-4.0".to_string()),
+        training_utility: 0.85,
+        anomaly_score: 0.12,
+        training_epochs_seen: 4,
+        is_pinned: false,
+    };
+
+    // 1. BibTeX
+    let bibtex = CitationDistiller::distill(&meta, CitationFormat::BibTeX);
+    assert!(bibtex.contains("@misc{asx_order_book_2026_09_28,"));
+    assert!(bibtex.contains("author = {Australian Financial Markets Research Lab}"));
+    assert!(bibtex.contains("license = {CC-BY-4.0}"));
+    assert!(bibtex.contains("SHA256: e3b0c442"));
+
+    // 2. CFF
+    let cff = CitationDistiller::distill(&meta, CitationFormat::Cff);
+    assert!(cff.contains("title: \"Dataset: asx_order_book - Partition: 2026_09_28\""));
+    assert!(cff.contains("license: \"CC-BY-4.0\""));
+    assert!(cff.contains("sha256:e3b0c442"));
+
+    // 3. APA
+    let apa = CitationDistiller::distill(&meta, CitationFormat::Apa);
+    assert!(apa.contains("Australian Financial Markets Research Lab"));
+    assert!(apa.contains("asx_order_book: 2026_09_28 [Data set]"));
+    assert!(apa.contains("https://doi.org/10.1000/182"));
+
+    // 4. JSON-LD
+    let json_ld = CitationDistiller::distill(&meta, CitationFormat::JsonLd);
+    assert!(json_ld.contains("\"@type\": \"Dataset\""));
+    assert!(json_ld.contains("application/vnd.apache.parquet"));
+
+    // Manifest distillation
+    meta.partition_key = "2026_09_29".to_string();
+    let manifest_cff = CitationDistiller::distill_manifest(&[meta.clone()], CitationFormat::Cff);
+    assert!(manifest_cff.contains("cff-version: 1.2.0"));
+    assert!(manifest_cff.contains("references:"));
+}
