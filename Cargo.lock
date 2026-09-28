@@ -2175,6 +2175,7 @@ dependencies = [
  "serde_json",
  "spodeian-export",
  "spodeian-lake",
+ "spodeian-ml-utils",
  "thiserror 2.0.21",
 ]
 
