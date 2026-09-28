@@ -180,11 +180,18 @@ def test_quantile_head_and_loss():
     latent = torch.randn(16, 64)
     targets = torch.randn(16, 1)
 
-    head = QuantileHead(in_features=64, quantiles=[0.05, 0.50, 0.95])
+    # Dynamic arbitrary quantiles
+    quantiles = [0.01, 0.05, 0.25, 0.50, 0.75, 0.95, 0.99]
+    head = QuantileHead(in_features=64, quantiles=quantiles, enforce_monotonic=True)
     loss, preds = head.compute_loss(latent, targets)
 
-    assert preds.shape == (16, 3)
+    assert preds.shape == (16, 7)
     assert loss.item() >= 0.0, "Pinball loss must be non-negative"
+
+    # Verify Monotonic Non-Crossing: q_i <= q_{i+1} for all batch samples and quantiles
+    for i in range(len(quantiles) - 1):
+        diff = preds[:, i + 1] - preds[:, i]
+        assert torch.all(diff >= -1e-6), f"Quantile crossing detected between quantile {i} and {i+1}!"
 
 
 def test_attention_pooling_head():
@@ -204,21 +211,28 @@ def test_attention_pooling_head():
 
 def test_multi_horizon_head():
     latent = torch.randn(16, 64)
-    targets = {
-        "h1": torch.randn(16, 1),
-        "h5": torch.randn(16, 1),
-        "h21": torch.randn(16, 1),
-    }
 
-    head = MultiHorizonHead(in_features=64, horizons=["h1", "h5", "h21"])
+    # Test dynamic arbitrary days setup: 1, 2, 5, 10, 21, 63, 252 (annual)
+    horizon_days = [1, 2, 5, 10, 21, 63, 252]
+    head = MultiHorizonHead(in_features=64, horizons=horizon_days)
+
+    assert head.horizon_keys == ["h1", "h2", "h5", "h10", "h21", "h63", "h252"]
+    assert head.num_horizons == 7
+
+    # 1. Forward dict
     preds = head(latent)
+    assert set(preds.keys()) == set(head.horizon_keys)
+    assert preds["h252"].shape == (16, 1)
 
-    assert set(preds.keys()) == {"h1", "h5", "h21"}
-    assert preds["h1"].shape == (16, 1)
+    # 2. Forward continuous matrix
+    matrix_preds = head.forward_matrix(latent)
+    assert matrix_preds.shape == (16, 7)
 
-    loss, task_losses = head.compute_loss(preds, targets)
+    # 3. Compute loss with matrix targets
+    matrix_targets = torch.randn(16, 7)
+    loss, task_losses = head.compute_loss(matrix_preds, matrix_targets)
     assert loss.item() is not None
-    assert len(task_losses) == 3
+    assert len(task_losses) == 7
 
 
 def test_flow_velocity_head():
@@ -262,22 +276,43 @@ def test_vicreg_loss():
     assert cov.item() >= 0.0
 
 
-def test_safetensors_float16_export():
+def test_comprehensive_quantization_formats():
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        fp16_file = tmp_path / "model_fp16.safetensors"
-
         mae = MaskedAutoencoder(input_dim=8, hidden_dim=16, latent_dim=8, num_layers=1)
-        export_encoder_to_safetensors(
-            model=mae,
-            output_path=fp16_file,
-            prefix_filter="encoder",
-            dtype="float16",
-        )
 
-        assert fp16_file.exists()
-        with safe_open(str(fp16_file), framework="pt", device="cpu") as f:
-            for key in f.keys():
-                tensor = f.get_tensor(key)
-                assert tensor.dtype == torch.float16, f"Expected float16 tensor, got {tensor.dtype} for {key}"
+        # Test formats: float32, float16, bfloat16, int8, posit16, posit8
+        precisions = ["float32", "float16", "bfloat16", "int8", "posit16", "posit8"]
+
+        for prec in precisions:
+            file_path = tmp_path / f"model_{prec}.safetensors"
+            manifest_path = tmp_path / f"manifest_{prec}.json"
+
+            export_encoder_to_safetensors(
+                model=mae,
+                output_path=file_path,
+                prefix_filter="encoder",
+                manifest_path=manifest_path,
+                precision=prec,
+            )
+
+            assert file_path.exists(), f"Safetensors file missing for {prec}"
+            assert manifest_path.exists(), f"Manifest missing for {prec}"
+
+            with safe_open(str(file_path), framework="pt", device="cpu") as f:
+                tensor_keys = list(f.keys())
+                assert len(tensor_keys) > 0
+
+                if prec == "bfloat16":
+                    assert f.get_tensor(tensor_keys[0]).dtype == torch.bfloat16
+                elif prec == "float16":
+                    assert f.get_tensor(tensor_keys[0]).dtype == torch.float16
+                elif prec == "int8":
+                    assert f.get_tensor("encoder.0.weight").dtype == torch.int8
+                    # Scale factor must be present for Candle dequantization
+                    assert "encoder.0.weight__scale" in tensor_keys
+                elif prec in ("posit16", "posit8"):
+                    # Posits emulate tapered precision in float32 container
+                    assert f.get_tensor(tensor_keys[0]).dtype == torch.float32
+
 
