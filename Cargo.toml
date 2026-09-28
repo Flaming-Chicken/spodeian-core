@@ -45,6 +45,7 @@ sha2 = "0.10"
 base64 = "0.22"
 bson = "2"
 miniz_oxide = "0.8"
+rayon = "1.10"
 
 # Columnar Parquet & Arrow
 parquet = { version = "53", default-features = false, features = ["arrow", "flate2"] }

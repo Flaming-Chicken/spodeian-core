@@ -17,6 +17,7 @@ parquet = { workspace = true }
 arrow-schema = { workspace = true }
 arrow-array = { workspace = true }
 bytes = { workspace = true }
+rayon = { workspace = true }
 
 [lints]
 workspace = true

@@ -2145,6 +2145,7 @@ dependencies = [
  "arrow-schema",
  "bytes",
  "parquet",
+ "rayon",
  "serde",
  "serde_json",
  "sha2",
