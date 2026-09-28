@@ -1,0 +1,29 @@
+[project]
+name = "spodeian-ml"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Liam", email = "6039896+Spodeian@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "numpy>=2.5.3",
+    "pyarrow>=25.0.1",
+    "pyyaml>=6.0.3",
+    "safetensors>=0.8.0",
+    "torch>=2.14.0",
+    "torchaudio>=2.11.0",
+]
+
+[project.scripts]
+spodeian-ml = "spodeian_ml:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
