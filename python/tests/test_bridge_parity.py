@@ -77,3 +77,22 @@ def test_spodeian_lake_dataset_loading():
         assert item0.shape == (2,)
         assert abs(item0[0].item() - 42.50) < 1e-5
         assert abs(item0[1].item() - 125000.0) < 1e-3
+
+
+def test_quantization_sqnr_benchmark():
+    from spodeian_ml.bridge.quantization import benchmark_quantization_sqnr
+    weights = torch.randn(64, 64)
+    results = benchmark_quantization_sqnr(weights)
+
+    assert "float16" in results
+    assert "bfloat16" in results
+    assert "int8" in results
+    assert "posit16" in results
+    assert "ternary" in results
+
+    # High precision formats should have high SQNR
+    assert results["float16"]["sqnr_db"] > 20.0
+    assert results["posit16"]["sqnr_db"] > 20.0
+    # Balanced ternary has high compression ratio
+    assert results["ternary"]["compression_ratio"] > 15.0
+    assert 0.5 < results["ternary"]["cosine_similarity"] <= 1.0

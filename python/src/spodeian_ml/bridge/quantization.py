@@ -180,3 +180,53 @@ def quantize_weights(
         return t_tensor, meta
     else:
         raise ValueError(f"Unsupported quantization precision: '{precision}'. Supported: float32, float16, bfloat16, int8, posit16, posit8, ternary")
+
+
+def benchmark_quantization_sqnr(
+    tensor: torch.Tensor,
+    precisions: Tuple[str, ...] = ("float16", "bfloat16", "int8", "posit16", "posit8", "ternary"),
+) -> Dict[str, Any]:
+    """
+    Benchmarks Signal-to-Quantization-Noise Ratio (SQNR) and distortion across multiple numerical precisions.
+    Returns structured metrics including SQNR (dB), Cosine Similarity, MAE, RMSE, and Compression Ratio.
+    """
+    flat_orig = tensor.detach().flatten().to(torch.float64)
+    norm_orig = torch.linalg.norm(flat_orig).item()
+    results = {}
+
+    for prec in precisions:
+        q_tensor, meta = quantize_weights(tensor, precision=prec)
+        # Dequantize to float for fidelity metrics
+        if prec.lower() in ("int8", "qint8"):
+            dequant = q_tensor.float() * meta.get("scale", 1.0)
+        elif prec.lower() in ("ternary", "1.58b", "bitnet"):
+            dequant = q_tensor.float() * meta.get("scale", 1.0)
+        else:
+            dequant = q_tensor.float()
+
+        flat_dequant = dequant.flatten().to(torch.float64)
+        norm_dequant = torch.linalg.norm(flat_dequant).item()
+
+        # Cosine similarity
+        if norm_orig > 1e-12 and norm_dequant > 1e-12:
+            cos_sim = torch.dot(flat_orig, flat_dequant).item() / (norm_orig * norm_dequant)
+        else:
+            cos_sim = 1.0
+
+        # MAE and RMSE
+        diff = flat_orig - flat_dequant
+        mae = torch.mean(torch.abs(diff)).item()
+        rmse = torch.sqrt(torch.mean(diff ** 2)).item()
+        sqnr = compute_sqnr(tensor, dequant)
+
+        results[prec] = {
+            "format": meta.get("format", prec),
+            "bits": meta.get("bits", meta.get("total_bits", 32)),
+            "compression_ratio": meta.get("compression_ratio", 1.0),
+            "sqnr_db": round(sqnr, 2),
+            "cosine_similarity": round(cos_sim, 6),
+            "mae": float(mae),
+            "rmse": float(rmse),
+        }
+
+    return results
