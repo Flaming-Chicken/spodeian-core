@@ -9,6 +9,7 @@ members = [
     "crates/spodeian-ui",
     "crates/spodeian-lake",
     "crates/spodeian-py-bridge",
+    "crates/spodeian-ml-utils",
 ]
 
 [workspace.package]
@@ -28,6 +29,12 @@ spodeian-export = { path = "crates/spodeian-export" }
 spodeian-web-utils = { path = "crates/spodeian-web-utils" }
 spodeian-ui = { path = "crates/spodeian-ui" }
 spodeian-lake = { path = "crates/spodeian-lake" }
+spodeian-ml-utils = { path = "crates/spodeian-ml-utils" }
+
+# Machine Learning & Tensors
+candle-core = "0.11"
+candle-nn = "0.11"
+safetensors = "0.5"
 
 # Serialization & Cryptography
 serde = { version = "1.0", features = ["derive"] }
