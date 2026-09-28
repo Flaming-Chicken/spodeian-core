@@ -128,13 +128,38 @@ def quantize_posit(tensor: torch.Tensor, total_bits: int = 16, es: int = 1) -> T
     return posit_tensor, meta
 
 
+def quantize_ternary_1_58b(tensor: torch.Tensor) -> Tuple[torch.Tensor, float, Dict[str, Any]]:
+    """
+    Quantizes to balanced ternary (1.58-bit: -1, 0, 1) following the BitNet 1.58b specification.
+    scale = mean(|tensor|)
+    quantized = clamp(round(tensor / scale), -1, 1)
+    """
+    scale = torch.mean(torch.abs(tensor)).item()
+    if scale < 1e-8:
+        scale = 1e-8
+
+    ternary_tensor = torch.clamp(torch.round(tensor / scale), -1, 1).to(torch.int8)
+
+    dequantized = ternary_tensor.float() * scale
+    sqnr = compute_sqnr(tensor, dequantized)
+
+    meta = {
+        "format": "ternary_1.58b",
+        "bits": 1.58,
+        "scale": scale,
+        "compression_ratio": 32.0 / 1.58,
+        "sqnr_db": round(sqnr, 2),
+    }
+    return ternary_tensor, scale, meta
+
+
 def quantize_weights(
     tensor: torch.Tensor,
     precision: str = "float32",
 ) -> Tuple[torch.Tensor, Dict[str, Any]]:
     """
     Universal precision dispatcher.
-    Supported precisions: "float32", "float16", "bfloat16", "int8", "posit16", "posit8".
+    Supported precisions: "float32", "float16", "bfloat16", "int8", "posit16", "posit8", "ternary".
     """
     p = precision.lower().strip()
     if p in ("float32", "fp32"):
@@ -150,5 +175,8 @@ def quantize_weights(
         return quantize_posit(tensor, total_bits=16, es=1)
     elif p in ("posit8", "posit_8"):
         return quantize_posit(tensor, total_bits=8, es=0)
+    elif p in ("ternary", "1.58b", "bitnet"):
+        t_tensor, scale, meta = quantize_ternary_1_58b(tensor)
+        return t_tensor, meta
     else:
-        raise ValueError(f"Unsupported quantization precision: '{precision}'. Supported: float32, float16, bfloat16, int8, posit16, posit8")
+        raise ValueError(f"Unsupported quantization precision: '{precision}'. Supported: float32, float16, bfloat16, int8, posit16, posit8, ternary")
