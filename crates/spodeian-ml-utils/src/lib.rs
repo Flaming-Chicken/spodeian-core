@@ -7,8 +7,11 @@ pub mod adaptation;
 pub mod factors;
 pub mod heads;
 pub mod loader;
+pub mod logarithmic;
 
 pub use adaptation::*;
 pub use factors::*;
 pub use heads::*;
 pub use loader::*;
+pub use logarithmic::*;
+
