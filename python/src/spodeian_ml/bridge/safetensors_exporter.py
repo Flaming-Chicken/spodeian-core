@@ -42,10 +42,13 @@ def export_encoder_to_safetensors(
 
         exported_tensors[key] = q_tensor
 
-        # For INT8 quantization, export the scale factor alongside the weights
-        if meta.get("format") == "int8_symmetric" and "scale" in meta:
-            scale_tensor = torch.tensor([meta["scale"]], dtype=torch.float32)
-            exported_tensors[f"{key}__scale"] = scale_tensor
+        # For scaled quantization formats, export the scale factor alongside the weights
+        if "scale" in meta:
+            scale_val = meta["scale"]
+            if isinstance(scale_val, torch.Tensor):
+                exported_tensors[f"{key}__scale"] = scale_val.float()
+            else:
+                exported_tensors[f"{key}__scale"] = torch.tensor([scale_val], dtype=torch.float32)
 
         manifest_entries[key] = {
             "shape": list(cpu_tensor.shape),

@@ -30,6 +30,29 @@ class SSLConfig:
 
 
 @dataclass
+class GrokkingConfig:
+    enabled: bool = False
+    grokking_patience: int = 10000  # Epochs to wait AFTER training loss hits ~0 before giving up
+    l2_regularization: float = 1e-2 # High weight decay is often essential for grokking
+    track_weight_norms: bool = True
+    track_representation_sparsity: bool = True
+    # Capacity Pruning (The Lottery Ticket Approach)
+    capacity_pruning: bool = False
+    prune_threshold: float = 1e-3
+    prune_rate: float = 0.05
+    max_sparsity: float = 0.70
+    prune_interval_epochs: int = 5
+    # Dynamic Sample Dropping (Curriculum Eviction)
+    dynamic_sample_dropping: bool = False
+    drop_loss_threshold: float = 1e-4
+    # The Slingshot Mechanism
+    slingshot_enabled: bool = False
+    slingshot_interval: int = 25
+    slingshot_factor: float = 4.0
+    # Activation Sparsity Penalty (L1 on latent activations)
+    activation_sparsity_penalty: float = 0.0
+
+@dataclass
 class TrainingConfig:
     batch_size: int = 64
     learning_rate: float = 1e-3
@@ -37,6 +60,7 @@ class TrainingConfig:
     max_epochs: int = 50
     grad_clip_norm: float = 1.0
     warmup_epochs: int = 5
+    grokking: GrokkingConfig = field(default_factory=GrokkingConfig)
 
 
 @dataclass
@@ -71,7 +95,15 @@ class ExperimentConfig:
 
         model_cfg = ModelConfig(**raw.get("model", {}))
         ssl_cfg = SSLConfig(**raw.get("ssl", {}))
-        train_cfg = TrainingConfig(**raw.get("training", {}))
+        train_raw = raw.get("training", {})
+        grokking_raw = train_raw.pop("grokking", {})
+        if isinstance(grokking_raw, dict):
+            grokking_cfg = GrokkingConfig(**grokking_raw)
+        elif isinstance(grokking_raw, GrokkingConfig):
+            grokking_cfg = grokking_raw
+        else:
+            grokking_cfg = GrokkingConfig()
+        train_cfg = TrainingConfig(**train_raw, grokking=grokking_cfg)
         chkpt_cfg = CheckpointConfig(**raw.get("checkpoint", {}))
         data_cfg = DataLakeConfig(**raw.get("data", {}))
 

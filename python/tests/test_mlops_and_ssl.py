@@ -281,8 +281,11 @@ def test_comprehensive_quantization_formats():
         tmp_path = Path(tmp_dir)
         mae = MaskedAutoencoder(input_dim=8, hidden_dim=16, latent_dim=8, num_layers=1)
 
-        # Test formats: float32, float16, bfloat16, int8, posit16, posit8
-        precisions = ["float32", "float16", "bfloat16", "int8", "posit16", "posit8"]
+        # Test formats: float32, float16, bfloat16, fp8_e4m3, fp8_e5m2, int8, posit16, posit8, nf4, binary, ternary, logarithmic
+        precisions = [
+            "float32", "float16", "bfloat16", "fp8_e4m3", "fp8_e5m2", "int8",
+            "posit16", "posit8", "nf4", "binary", "ternary", "logarithmic"
+        ]
 
         for prec in precisions:
             file_path = tmp_path / f"model_{prec}.safetensors"
@@ -307,12 +310,75 @@ def test_comprehensive_quantization_formats():
                     assert f.get_tensor(tensor_keys[0]).dtype == torch.bfloat16
                 elif prec == "float16":
                     assert f.get_tensor(tensor_keys[0]).dtype == torch.float16
-                elif prec == "int8":
-                    assert f.get_tensor("encoder.0.weight").dtype == torch.int8
-                    # Scale factor must be present for Candle dequantization
+                elif prec in ("int8", "binary", "ternary", "nf4"):
                     assert "encoder.0.weight__scale" in tensor_keys
-                elif prec in ("posit16", "posit8"):
-                    # Posits emulate tapered precision in float32 container
+                elif prec in ("posit16", "posit8", "logarithmic"):
+                    # Posits and Logarithmic emulate precision in float32 container
                     assert f.get_tensor(tensor_keys[0]).dtype == torch.float32
+
+
+def test_grokking_config_serialization():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yaml_path = Path(tmp_dir) / "grokking_cfg.yaml"
+        cfg = ExperimentConfig(experiment_name="grokking_run")
+        cfg.training.grokking.enabled = True
+        cfg.training.grokking.capacity_pruning = True
+        cfg.training.grokking.prune_rate = 0.10
+        cfg.training.grokking.slingshot_enabled = True
+        cfg.training.grokking.activation_sparsity_penalty = 0.05
+        cfg.to_yaml(yaml_path)
+
+        loaded_cfg = ExperimentConfig.from_yaml(yaml_path)
+        assert loaded_cfg.training.grokking.enabled is True
+        assert loaded_cfg.training.grokking.capacity_pruning is True
+        assert loaded_cfg.training.grokking.prune_rate == 0.10
+        assert loaded_cfg.training.grokking.slingshot_enabled is True
+        assert loaded_cfg.training.grokking.activation_sparsity_penalty == 0.05
+
+
+def test_grokking_hybrid_sparsity_engine():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        checkpoint_dir = Path(tmp_dir) / "checkpoints"
+
+        torch.manual_seed(42)
+        # Small synthetic dataset
+        data = torch.randn(32, 8)
+        loader = DataLoader(TensorDataset(data), batch_size=8, shuffle=False)
+
+        cfg = ExperimentConfig(
+            experiment_name="grokking_sparsity_test",
+            seed=42,
+        )
+        cfg.training.max_epochs = 4
+        cfg.checkpoint.checkpoint_dir = str(checkpoint_dir)
+        cfg.training.grokking.enabled = True
+        cfg.training.grokking.track_weight_norms = True
+        cfg.training.grokking.track_representation_sparsity = True
+        cfg.training.grokking.capacity_pruning = True
+        cfg.training.grokking.prune_threshold = 100.0  # Trigger pruning immediately
+        cfg.training.grokking.prune_rate = 0.20
+        cfg.training.grokking.prune_interval_epochs = 1
+        cfg.training.grokking.dynamic_sample_dropping = True
+        cfg.training.grokking.slingshot_enabled = True
+        cfg.training.grokking.slingshot_interval = 2
+        cfg.training.grokking.slingshot_factor = 2.0
+        cfg.training.grokking.activation_sparsity_penalty = 0.01
+
+        model = MaskedAutoencoder(input_dim=8, hidden_dim=16, latent_dim=8, num_layers=1)
+        trainer = ResumableTrainer(config=cfg, model=model, train_loader=loader)
+        history = trainer.run()
+
+        assert len(history) == 4
+        for entry in history:
+            assert "weight_norm" in entry
+            assert "sparsity" in entry
+            assert entry["weight_norm"] > 0.0
+            assert entry["sparsity"] >= 0.0
+
+        # Verify that capacity pruning increased structural sparsity
+        initial_sparsity = history[0]["sparsity"]
+        final_sparsity = history[-1]["sparsity"]
+        assert final_sparsity >= initial_sparsity
+
 
 

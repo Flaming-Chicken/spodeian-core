@@ -84,15 +84,51 @@ def test_quantization_sqnr_benchmark():
     weights = torch.randn(64, 64)
     results = benchmark_quantization_sqnr(weights)
 
+    # Core IEEE & Posit formats
     assert "float16" in results
     assert "bfloat16" in results
+    assert "fp8_e4m3" in results
+    assert "fp8_e5m2" in results
     assert "int8" in results
     assert "posit16" in results
+    assert "posit8" in results
+
+    # Modern 4-bit, 1-bit, and non-linear formats
+    assert "nf4" in results
+    assert "int4" in results
+    assert "binary" in results
     assert "ternary" in results
+    assert "logarithmic" in results
 
     # High precision formats should have high SQNR
     assert results["float16"]["sqnr_db"] > 20.0
     assert results["posit16"]["sqnr_db"] > 20.0
+    assert results["fp8_e4m3"]["sqnr_db"] > 15.0
+    assert results["nf4"]["compression_ratio"] == 8.0
+    assert results["int4"]["compression_ratio"] == 8.0
+    assert results["binary"]["compression_ratio"] == 32.0
+    assert results["logarithmic"]["bits"] == 5
+
     # Balanced ternary has high compression ratio
     assert results["ternary"]["compression_ratio"] > 15.0
     assert 0.5 < results["ternary"]["cosine_similarity"] <= 1.0
+
+
+def test_kv_cache_quantization():
+    from spodeian_ml.bridge.quantization import quantize_kv_cache
+    # (Batch=2, Heads=4, SeqLen=32, Dim=64)
+    key = torch.randn(2, 4, 32, 64)
+    value = torch.randn(2, 4, 32, 64)
+
+    (q_k, scale_k), (q_v, scale_v), meta_int8 = quantize_kv_cache(key, value, precision="int8")
+    assert q_k.shape == key.shape
+    assert q_v.shape == value.shape
+    assert scale_k > 0.0
+    assert scale_v > 0.0
+    assert meta_int8["compression_ratio"] == 4.0
+
+    (q_k_fp8, scale_k_fp8), (q_v_fp8, scale_v_fp8), meta_fp8 = quantize_kv_cache(key, value, precision="fp8")
+    assert q_k_fp8.shape == key.shape
+    assert q_v_fp8.shape == value.shape
+    assert meta_fp8["compression_ratio"] == 4.0
+

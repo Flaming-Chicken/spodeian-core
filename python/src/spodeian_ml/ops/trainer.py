@@ -83,12 +83,30 @@ class ResumableTrainer:
             self.optimizer.zero_grad()
 
             # Handle SSL models vs Supervised models
+            latent = None
             if hasattr(self.model, "compute_ssl_loss"):
                 seed = self.config.seed + self.global_step
-                loss, _ = self.model.compute_ssl_loss(x, seed=seed)
+                loss, latent = self.model.compute_ssl_loss(x, seed=seed)
             else:
                 out = self.model(x)
-                loss = nn.functional.mse_loss(out, x)
+                grokking_cfg = self.config.training.grokking
+                if grokking_cfg.enabled and grokking_cfg.dynamic_sample_dropping and x.dim() >= 2:
+                    sample_losses = nn.functional.mse_loss(out, x, reduction="none").mean(
+                        dim=list(range(1, out.dim()))
+                    )
+                    hard_mask = sample_losses > grokking_cfg.drop_loss_threshold
+                    if hard_mask.sum() > 0:
+                        loss = sample_losses[hard_mask].mean()
+                    else:
+                        loss = sample_losses.mean()
+                else:
+                    loss = nn.functional.mse_loss(out, x)
+                latent = out
+
+            # Activation Sparsity Regularization (L1 penalty on activations/representations)
+            if self.config.training.grokking.enabled and self.config.training.grokking.activation_sparsity_penalty > 0.0:
+                if latent is not None:
+                    loss = loss + self.config.training.grokking.activation_sparsity_penalty * latent.abs().mean()
 
             loss.backward()
 
@@ -131,15 +149,116 @@ class ResumableTrainer:
 
         return total_loss / max(1, num_batches)
 
+    def _compute_weight_norm(self) -> float:
+        total_norm = 0.0
+        for p in self.model.parameters():
+            if p.requires_grad:
+                total_norm += p.norm(2).item() ** 2
+        return total_norm ** 0.5
+
+    def _compute_parameter_sparsity(self) -> float:
+        """Computes fraction of structural zero parameters across active weights."""
+        total_params = 0
+        zero_params = 0
+        for name, p in self.model.named_parameters():
+            if p.requires_grad and ("weight" in name):
+                total_params += p.numel()
+                zero_params += (p == 0).sum().item()
+        return zero_params / max(1, total_params)
+
+    def _apply_capacity_pruning(self, prune_rate: float, max_sparsity: float) -> float:
+        """Prunes smallest magnitude weights (L1 pruning) across linear/conv weights up to max_sparsity."""
+        current_sparsity = self._compute_parameter_sparsity()
+        if current_sparsity >= max_sparsity:
+            return current_sparsity
+
+        all_active_weights = []
+        for name, p in self.model.named_parameters():
+            if p.requires_grad and ("weight" in name) and p.dim() >= 2:
+                active = p.data[p.data != 0].abs()
+                if active.numel() > 0:
+                    all_active_weights.append(active)
+
+        if not all_active_weights:
+            return current_sparsity
+
+        concat_weights = torch.cat(all_active_weights)
+        k = max(1, int(concat_weights.numel() * prune_rate))
+        if k >= concat_weights.numel():
+            return current_sparsity
+
+        threshold, _ = torch.kthvalue(concat_weights, k)
+        with torch.no_grad():
+            for name, p in self.model.named_parameters():
+                if p.requires_grad and ("weight" in name) and p.dim() >= 2:
+                    mask = p.abs() > threshold
+                    p.data.mul_(mask.to(p.dtype))
+
+        return self._compute_parameter_sparsity()
+
+    def _apply_slingshot_kick(self, factor: float) -> None:
+        """Executes cyclic LR kick and resets AdamW momentum to dislodge weights from memorization basin."""
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] *= factor
+        # Reset optimizer momentum states
+        for p in self.model.parameters():
+            state = self.optimizer.state.get(p)
+            if state:
+                if 'exp_avg' in state:
+                    state['exp_avg'].zero_()
+                if 'exp_avg_sq' in state:
+                    state['exp_avg_sq'].zero_()
+
     def run(self) -> List[Dict[str, float]]:
         checkpoint_dir = Path(self.config.checkpoint.checkpoint_dir)
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-        for epoch in range(self.start_epoch, self.config.training.max_epochs):
+        overfit_patience_counter = 0
+        grokking_cfg = self.config.training.grokking
+        grokking_mode = grokking_cfg.enabled
+        max_epochs = self.config.training.max_epochs
+
+        # In grokking mode, apply grokking weight decay override
+        if grokking_mode:
+            for param_group in self.optimizer.param_groups:
+                param_group['weight_decay'] = grokking_cfg.l2_regularization
+
+        for epoch in range(self.start_epoch, max_epochs):
             train_loss = self.train_epoch(epoch)
             val_loss = self.evaluate() if self.val_loader else train_loss
+            
+            history_entry = {"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss}
+            
+            if grokking_mode and grokking_cfg.track_weight_norms:
+                history_entry["weight_norm"] = self._compute_weight_norm()
+            if grokking_mode and grokking_cfg.track_representation_sparsity:
+                history_entry["sparsity"] = self._compute_parameter_sparsity()
 
-            self.history.append({"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss})
+            self.history.append(history_entry)
+
+            # Grokking tracking & hybrid sparsity mechanics
+            if grokking_mode:
+                if train_loss < grokking_cfg.prune_threshold:
+                    overfit_patience_counter += 1
+
+                    # Dynamic Capacity Pruning (The Lottery Ticket Approach)
+                    if grokking_cfg.capacity_pruning and (epoch % grokking_cfg.prune_interval_epochs == 0):
+                        new_sparsity = self._apply_capacity_pruning(
+                            prune_rate=grokking_cfg.prune_rate,
+                            max_sparsity=grokking_cfg.max_sparsity,
+                        )
+                        history_entry["pruned_sparsity"] = new_sparsity
+
+                    # The Slingshot Mechanism
+                    if grokking_cfg.slingshot_enabled and (overfit_patience_counter % grokking_cfg.slingshot_interval == 0):
+                        self._apply_slingshot_kick(grokking_cfg.slingshot_factor)
+                        history_entry["slingshot_applied"] = 1.0
+
+                    if overfit_patience_counter > grokking_cfg.grokking_patience:
+                        print(f"Stopping: Grokking patience exceeded at epoch {epoch}")
+                        break
+                else:
+                    overfit_patience_counter = 0
 
             # Save best checkpoint
             if val_loss < self.best_loss:
