@@ -3,8 +3,8 @@
 use candle_core::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
 use spodeian_ml_utils::{
-    DualSpeedAdaptationManager, DynamicMultiHorizonHead, LoadedModelWeights, MonotonicQuantileHead,
-    OnlineRlsHead, SharpnessAwareMinimizer, VelocityFlowHead,
+    ContinuousHorizonHead, DualSpeedAdaptationManager, DynamicMultiHorizonHead, LoadedModelWeights,
+    MonotonicQuantileHead, OnlineRlsHead, SharpnessAwareMinimizer, VelocityFlowHead,
 };
 use std::collections::HashMap;
 
@@ -243,3 +243,34 @@ fn test_loaded_model_weights_and_dequantization() {
     assert!((vals[0] - 0.5).abs() < 1e-4);
     assert!((vals[2] - 1.5).abs() < 1e-4);
 }
+
+#[test]
+fn test_continuous_horizon_head() {
+    let device = Device::Cpu;
+    let input_dim = 8;
+    let num_freqs = 4;
+    let hidden_dim = 16;
+
+    let head = ContinuousHorizonHead::new_mock(input_dim, num_freqs, hidden_dim, &device).unwrap();
+
+    let features = vec![0.5f32; input_dim];
+
+    // Predict across continuous horizons: 0.25d (intraday), 1.5d, 7.0d, 21.3d, 252.0d
+    let horizons = [0.25f32, 1.5, 7.0, 21.3, 252.0];
+    let results = head.predict_continuous_horizons(&features, &horizons, &device).unwrap();
+
+    assert_eq!(results.len(), 5);
+    for (i, &(t, val)) in results.iter().enumerate() {
+        assert_eq!(t, horizons[i]);
+        assert!(val.is_finite());
+    }
+
+    // Verify time embedding is deterministic and continuous
+    let emb1 = head.time_embedding(1.5);
+    let emb2 = head.time_embedding(1.5001);
+    assert_eq!(emb1.len(), num_freqs * 2);
+    for j in 0..emb1.len() {
+        assert!((emb1[j] - emb2[j]).abs() < 1e-3);
+    }
+}
+
