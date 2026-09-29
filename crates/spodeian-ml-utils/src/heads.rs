@@ -223,3 +223,113 @@ impl VelocityFlowHead {
         flat.to_vec1::<f32>()
     }
 }
+
+/// Continuous-Time Horizon Forecast Head.
+///
+/// Predicts expected returns or signals for ANY continuous future horizon $t \in \mathbb{R}^+$
+/// (e.g. $t = 0.5$ intraday, $t = 2.5$ days, $t = 21.0$ days, $t = 252.0$ days) using continuous
+/// logarithmic-Fourier temporal basis projections:
+/// $$\Phi_k(t) = [\sin(\omega_k \ln(1 + t)), \cos(\omega_k \ln(1 + t))]$$
+pub struct ContinuousHorizonHead {
+    pub input_dim: usize,
+    pub num_freqs: usize,
+    pub hidden_dim: usize,
+    feat_proj: Linear,
+    time_proj: Linear,
+    out_linear: Linear,
+}
+
+impl ContinuousHorizonHead {
+    pub fn new(vb: VarBuilder, input_dim: usize, num_freqs: usize, hidden_dim: usize) -> CandleResult<Self> {
+        let time_dim = num_freqs * 2;
+        let feat_proj = linear(input_dim, hidden_dim, vb.pp("horizon_feat_proj"))?;
+        let time_proj = linear(time_dim, hidden_dim, vb.pp("horizon_time_proj"))?;
+        let out_linear = linear(hidden_dim, 1, vb.pp("horizon_out"))?;
+
+        Ok(Self {
+            input_dim,
+            num_freqs,
+            hidden_dim,
+            feat_proj,
+            time_proj,
+            out_linear,
+        })
+    }
+
+    /// Creates an initialized mock continuous horizon head with zero weights.
+    pub fn new_mock(input_dim: usize, num_freqs: usize, hidden_dim: usize, device: &Device) -> CandleResult<Self> {
+        let time_dim = num_freqs * 2;
+        let mut tensors = std::collections::HashMap::new();
+        tensors.insert(
+            "horizon_feat_proj.weight".to_string(),
+            Tensor::zeros((hidden_dim, input_dim), DType::F32, device)?,
+        );
+        tensors.insert(
+            "horizon_feat_proj.bias".to_string(),
+            Tensor::zeros(hidden_dim, DType::F32, device)?,
+        );
+        tensors.insert(
+            "horizon_time_proj.weight".to_string(),
+            Tensor::zeros((hidden_dim, time_dim), DType::F32, device)?,
+        );
+        tensors.insert(
+            "horizon_time_proj.bias".to_string(),
+            Tensor::zeros(hidden_dim, DType::F32, device)?,
+        );
+        tensors.insert(
+            "horizon_out.weight".to_string(),
+            Tensor::zeros((1, hidden_dim), DType::F32, device)?,
+        );
+        tensors.insert(
+            "horizon_out.bias".to_string(),
+            Tensor::zeros(1, DType::F32, device)?,
+        );
+        let vb = VarBuilder::from_tensors(tensors, DType::F32, device);
+        Self::new(vb, input_dim, num_freqs, hidden_dim)
+    }
+
+    /// Continuous logarithmic-Fourier temporal basis embedding for horizon $t \ge 0$.
+    pub fn time_embedding(&self, t: f32) -> Vec<f32> {
+        let log_t = (1.0 + t.max(0.0)).ln();
+        let mut emb = Vec::with_capacity(self.num_freqs * 2);
+        for i in 0..self.num_freqs {
+            let freq = 1.0 / (10.0f32.powf(i as f32 / self.num_freqs.max(1) as f32));
+            emb.push((freq * log_t).sin());
+            emb.push((freq * log_t).cos());
+        }
+        emb
+    }
+
+    /// Predict expected alpha for an arbitrary continuous horizon $t \in \mathbb{R}^+$.
+    pub fn predict_horizon(&self, features: &[f32], t: f32, device: &Device) -> CandleResult<f32> {
+        assert_eq!(features.len(), self.input_dim);
+        let t_emb = self.time_embedding(t);
+        let t_tensor = Tensor::from_slice(&t_emb, (1, t_emb.len()), device)?;
+        let feat_tensor = Tensor::from_slice(features, (1, self.input_dim), device)?;
+
+        let feat_h = self.feat_proj.forward(&feat_tensor)?;
+        let time_h = self.time_proj.forward(&t_tensor)?;
+        let h = (feat_h + time_h)?.gelu()?;
+        let out = self.out_linear.forward(&h)?;
+
+        let flat = out.flatten_all()?;
+        let vals: Vec<f32> = flat.to_vec1()?;
+        Ok(vals[0])
+    }
+
+    /// Predict expected alpha across multiple arbitrary continuous horizons: `[(t, alpha(t))]`.
+    pub fn predict_continuous_horizons(
+        &self,
+        features: &[f32],
+        horizons: &[f32],
+        device: &Device,
+    ) -> CandleResult<Vec<(f32, f32)>> {
+        let mut results = Vec::with_capacity(horizons.len());
+        for &t in horizons {
+            let pred = self.predict_horizon(features, t, device)?;
+            results.push((t, pred));
+        }
+        Ok(results)
+    }
+}
+
