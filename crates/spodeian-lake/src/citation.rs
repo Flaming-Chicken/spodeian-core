@@ -101,16 +101,16 @@ impl CitationDistiller {
 
         let mut lines = Vec::new();
         lines.push(format!("title: \"{title}\""));
-        lines.push(format!("authors:"));
+        lines.push("authors:".to_string());
         lines.push(format!("  - name: \"{author}\""));
         lines.push(format!("year: {year}"));
         lines.push(format!("license: \"{license}\""));
         if let Some(url) = &meta.doi_or_url {
             lines.push(format!("url: \"{url}\""));
         }
-        lines.push(format!("keywords:"));
-        lines.push(format!("  - \"machine-learning\""));
-        lines.push(format!("  - \"data-lake\""));
+        lines.push("keywords:".to_string());
+        lines.push("  - \"machine-learning\"".to_string());
+        lines.push("  - \"data-lake\"".to_string());
         lines.push(format!("  - \"sha256:{}\"", meta.sha256_checksum));
 
         lines.join("\n")

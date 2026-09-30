@@ -318,3 +318,86 @@ fn test_citation_distillation_formats() {
     assert!(manifest_cff.contains("cff-version: 1.2.0"));
     assert!(manifest_cff.contains("references:"));
 }
+
+#[test]
+fn test_experiment_registry_lifecycle_and_wal() {
+    use spodeian_lake::ExperimentRecord;
+    use std::collections::HashMap;
+
+    let temp_dir = std::env::temp_dir().join(format!("spodeian_exp_test_{}", std::process::id()));
+    let config = DataLakeConfig {
+        lake_root: temp_dir.clone(),
+        max_storage_bytes: 10 * 1024 * 1024,
+        default_ttl_seconds: Some(3600),
+    };
+
+    let mut lake = WindowsDataLake::new(config.clone()).expect("Failed to initialize data lake");
+
+    let mut metrics_a = HashMap::new();
+    metrics_a.insert("train_loss".to_string(), 0.042);
+    metrics_a.insert("val_loss".to_string(), 0.048);
+    metrics_a.insert("best_loss".to_string(), 0.045);
+
+    let mut hw_context = HashMap::new();
+    hw_context.insert("device".to_string(), "cpu".to_string());
+    hw_context.insert("torch".to_string(), "2.6.0".to_string());
+
+    let exp_a = ExperimentRecord {
+        run_id: "run-uuid-001".to_string(),
+        experiment_name: "risky_business_ssl_v1".to_string(),
+        config_yaml_snapshot: "name: risky_business_ssl_v1\nepochs: 50".to_string(),
+        final_metrics: metrics_a,
+        checkpoint_path: Some(temp_dir.join("ckpt_001.pt")),
+        checkpoint_sha256: Some("sha256_mock_hash_001".to_string()),
+        hardware_context: hw_context.clone(),
+        timestamp_epoch_s: 1700000000,
+        duration_seconds: 124.5,
+        completion_status: "COMPLETED".to_string(),
+        tags: vec!["ssl".to_string(), "grokking".to_string()],
+    };
+
+    let mut metrics_b = HashMap::new();
+    metrics_b.insert("train_loss".to_string(), 0.038);
+    metrics_b.insert("val_loss".to_string(), 0.041);
+    metrics_b.insert("best_loss".to_string(), 0.039);
+
+    let exp_b = ExperimentRecord {
+        run_id: "run-uuid-002".to_string(),
+        experiment_name: "risky_business_ssl_v1".to_string(),
+        config_yaml_snapshot: "name: risky_business_ssl_v1\nepochs: 100".to_string(),
+        final_metrics: metrics_b,
+        checkpoint_path: Some(temp_dir.join("ckpt_002.pt")),
+        checkpoint_sha256: Some("sha256_mock_hash_002".to_string()),
+        hardware_context: hw_context,
+        timestamp_epoch_s: 1700000500,
+        duration_seconds: 248.0,
+        completion_status: "COMPLETED".to_string(),
+        tags: vec!["ssl".to_string(), "pruned".to_string()],
+    };
+
+    // Register experiments
+    lake.register_experiment(exp_a.clone()).expect("Failed to register experiment A");
+    lake.register_experiment(exp_b.clone()).expect("Failed to register experiment B");
+
+    // Query experiments
+    let all = lake.list_experiments();
+    assert_eq!(all.len(), 2);
+    // Verified sorted by timestamp descending
+    assert_eq!(all[0].run_id, "run-uuid-002");
+    assert_eq!(all[1].run_id, "run-uuid-001");
+
+    let by_name = lake.list_experiments_by_name("risky_business_ssl_v1");
+    assert_eq!(by_name.len(), 2);
+
+    let fetched = lake.get_experiment("run-uuid-001").expect("Missing experiment");
+    assert_eq!(fetched.experiment_name, "risky_business_ssl_v1");
+    assert_eq!(fetched.final_metrics.get("val_loss").copied(), Some(0.048));
+
+    // Test WAL persistence and reload across lake re-instantiation
+    let lake2 = WindowsDataLake::new(config).expect("Failed to reload data lake");
+    let all_reloaded = lake2.list_experiments();
+    assert_eq!(all_reloaded.len(), 2);
+    assert_eq!(all_reloaded[0].run_id, "run-uuid-002");
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}

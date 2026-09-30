@@ -6,7 +6,7 @@ pub mod parquet_io;
 pub mod registry;
 
 pub use citation::{CitationDistiller, CitationFormat};
-use registry::{DatasetMetadata, LakeRegistry, RegistryError};
+pub use registry::{DatasetMetadata, ExperimentRecord, LakeRegistry, LakeWalEntry, RegistryError};
 pub use parquet_io::{ParquetError, TabularDataset};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -59,6 +59,9 @@ pub struct LakeSummary {
     pub utilization_percent: f64,
     pub root_path: String,
 }
+
+/// Input descriptor for parallel batch partition storage.
+pub type BatchPartitionInput<'a> = (&'a str, &'a str, &'a TabularDataset, Option<u64>, f64, bool);
 
 /// Local Windows Data Lake manager providing on-demand ingestion, Parquet streaming,
 /// and automated LRU/TTL staleness eviction.
@@ -198,7 +201,7 @@ impl WindowsDataLake {
     /// Concurrently serializes Parquet buffers, writes files to disk, and calculates SHA-256 hashes.
     pub fn store_parquet_batch_parallel(
         &mut self,
-        items: &[(&str, &str, &TabularDataset, Option<u64>, f64, bool)],
+        items: &[BatchPartitionInput<'_>],
         current_epoch_s: u64,
     ) -> Result<Vec<DatasetMetadata>, LakeError> {
         if items.is_empty() {
@@ -524,6 +527,47 @@ impl WindowsDataLake {
         } else {
             Ok(false)
         }
+    }
+
+    /// Registers an experiment run or strategy benchmark in the data lake.
+    pub fn register_experiment(&mut self, record: ExperimentRecord) -> Result<(), LakeError> {
+        let entry = registry::LakeWalEntry::RegisterExperiment(record.clone());
+        LakeRegistry::append_wal(&self.wal_path, &entry)?;
+        self.registry.register_experiment(record);
+        self.unflushed_wal_entries += 1;
+        if self.unflushed_wal_entries >= 100 {
+            self.flush_wal()?;
+        }
+        Ok(())
+    }
+
+    /// Retrieves an experiment record by run_id.
+    pub fn get_experiment(&self, run_id: &str) -> Option<&ExperimentRecord> {
+        self.registry.get_experiment(run_id)
+    }
+
+    /// Lists all experiment records sorted by timestamp descending.
+    pub fn list_experiments(&self) -> Vec<ExperimentRecord> {
+        self.registry.list_experiments()
+    }
+
+    /// Lists experiment records by experiment_name sorted by timestamp descending.
+    pub fn list_experiments_by_name(&self, experiment_name: &str) -> Vec<ExperimentRecord> {
+        self.registry.list_experiments_by_name(experiment_name)
+    }
+
+    /// Removes an experiment record.
+    pub fn remove_experiment(&mut self, run_id: &str) -> Result<Option<ExperimentRecord>, LakeError> {
+        let entry = registry::LakeWalEntry::RemoveExperiment {
+            run_id: run_id.to_string(),
+        };
+        LakeRegistry::append_wal(&self.wal_path, &entry)?;
+        let removed = self.registry.remove_experiment(run_id);
+        self.unflushed_wal_entries += 1;
+        if self.unflushed_wal_entries >= 100 {
+            self.flush_wal()?;
+        }
+        Ok(removed)
     }
 
     /// Produces a telemetry summary of current data lake capacity and utilization.

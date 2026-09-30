@@ -84,16 +84,36 @@ impl DatasetMetadata {
     }
 }
 
+/// Metadata record for an ML experiment run or strategy benchmark in the Spodeian Data Lake.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ExperimentRecord {
+    pub run_id: String,
+    pub experiment_name: String,
+    pub config_yaml_snapshot: String,
+    pub final_metrics: HashMap<String, f64>,
+    pub checkpoint_path: Option<PathBuf>,
+    pub checkpoint_sha256: Option<String>,
+    pub hardware_context: HashMap<String, String>,
+    pub timestamp_epoch_s: u64,
+    pub duration_seconds: f64,
+    pub completion_status: String,
+    #[serde(default)]
+    pub tags: Vec<String>,
+}
+
 /// Registry managing active dataset partitions, training utility, and value-aware eviction tracking.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LakeRegistry {
     partitions: HashMap<String, DatasetMetadata>,
+    #[serde(default)]
+    experiments: HashMap<String, ExperimentRecord>,
 }
 
 impl LakeRegistry {
     pub fn new() -> Self {
         Self {
             partitions: HashMap::new(),
+            experiments: HashMap::new(),
         }
     }
 
@@ -235,6 +255,45 @@ impl LakeRegistry {
         self.partitions.values().map(|meta| meta.record_count).sum()
     }
 
+    /// Registers or updates an experiment record.
+    pub fn register_experiment(&mut self, record: ExperimentRecord) {
+        self.experiments.insert(record.run_id.clone(), record);
+    }
+
+    /// Retrieves an experiment record by run_id.
+    pub fn get_experiment(&self, run_id: &str) -> Option<&ExperimentRecord> {
+        self.experiments.get(run_id)
+    }
+
+    /// Lists all experiment records sorted by timestamp descending.
+    pub fn list_experiments(&self) -> Vec<ExperimentRecord> {
+        let mut list: Vec<ExperimentRecord> = self.experiments.values().cloned().collect();
+        list.sort_by_key(|a| std::cmp::Reverse(a.timestamp_epoch_s));
+        list
+    }
+
+    /// Lists experiment records by experiment_name sorted by timestamp descending.
+    pub fn list_experiments_by_name(&self, experiment_name: &str) -> Vec<ExperimentRecord> {
+        let mut list: Vec<ExperimentRecord> = self
+            .experiments
+            .values()
+            .filter(|exp| exp.experiment_name == experiment_name)
+            .cloned()
+            .collect();
+        list.sort_by_key(|a| std::cmp::Reverse(a.timestamp_epoch_s));
+        list
+    }
+
+    /// Unregisters and removes an experiment record.
+    pub fn remove_experiment(&mut self, run_id: &str) -> Option<ExperimentRecord> {
+        self.experiments.remove(run_id)
+    }
+
+    /// Total count of registered experiments.
+    pub fn experiment_count(&self) -> usize {
+        self.experiments.len()
+    }
+
     /// Persists registry snapshot to a JSON metadata file.
     pub fn save_to_file(&self, path: &Path) -> Result<(), RegistryError> {
         if let Some(parent) = path.parent() {
@@ -267,6 +326,12 @@ impl LakeRegistry {
             }
             LakeWalEntry::Pin { dataset_id, partition_key, is_pinned } => {
                 self.set_pinned(dataset_id, partition_key, *is_pinned);
+            }
+            LakeWalEntry::RegisterExperiment(record) => {
+                self.register_experiment(record.clone());
+            }
+            LakeWalEntry::RemoveExperiment { run_id } => {
+                self.remove_experiment(run_id);
             }
         }
     }
@@ -335,5 +400,9 @@ pub enum LakeWalEntry {
         dataset_id: String,
         partition_key: String,
         is_pinned: bool,
+    },
+    RegisterExperiment(ExperimentRecord),
+    RemoveExperiment {
+        run_id: String,
     },
 }
