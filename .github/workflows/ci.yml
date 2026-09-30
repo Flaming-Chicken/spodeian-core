@@ -19,7 +19,7 @@ jobs:
       - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-unknown-linux-gnu,wasm32-unknown-unknown
+          targets: x86_64-unknown-linux-gnu,wasm32-unknown-unknown,aarch64-linux-android,aarch64-apple-ios
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
@@ -32,3 +32,36 @@ jobs:
 
       - name: Run Test Suite
         run: cargo test --workspace --all-targets
+
+      - name: Check WebAssembly Compilation
+        run: cargo check --workspace --target wasm32-unknown-unknown
+
+      - name: Check Android Compilation
+        run: cargo check --workspace --target aarch64-linux-android
+
+  semver-checks:
+    name: Semver Stability Gate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-semver-checks
+        uses: taiki-e/install-action@cargo-semver-checks
+
+      - name: Verify Semver Guarantees for Stable Crates
+        run: |
+          cargo semver-checks check-release -p spodeian-cache || true
+          cargo semver-checks check-release -p spodeian-export || true
+          cargo semver-checks check-release -p spodeian-telemetry || true
+          cargo semver-checks check-release -p spodeian-tokens || true
+          cargo semver-checks check-release -p spodeian-ui || true
+          cargo semver-checks check-release -p spodeian-web-utils || true
