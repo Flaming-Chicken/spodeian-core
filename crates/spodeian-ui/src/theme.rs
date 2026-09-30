@@ -1,9 +1,12 @@
 //! Egui visual styles and theme management adhering to WCAG 2.1 AAA contrast.
+//!
+//! **Stability: Stable** — semver-guaranteed since v1.0
 
 use egui::{Color32, Context, Stroke, Visuals};
 pub use spodeian_tokens::ThemeMode;
 
 /// Applies the selected ThemeMode to an egui Context.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn apply_theme(ctx: &Context, mode: ThemeMode) {
     let visuals = match mode {
         ThemeMode::Light => {

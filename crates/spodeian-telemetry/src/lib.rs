@@ -1,5 +1,7 @@
 //! Universal telemetry, logging, and panic capture system for Spodeian ecosystem.
 //!
+//! **Stability: Stable** — semver-guaranteed since v1.0
+//!
 //! Provides identical structured JSON or ANSI console logs on desktop and mobile,
 //! and directs output to the browser developer console via `tracing-web` on WASM.
 
@@ -10,6 +12,7 @@ use tracing::info;
 ///
 /// On native platforms (desktop, CLI, Android), installs `tracing_subscriber::fmt` with `EnvFilter`.
 /// On WebAssembly (`wasm32`), installs `console_error_panic_hook` and `tracing-web`.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn init_telemetry(default_filter: &str) {
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -36,6 +39,7 @@ pub fn init_telemetry(default_filter: &str) {
 
 /// Convenience initializer using standard desktop/egui filter:
 /// `"info,wgpu=warn,egui=warn"`
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn init_default() {
     init_telemetry("info,wgpu=warn,egui=warn");
 }

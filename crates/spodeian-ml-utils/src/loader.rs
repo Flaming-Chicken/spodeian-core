@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use thiserror::Error;
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Error, Debug)]
 pub enum MlUtilsError {
     #[error("Candle error: {0}")]
@@ -26,6 +27,7 @@ pub enum MlUtilsError {
 }
 
 /// Container for loaded model weights with zero-copy access and metadata.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Clone)]
 pub struct LoadedModelWeights {
     pub tensors: HashMap<String, Tensor>,

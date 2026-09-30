@@ -4,6 +4,7 @@
 //! between Python/PyTorch data augmentations (`spodeian-py-bridge`) and Rust production trading engines (`Risky Business`).
 
 /// Computes log returns: ln(P_t / P_{t-1}). First element is 0.0.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn calculate_log_returns(prices: &[f64]) -> Vec<f64> {
     if prices.len() < 2 {
         return vec![0.0; prices.len()];
@@ -25,6 +26,7 @@ pub fn calculate_log_returns(prices: &[f64]) -> Vec<f64> {
 }
 
 /// Computes rolling window sample volatility annualized with sqrt(252).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn calculate_rolling_volatility(returns: &[f64], window: usize) -> Vec<f64> {
     if returns.is_empty() || window == 0 {
         return Vec::new();
@@ -49,6 +51,7 @@ pub fn calculate_rolling_volatility(returns: &[f64], window: usize) -> Vec<f64> 
 }
 
 /// Computes Exponential Moving Average (EMA) with span alpha = 2 / (span + 1).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn calculate_ema(series: &[f64], span: usize) -> Vec<f64> {
     if series.is_empty() {
         return Vec::new();
@@ -67,6 +70,7 @@ pub fn calculate_ema(series: &[f64], span: usize) -> Vec<f64> {
 }
 
 /// Computes cumulative Volume-Weighted Average Price (VWAP).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn calculate_vwap(prices: &[f64], volumes: &[f64]) -> Vec<f64> {
     let n = prices.len().min(volumes.len());
     if n == 0 {
@@ -91,6 +95,7 @@ pub fn calculate_vwap(prices: &[f64], volumes: &[f64]) -> Vec<f64> {
 }
 
 /// Computes rolling window Z-score normalisation: (x - mean) / (std + 1e-8).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn rolling_zscore_normalize(sequence: &[f64], window: usize) -> Vec<f64> {
     if sequence.is_empty() || window == 0 {
         return Vec::new();
@@ -111,6 +116,7 @@ pub fn rolling_zscore_normalize(sequence: &[f64], window: usize) -> Vec<f64> {
 }
 
 /// Random sequence masking for Self-Supervised Learning (SSL).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn apply_temporal_mask(sequence: &[f64], mask_ratio: f64, mask_value: f64, seed: u64) -> Vec<f64> {
     if sequence.is_empty() {
         return Vec::new();
@@ -131,6 +137,7 @@ pub fn apply_temporal_mask(sequence: &[f64], mask_ratio: f64, mask_value: f64, s
 }
 
 /// Injects Gaussian/pseudorandom jitter noise scaled by `std_dev` using Box-Muller transform.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn apply_gaussian_jitter(sequence: &[f64], std_dev: f64, seed: u64) -> Vec<f64> {
     if sequence.is_empty() || std_dev <= 0.0 {
         return sequence.to_vec();
@@ -160,6 +167,7 @@ pub fn apply_gaussian_jitter(sequence: &[f64], std_dev: f64, seed: u64) -> Vec<f
 }
 
 /// Linear interpolation time-warping to resample sequence to `target_len`.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn time_warp_resample(sequence: &[f64], target_len: usize) -> Vec<f64> {
     if sequence.is_empty() || target_len == 0 {
         return Vec::new();

@@ -13,7 +13,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
@@ -22,14 +22,15 @@ description = "Spodeian Core · Cross-project shared ecosystem foundation: prefe
 repository = "https://github.com/Spodeian/spodeian-core"
 
 [workspace.dependencies]
-spodeian-cache = { path = "crates/spodeian-cache" }
-spodeian-tokens = { path = "crates/spodeian-tokens" }
-spodeian-telemetry = { path = "crates/spodeian-telemetry" }
-spodeian-export = { path = "crates/spodeian-export" }
-spodeian-web-utils = { path = "crates/spodeian-web-utils" }
-spodeian-ui = { path = "crates/spodeian-ui" }
-spodeian-lake = { path = "crates/spodeian-lake" }
-spodeian-ml-utils = { path = "crates/spodeian-ml-utils" }
+spodeian-cache = { path = "crates/spodeian-cache", version = "^1.0.0" }
+spodeian-tokens = { path = "crates/spodeian-tokens", version = "^1.0.0" }
+spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "^1.0.0" }
+spodeian-export = { path = "crates/spodeian-export", version = "^1.0.0" }
+spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "^1.0.0" }
+spodeian-ui = { path = "crates/spodeian-ui", version = "^1.0.0" }
+spodeian-lake = { path = "crates/spodeian-lake", version = "^0.1.0" }
+spodeian-ml-utils = { path = "crates/spodeian-ml-utils", version = "^0.1.0" }
+spodeian-py-bridge = { path = "crates/spodeian-py-bridge", version = "^0.1.0" }
 
 # Machine Learning & Tensors
 candle-core = "0.11"

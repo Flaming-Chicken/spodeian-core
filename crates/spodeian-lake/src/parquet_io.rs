@@ -8,6 +8,7 @@ use std::io::Write;
 use std::sync::Arc;
 use thiserror::Error;
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Error, Debug)]
 pub enum ParquetError {
     #[error("Arrow error: {0}")]
@@ -27,6 +28,7 @@ pub enum ParquetError {
 }
 
 /// Generic columnar tabular dataset for financial indicators, time-series, and ML features.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TabularDataset {
     pub column_names: Vec<String>,

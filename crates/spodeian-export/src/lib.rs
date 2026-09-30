@@ -1,11 +1,14 @@
 //! Universal serialization and interchange utilities for Spodeian projects.
 //!
+//! **Stability: Stable** — semver-guaranteed since v1.0
+//!
 //! Provides CSV field escaping, RFC 4180-compliant quote parsing, JSON formatted exports,
 //! and high-ratio Zlib-compressed BSON binary exports.
 
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error;
 
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Error, Debug)]
 pub enum ExportError {
     #[error("JSON serialization error: {0}")]
@@ -19,6 +22,7 @@ pub enum ExportError {
 }
 
 /// Escapes a string field for CSV inclusion following standard RFC 4180 rules.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn escape_csv_field(field: &str) -> String {
     if field.contains(',') || field.contains('"') || field.contains('\n') || field.contains('\r') {
         let escaped = field.replace('"', "\"\"");
@@ -29,6 +33,7 @@ pub fn escape_csv_field(field: &str) -> String {
 }
 
 /// Parses a single CSV line into discrete fields respecting quoted delimiters and escaped quotes.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn parse_csv_line(line: &str) -> Vec<String> {
     let mut fields = Vec::new();
     let mut current = String::new();
@@ -62,22 +67,26 @@ pub fn parse_csv_line(line: &str) -> Vec<String> {
 }
 
 /// Exports any serializable data structure into formatted JSON string.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn export_to_json<T: Serialize>(data: &T) -> Result<String, ExportError> {
     serde_json::to_string_pretty(data).map_err(ExportError::Json)
 }
 
 /// Imports any deserializable data structure from a JSON string.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn import_from_json<T: DeserializeOwned>(json_str: &str) -> Result<T, ExportError> {
     serde_json::from_str(json_str).map_err(ExportError::Json)
 }
 
 /// Exports any serializable data structure into compressed BSON binary bytes (Zlib-compressed BSON).
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn export_to_compressed_bson<T: Serialize>(data: &T) -> Result<Vec<u8>, ExportError> {
     let bson_bytes = bson::to_vec(data).map_err(ExportError::BsonSer)?;
     Ok(miniz_oxide::deflate::compress_to_vec_zlib(&bson_bytes, 6))
 }
 
 /// Imports and restores any deserializable data structure from a compressed (or raw) BSON slice.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn import_from_compressed_bson<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, ExportError> {
     let bson_bytes =
         miniz_oxide::inflate::decompress_to_vec_zlib(bytes).unwrap_or_else(|_| bytes.to_vec());

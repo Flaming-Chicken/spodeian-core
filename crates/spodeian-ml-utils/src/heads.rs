@@ -7,6 +7,7 @@ use candle_nn::{linear, Linear, Module, VarBuilder};
 ///
 /// Projects an encoder representation $h \in \mathbb{R}^d$ across an arbitrary
 /// set of future forecasting horizons (e.g. $[1, 2, 5, 10, 21, 63, 252]$ days).
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct DynamicMultiHorizonHead {
     pub horizons: Vec<usize>,
     pub input_dim: usize,
@@ -65,6 +66,7 @@ impl DynamicMultiHorizonHead {
 /// $$\hat{q}_0 = \text{fc}_0(h)$$
 /// $$\hat{q}_i = \hat{q}_{i-1} + \text{softplus}(\text{fc}_i(h))$$
 /// where $\text{softplus}(z) = \ln(1 + e^z)$.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct MonotonicQuantileHead {
     pub quantiles: Vec<f32>,
     pub input_dim: usize,
@@ -172,6 +174,7 @@ impl MonotonicQuantileHead {
 ///
 /// Projects spatial states $x \in \mathbb{R}^d$ and continuous flow time $t \in [0, 1]$
 /// into continuous velocity vector field $v_\theta(x, t) \in \mathbb{R}^d$.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct VelocityFlowHead {
     pub dim: usize,
     pub num_freqs: usize,
@@ -230,6 +233,7 @@ impl VelocityFlowHead {
 /// (e.g. $t = 0.5$ intraday, $t = 2.5$ days, $t = 21.0$ days, $t = 252.0$ days) using continuous
 /// logarithmic-Fourier temporal basis projections:
 /// $$\Phi_k(t) = [\sin(\omega_k \ln(1 + t)), \cos(\omega_k \ln(1 + t))]$$
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct ContinuousHorizonHead {
     pub input_dim: usize,
     pub num_freqs: usize,

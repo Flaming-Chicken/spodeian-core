@@ -1,5 +1,7 @@
 //! Universal web DOM interaction utilities for Spodeian applications.
 //!
+//! **Stability: Stable** — semver-guaranteed since v1.0
+//!
 //! Provides transparent fallback between browser DOM actions on `wasm32`
 //! (Blob URL triggers, navigator.clipboard) and native file/clipboard APIs on desktop.
 
@@ -7,6 +9,7 @@
 use tracing::{error, info};
 
 /// Triggers a client-side text file download (JSON, CSV, markdown, etc.)
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn trigger_text_download(filename: &str, content: &str, mime_type: &str) {
     #[cfg(target_arch = "wasm32")]
     {
@@ -46,6 +49,7 @@ pub fn trigger_text_download(filename: &str, content: &str, mime_type: &str) {
 }
 
 /// Triggers a client-side binary file download (e.g. Compressed BSON, Parquet, Safetensors)
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn trigger_binary_download(filename: &str, bytes: &[u8], mime_type: &str) {
     #[cfg(target_arch = "wasm32")]
     {
@@ -86,6 +90,7 @@ pub fn trigger_binary_download(filename: &str, bytes: &[u8], mime_type: &str) {
 }
 
 /// Copies text into the system clipboard.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn copy_to_clipboard(text: &str) {
     #[cfg(target_arch = "wasm32")]
     {

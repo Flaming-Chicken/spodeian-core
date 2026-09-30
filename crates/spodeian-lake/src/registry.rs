@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Error, Debug)]
 pub enum RegistryError {
     #[error("I/O error: {0}")]
@@ -14,6 +15,7 @@ pub enum RegistryError {
 }
 
 /// Metadata record for a single dataset partition in the Spodeian Data Lake.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DatasetMetadata {
     pub dataset_id: String,
@@ -85,6 +87,7 @@ impl DatasetMetadata {
 }
 
 /// Metadata record for an ML experiment run or strategy benchmark in the Spodeian Data Lake.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ExperimentRecord {
     pub run_id: String,
@@ -102,6 +105,7 @@ pub struct ExperimentRecord {
 }
 
 /// Registry managing active dataset partitions, training utility, and value-aware eviction tracking.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LakeRegistry {
     partitions: HashMap<String, DatasetMetadata>,
@@ -382,6 +386,7 @@ impl LakeRegistry {
 }
 
 /// Append-only Write-Ahead Log (WAL) mutation entry for LakeRegistry.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LakeWalEntry {
     Register(DatasetMetadata),
