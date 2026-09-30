@@ -15,6 +15,14 @@ from spodeian_ml.ops.tui import (
     GranularTuningDrawer,
     run_interactive_training,
 )
+from spodeian_ml.ops.experiment import (
+    ExperimentRecord,
+    save_experiment_record,
+    load_experiment_registry,
+    get_experiment_by_id,
+    format_experiment_list_table,
+    format_experiment_comparison_table,
+)
 
 __all__ = [
     "ExperimentConfig",
@@ -33,4 +41,10 @@ __all__ = [
     "NonBlockingInputReader",
     "GranularTuningDrawer",
     "run_interactive_training",
+    "ExperimentRecord",
+    "save_experiment_record",
+    "load_experiment_registry",
+    "get_experiment_by_id",
+    "format_experiment_list_table",
+    "format_experiment_comparison_table",
 ]

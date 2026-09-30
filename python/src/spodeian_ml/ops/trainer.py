@@ -210,6 +210,17 @@ class ResumableTrainer:
                     state['exp_avg_sq'].zero_()
 
     def run(self) -> List[Dict[str, float]]:
+        import time
+        import uuid
+        from spodeian_ml.ops.experiment import (
+            ExperimentRecord,
+            save_experiment_record,
+            compute_file_sha256,
+            get_system_hardware_context,
+        )
+
+        start_time = time.time()
+        run_id = str(uuid.uuid4())
         checkpoint_dir = Path(self.config.checkpoint.checkpoint_dir)
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -286,5 +297,44 @@ class ResumableTrainer:
                     best_loss=self.best_loss,
                     config_dict=self.config.__dict__,
                 )
+
+        # Emit experiment record to the Spodeian Data Lake Registry
+        try:
+            duration = time.time() - start_time
+            best_ckpt = checkpoint_dir / "best_model.pt"
+            ckpt_path_str = str(best_ckpt) if best_ckpt.exists() else None
+            ckpt_sha = compute_file_sha256(best_ckpt) if best_ckpt.exists() else None
+
+            final_metrics = {
+                "epochs_run": float(len(self.history)),
+                "best_loss": float(self.best_loss),
+            }
+            if self.history:
+                final_metrics["final_train_loss"] = float(self.history[-1]["train_loss"])
+                final_metrics["final_val_loss"] = float(self.history[-1]["val_loss"])
+                if "weight_norm" in self.history[-1]:
+                    final_metrics["final_weight_norm"] = float(self.history[-1]["weight_norm"])
+                if "sparsity" in self.history[-1]:
+                    final_metrics["final_sparsity"] = float(self.history[-1]["sparsity"])
+
+            import yaml
+            cfg_yaml = yaml.dump(self.config.__dict__, default_flow_style=False)
+
+            record = ExperimentRecord(
+                run_id=run_id,
+                experiment_name=self.config.experiment_name,
+                config_yaml_snapshot=cfg_yaml,
+                final_metrics=final_metrics,
+                checkpoint_path=ckpt_path_str,
+                checkpoint_sha256=ckpt_sha,
+                hardware_context=get_system_hardware_context(),
+                timestamp_epoch_s=int(time.time()),
+                duration_seconds=duration,
+                completion_status="COMPLETED",
+                tags=["training", "resumable_trainer"],
+            )
+            save_experiment_record(record)
+        except Exception:
+            pass
 
         return self.history
