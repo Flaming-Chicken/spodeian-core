@@ -9,3 +9,4 @@ dist/
 *.egg-info/
 datasets/
 .pytest_cache/
+studio_session.json

@@ -198,7 +198,7 @@ def test_tui_rendering_output():
 
         # Closed drawer rendering
         frame = studio.render(clear_screen=False)
-        assert "SPODEIAN-ML · Autonomous Flight Deck Studio" in frame
+        assert "SPODEIAN-ML · Studio ►" in frame
         assert "Train Loss:" in frame
         assert "L2 Weight Norm:" in frame
         assert "KV Cache:" in frame
@@ -209,6 +209,98 @@ def test_tui_rendering_output():
         frame_drawer = studio.render(clear_screen=False)
         assert "GRANULAR TUNING DRAWER [g]" in frame_drawer
         assert "Learning Rate" in frame_drawer
+
+
+def test_tui_help_overlay_toggle_and_content():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        trainer = create_test_trainer(Path(tmp_dir))
+        reader = NonBlockingInputReader()
+        studio = InteractiveTrainingStudio(trainer, input_reader=reader)
+
+        assert not studio.show_help_overlay
+
+        # Toggle help with '?'
+        reader.push_key("?")
+        studio.handle_input()
+        assert studio.show_help_overlay
+
+        # Render help overlay
+        help_frame = studio.render(clear_screen=False)
+        assert "HELP & TELEMETRY OVERLAY" in help_frame
+        assert "COMMAND SHORTCUTS" in help_frame
+        assert "[Space] / [p]" in help_frame
+        assert "[g]" in help_frame
+        assert "ACTIVE ENGINE PARAMETERS & TELEMETRY" in help_frame
+        assert "Active LR:" in help_frame
+        assert "KV Eviction Mode:" in help_frame
+
+        # Dismiss with 'h'
+        reader.push_key("h")
+        studio.handle_input()
+        assert not studio.show_help_overlay
+
+        # Toggle again and dismiss with Esc
+        reader.push_key("h")
+        studio.handle_input()
+        assert studio.show_help_overlay
+        reader.push_key("\x1b")
+        studio.handle_input()
+        assert not studio.show_help_overlay
+
+
+def test_tui_curriculum_phase_detection():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        trainer = create_test_trainer(Path(tmp_dir))
+        studio = InteractiveTrainingStudio(trainer)
+
+        assert studio.get_curriculum_phase() == "Init"
+
+        # Simulate early high loss
+        studio.history_train_loss.append(1.5)
+        studio.history_val_loss.append(1.6)
+        assert "Memorization" in studio.get_curriculum_phase()
+
+        # Simulate low train loss with overfit counter
+        studio.history_train_loss.append(0.01)
+        studio.history_val_loss.append(0.5)
+        studio.overfit_counter = 3
+        assert "Grokking Transition" in studio.get_curriculum_phase()
+
+        # Simulate converged generalization (below prune_threshold of 0.001)
+        studio.history_train_loss.append(0.0005)
+        studio.history_val_loss.append(0.0006)
+        studio.overfit_counter = 0
+        assert "Generalization" in studio.get_curriculum_phase()
+
+
+def test_tui_session_persistence():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        session_path = Path(tmp_dir) / "studio_session.json"
+        trainer = create_test_trainer(Path(tmp_dir))
+        studio = InteractiveTrainingStudio(trainer)
+
+        # Modify values
+        for pg in trainer.optimizer.param_groups:
+            pg["lr"] = 0.005
+            pg["weight_decay"] = 0.02
+        studio.kv_eviction_mode = "AttentionSoftmax"
+        studio.last_checkpoint_path = str(Path(tmp_dir) / "ckpt.pt")
+
+        # Save session
+        studio.save_session_state(session_path)
+        assert session_path.exists()
+
+        # Create fresh studio and load
+        trainer2 = create_test_trainer(Path(tmp_dir))
+        studio2 = InteractiveTrainingStudio(trainer2)
+        assert studio2.trainer.optimizer.param_groups[0]["lr"] != 0.005
+
+        loaded = studio2.load_session_state(session_path)
+        assert loaded
+        assert studio2.trainer.optimizer.param_groups[0]["lr"] == pytest.approx(0.005)
+        assert studio2.trainer.optimizer.param_groups[0]["weight_decay"] == pytest.approx(0.02)
+        assert studio2.kv_eviction_mode == "AttentionSoftmax"
+        assert studio2.last_checkpoint_path == str(Path(tmp_dir) / "ckpt.pt")
 
 
 def test_run_interactive_training_loop():
@@ -227,3 +319,20 @@ def test_run_interactive_training_loop():
             render_interval=0.001,
         )
         assert len(history) >= 1
+
+
+def test_cli_studio_headless(capsys):
+    from spodeian_ml.cli import main
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        cfg_file = Path(tmp_dir) / "test_cfg.yaml"
+        cfg = ExperimentConfig(experiment_name="cli_headless_test")
+        cfg.training.max_epochs = 2
+        cfg.to_yaml(cfg_file)
+
+        ret = main(["studio", "--config", str(cfg_file), "--epochs", "2", "--headless"])
+        assert ret == 0
+        captured = capsys.readouterr()
+        import json
+        summary = json.loads(captured.out)
+        assert summary["total_epochs"] == 2
+        assert "learning_rate" in summary

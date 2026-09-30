@@ -213,12 +213,66 @@ class InteractiveTrainingStudio:
         self.step_delay: float = 0.05
         self.overfit_counter: int = 0
         self.kv_eviction_mode: str = "FIFO"
+        self.show_help_overlay: bool = False
+        self.last_checkpoint_path: Optional[str] = None
 
     def log_event(self, msg: str) -> None:
         ts = datetime.now().strftime("%H:%M:%S")
         self.events.append(f"[{ts}] {msg}")
         if len(self.events) > 50:
             self.events.pop(0)
+
+    def save_session_state(self, path: Optional[Path] = None) -> None:
+        """Saves active LR, weight decay, current epoch, step, and last checkpoint to session file."""
+        import json
+        session_file = path or Path("studio_session.json")
+        data = {
+            "epoch": self.current_epoch,
+            "step": self.current_step,
+            "learning_rate": self.trainer.optimizer.param_groups[0]["lr"],
+            "weight_decay": self.trainer.optimizer.param_groups[0]["weight_decay"],
+            "kv_eviction_mode": self.kv_eviction_mode,
+            "best_loss": self.best_loss,
+            "last_checkpoint_path": str(self.last_checkpoint_path) if self.last_checkpoint_path else None,
+            "timestamp": datetime.now().isoformat(),
+        }
+        try:
+            with open(session_file, "w") as f:
+                json.dump(data, f, indent=2)
+            self.log_event(f"[*] Session state saved to {session_file.name}")
+        except Exception as e:
+            self.log_event(f"[-] Failed to save session: {e}")
+
+    def load_session_state(self, path: Optional[Path] = None) -> bool:
+        """Restores session parameters from session file."""
+        import json
+        session_file = path or Path("studio_session.json")
+        if not session_file.exists():
+            return False
+        try:
+            with open(session_file, "r") as f:
+                data = json.load(f)
+            lr = data.get("learning_rate")
+            if lr is not None:
+                for pg in self.trainer.optimizer.param_groups:
+                    pg["lr"] = lr
+                self.drawer.params[0].value = lr
+            wd = data.get("weight_decay")
+            if wd is not None:
+                for pg in self.trainer.optimizer.param_groups:
+                    pg["weight_decay"] = wd
+                self.drawer.params[1].value = wd
+            mode = data.get("kv_eviction_mode")
+            if mode:
+                self.kv_eviction_mode = mode
+            ckpt = data.get("last_checkpoint_path")
+            if ckpt:
+                self.last_checkpoint_path = ckpt
+            self.log_event(f"[+] Rehydrated session: LR={lr}, WD={wd}, KV_Evict={mode}")
+            return True
+        except Exception as e:
+            self.log_event(f"[-] Error loading session state: {e}")
+            return False
 
     def trigger_slingshot_kick(self) -> None:
         factor = self.trainer.config.training.grokking.slingshot_factor
@@ -241,6 +295,7 @@ class InteractiveTrainingStudio:
             pg["lr"] *= factor
             cur_lr = pg["lr"]
         self.drawer.params[0].value = cur_lr
+        self.save_session_state()
         self.log_event(f"HOTKEY [{'+' if up else '-'}]: Nudged Learning Rate -> {cur_lr:.6f}")
 
     def trigger_checkpoint_save(self) -> None:
@@ -257,17 +312,25 @@ class InteractiveTrainingStudio:
             best_loss=self.trainer.best_loss,
             config_dict=self.trainer.config.__dict__,
         )
+        self.last_checkpoint_path = str(path)
+        self.save_session_state()
         self.log_event(f"HOTKEY [s]: Forced manual checkpoint exported to {path.name}")
 
     def toggle_kv_eviction(self) -> None:
         modes = ["FIFO", "LeastRecent", "AttentionSoftmax"]
         cur_idx = modes.index(self.kv_eviction_mode)
         self.kv_eviction_mode = modes[(cur_idx + 1) % len(modes)]
+        self.save_session_state()
         self.log_event(f"HOTKEY [e]: PagedAttention KV Cache eviction policy set to {self.kv_eviction_mode}")
 
     def handle_input(self) -> None:
         key = self.input_reader.read_key()
         if not key:
+            return
+
+        if self.show_help_overlay:
+            if key in ("?", "h", "q", "\x1b", "\r", "\n"):
+                self.show_help_overlay = False
             return
 
         if self.drawer.is_open:
@@ -279,16 +342,22 @@ class InteractiveTrainingStudio:
                 self.drawer.select_next()
             elif key in ("LEFT", "-"):
                 msg = self.drawer.adjust(increment=False)
+                self.save_session_state()
                 self.log_event(msg)
             elif key in ("RIGHT", "+", "="):
                 msg = self.drawer.adjust(increment=True)
+                self.save_session_state()
                 self.log_event(msg)
             elif key in ("\r", "\n"):
                 self.drawer.is_open = False
+                self.save_session_state()
         else:
             if key in ("q", "\x03"):  # 'q' or Ctrl-C
                 self.is_running = False
+                self.save_session_state()
                 self.log_event("Session terminated by user [q]")
+            elif key in ("?", "h"):
+                self.show_help_overlay = True
             elif key == "g":
                 self.drawer.is_open = True
             elif key in (" ", "p"):
@@ -365,18 +434,79 @@ class InteractiveTrainingStudio:
         self.trainer.history.append(entry)
         return entry
 
+    def get_curriculum_phase(self) -> str:
+        """Returns the current curriculum/grokking phase description."""
+        if not self.history_train_loss:
+            return "Init"
+        train_loss = self.history_train_loss[-1]
+        val_loss = self.history_val_loss[-1] if self.history_val_loss else train_loss
+        grok_cfg = self.trainer.config.training.grokking
+        prune_thresh = grok_cfg.prune_threshold if (grok_cfg and grok_cfg.enabled) else 0.05
+        if self.overfit_counter > 0 or (train_loss <= prune_thresh and val_loss > prune_thresh * 2):
+            return "Grokking Transition"
+        elif train_loss <= prune_thresh and val_loss <= prune_thresh * 2:
+            return "Generalization"
+        else:
+            return "Memorization"
+
     def render(self, clear_screen: bool = True) -> str:
-        """Renders the comprehensive 4-quadrant layout + tuning drawer + footer."""
+        """Renders the comprehensive 4-quadrant layout + tuning drawer + footer, or help overlay."""
+        import re
+
         width = 86
         lines = []
 
         if clear_screen:
             lines.append("\033[H\033[J")
 
-        # Header
-        status = f"{COLOR_YELLOW}[PAUSED]{COLOR_RESET}" if self.is_paused else f"{COLOR_GREEN}[AUTONOMOUS RUNNING]{COLOR_RESET}"
+        if self.show_help_overlay:
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}┌{'─' * (width - 2)}┐{COLOR_RESET}")
+            title = "SPODEIAN-ML FLIGHT DECK STUDIO — HELP & TELEMETRY OVERLAY"
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}  {COLOR_BOLD}{COLOR_YELLOW}{title}{COLOR_RESET}".ljust(width + 12) + f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}")
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}├{'─' * (width - 2)}┤{COLOR_RESET}")
+            help_rows = [
+                f" {COLOR_BOLD}COMMAND SHORTCUTS:{COLOR_RESET}",
+                f"   {COLOR_WHITE}[Space] / [p]{COLOR_RESET}  : Toggle Pause / Autonomous Execution",
+                f"   {COLOR_WHITE}[g]{COLOR_RESET}            : Open / Close Granular Tuning Drawer",
+                f"   {COLOR_WHITE}[↑/k] / [↓/j]{COLOR_RESET}  : Navigate Drawer Parameters (LR, WD, Prune, Slingshot)",
+                f"   {COLOR_WHITE}[←/-] / [→/+]{COLOR_RESET}  : Decrement / Increment Selected Parameter Value",
+                f"   {COLOR_WHITE}[Enter]{COLOR_RESET}        : Confirm Drawer Tuning & Apply to Optimizer",
+                f"   {COLOR_WHITE}[k]{COLOR_RESET}            : Apply Slingshot Kick (Gradient Perturbation)",
+                f"   {COLOR_WHITE}[c]{COLOR_RESET}            : Apply Capacity Pruning (Weight Magnitude Sparsity)",
+                f"   {COLOR_WHITE}[w]{COLOR_RESET}            : Settle SWA Shadow Weights into Active Model",
+                f"   {COLOR_WHITE}[+] / [-]{COLOR_RESET}      : Quick Nudge Active Learning Rate (±25%)",
+                f"   {COLOR_WHITE}[e]{COLOR_RESET}            : Cycle PagedAttention Eviction (FIFO/LeastRecent/Softmax)",
+                f"   {COLOR_WHITE}[s]{COLOR_RESET}            : Manual Force Save Resumable Checkpoint",
+                f"   {COLOR_WHITE}[?] / [h]{COLOR_RESET}      : Toggle this Help & Telemetry Overlay",
+                f"   {COLOR_WHITE}[q]{COLOR_RESET}            : Clean Exit and Persist Session State",
+                f"",
+                f" {COLOR_BOLD}ACTIVE ENGINE PARAMETERS & TELEMETRY:{COLOR_RESET}",
+                f"   Active LR:        {self.trainer.optimizer.param_groups[0]['lr']:.6f}   Weight Decay: {self.trainer.optimizer.param_groups[0]['weight_decay']:.5f}",
+                f"   KV Eviction Mode: {self.kv_eviction_mode:<10}  KV Usage:     {self.kv_cache.num_blocks - len(self.kv_cache.free_blocks)}/{self.kv_cache.num_blocks} blocks",
+                f"   Curriculum Phase: {self.get_curriculum_phase()}",
+                f"   Last Checkpoint:  {Path(self.last_checkpoint_path).name if self.last_checkpoint_path else 'None (auto-saves on hotkey [s])'}",
+            ]
+            for row in help_rows:
+                plain_len = len(re.sub(r"\033\[[0-9;]*m", "", row))
+                pad = max(0, width - 2 - plain_len)
+                lines.append(f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}{row}{' ' * pad}{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}")
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}├{'─' * (width - 2)}┤{COLOR_RESET}")
+            dismiss_msg = " Press [?] or [h] or [q] or [Esc] or [Enter] to dismiss this overlay"
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}{COLOR_DIM}{dismiss_msg:<{width - 2}}{COLOR_RESET}{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}")
+            lines.append(f"{COLOR_BOLD}{COLOR_CYAN}└{'─' * (width - 2)}┘{COLOR_RESET}")
+            return "\n".join(lines)
+
+        # Header with active curriculum badge
+        total_epochs = self.trainer.config.training.max_epochs
+        phase_str = self.get_curriculum_phase()
+        status_tag = f"{COLOR_YELLOW}[PAUSED]{COLOR_RESET}" if self.is_paused else f"{COLOR_GREEN}[RUNNING]{COLOR_RESET}"
+        plain_status = "[PAUSED]" if self.is_paused else "[RUNNING]"
+        plain_title = f"SPODEIAN-ML · Studio ► Ep {self.current_epoch}/{total_epochs} | {phase_str}"
+        plain_len = len(f"  {plain_title} {plain_status}")
+        pad = max(0, width - 2 - plain_len)
+
         header = f"{COLOR_BOLD}{COLOR_CYAN}┌{'─' * (width - 2)}┐{COLOR_RESET}\n"
-        header += f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}  {COLOR_BOLD}SPODEIAN-ML · Autonomous Flight Deck Studio{COLOR_RESET} {status}".ljust(width + 12) + f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}\n"
+        header += f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}  {COLOR_BOLD}{plain_title}{COLOR_RESET} {status_tag}{' ' * pad}{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}\n"
         header += f"{COLOR_BOLD}{COLOR_CYAN}├{'─' * 41}┬{'─' * (width - 44)}┤{COLOR_RESET}"
         lines.append(header)
 
@@ -444,7 +574,7 @@ class InteractiveTrainingStudio:
         lines.append(f"{COLOR_BOLD}{COLOR_CYAN}├{'─' * (width - 2)}┤{COLOR_RESET}")
         hotkeys = (
             f" [Space] Pause | [g] Tuning Drawer | [k] Slingshot | [c] Prune | [w] SWA\n"
-            f" [+] / [-] Nudge LR | [e] KV Evict | [s] Checkpoint | [q] Quit"
+            f" [+] / [-] Nudge LR | [e] KV Evict | [s] Checkpoint | [?] Help | [q] Quit"
         )
         for h_line in hotkeys.split("\n"):
             lines.append(f"{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET} {COLOR_DIM}{h_line:<{width - 3}}{COLOR_RESET}{COLOR_BOLD}{COLOR_CYAN}│{COLOR_RESET}")
@@ -458,6 +588,7 @@ def run_interactive_training(
     max_epochs: Optional[int] = None,
     max_steps: Optional[int] = None,
     headless: bool = False,
+    resume: bool = False,
     input_reader: Optional[NonBlockingInputReader] = None,
     render_interval: float = 0.05,
 ) -> List[Dict[str, float]]:
@@ -465,6 +596,9 @@ def run_interactive_training(
     Main interactive entrypoint for autonomous training with live steering.
     """
     studio = InteractiveTrainingStudio(trainer, input_reader=input_reader)
+    if resume:
+        studio.load_session_state()
+
     target_epochs = max_epochs or trainer.config.training.max_epochs
 
     try:
@@ -484,6 +618,7 @@ def run_interactive_training(
     except KeyboardInterrupt:
         studio.log_event("Interrupted by user via SIGINT")
     finally:
+        studio.save_session_state()
         if not headless:
             sys.stdout.write(f"\n{COLOR_GREEN}[+] Interactive training session concluded.{COLOR_RESET}\n")
             sys.stdout.flush()

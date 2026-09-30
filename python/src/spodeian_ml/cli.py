@@ -97,7 +97,25 @@ def handle_studio(args: argparse.Namespace) -> int:
         device=device,
     )
 
-    run_interactive_training(trainer, max_epochs=config.training.max_epochs)
+    history = run_interactive_training(
+        trainer,
+        max_epochs=config.training.max_epochs,
+        headless=args.headless,
+        resume=args.resume,
+    )
+    if args.headless:
+        import json
+
+        summary = {
+            "total_epochs": len(history),
+            "final_train_loss": history[-1]["train_loss"] if history else None,
+            "final_val_loss": history[-1]["val_loss"] if history else None,
+            "best_loss": trainer.best_loss,
+            "learning_rate": trainer.optimizer.param_groups[0]["lr"],
+            "weight_decay": trainer.optimizer.param_groups[0]["weight_decay"],
+            "global_step": trainer.global_step,
+        }
+        print(json.dumps(summary, indent=2))
     return 0
 
 
@@ -119,6 +137,8 @@ def main(argv: Optional[list] = None) -> int:
     studio_parser = subparsers.add_parser("studio", help="Launch interactive TUI flight deck studio directly")
     studio_parser.add_argument("--config", "-c", type=str, default=None, help="Path to YAML experiment config")
     studio_parser.add_argument("--epochs", "-e", type=int, default=50, help="Max epochs")
+    studio_parser.add_argument("--headless", action="store_true", help="Run headlessly without interactive terminal rendering")
+    studio_parser.add_argument("--resume", action="store_true", help="Resume tuning parameters from studio_session.json")
 
     args = parser.parse_args(argv)
 
