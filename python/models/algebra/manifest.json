@@ -1,0 +1,16 @@
+{
+  "model_type": "algebra_ast_contrastive_embedder",
+  "vocab_size": 16,
+  "embed_dim": 8,
+  "final_loss": 4.3933,
+  "tensors": {
+    "embeddings": [
+      16,
+      8
+    ],
+    "projection": [
+      8,
+      8
+    ]
+  }
+}
