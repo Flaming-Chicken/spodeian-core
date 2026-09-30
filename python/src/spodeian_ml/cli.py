@@ -8,19 +8,15 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from torch.utils.data import DataLoader, TensorDataset
-
+from spodeian_ml.data.lake_loader import (
+    build_synthetic_dataloader,
+    build_train_val_dataloaders,
+    SpodeianLakeDataset,
+)
 from spodeian_ml.ops.config import ExperimentConfig
 from spodeian_ml.ops.trainer import ResumableTrainer
 from spodeian_ml.ops.tui import run_interactive_training
 from spodeian_ml.ssl.autoencoder import MaskedAutoencoder
-
-
-def build_synthetic_dataloader(dim: int = 16, samples: int = 256, batch_size: int = 32) -> DataLoader:
-    """Creates a deterministic synthetic dataloader for interactive demonstration."""
-    torch.manual_seed(42)
-    x = torch.randn(samples, dim)
-    return DataLoader(TensorDataset(x), batch_size=batch_size, shuffle=True)
 
 
 def handle_train(args: argparse.Namespace) -> int:
@@ -35,6 +31,21 @@ def handle_train(args: argparse.Namespace) -> int:
 
     device = torch.device(args.device if args.device else ("cuda" if torch.cuda.is_available() else "cpu"))
 
+    data_path = getattr(args, "data_path", None)
+    lake_dataset = getattr(args, "lake_dataset", None)
+    lake_dir = getattr(args, "lake_dir", None)
+
+    train_loader, val_loader, input_dim = build_train_val_dataloaders(
+        data_path=data_path,
+        lake_dataset=lake_dataset,
+        lake_dir=lake_dir,
+        batch_size=config.training.batch_size,
+        dim=config.model.input_dim,
+    )
+
+    if input_dim != config.model.input_dim:
+        config.model.input_dim = input_dim
+
     # Instantiate model
     model = MaskedAutoencoder(
         input_dim=config.model.input_dim,
@@ -43,10 +54,6 @@ def handle_train(args: argparse.Namespace) -> int:
         num_layers=config.model.num_layers,
         mask_ratio=config.ssl.mask_ratio,
     )
-
-    # For CLI demo, construct or load data
-    train_loader = build_synthetic_dataloader(dim=config.model.input_dim, batch_size=config.training.batch_size)
-    val_loader = build_synthetic_dataloader(dim=config.model.input_dim, samples=64, batch_size=config.training.batch_size)
 
     trainer = ResumableTrainer(
         config=config,
@@ -80,14 +87,28 @@ def handle_studio(args: argparse.Namespace) -> int:
         config.training.max_epochs = args.epochs
 
     device = torch.device("cpu")
+
+    data_path = getattr(args, "data_path", None)
+    lake_dataset = getattr(args, "lake_dataset", None)
+    lake_dir = getattr(args, "lake_dir", None)
+
+    train_loader, val_loader, input_dim = build_train_val_dataloaders(
+        data_path=data_path,
+        lake_dataset=lake_dataset,
+        lake_dir=lake_dir,
+        batch_size=config.training.batch_size,
+        dim=config.model.input_dim,
+    )
+
+    if input_dim != config.model.input_dim:
+        config.model.input_dim = input_dim
+
     model = MaskedAutoencoder(
         input_dim=config.model.input_dim,
         hidden_dim=config.model.hidden_dim,
         latent_dim=config.model.latent_dim,
         num_layers=config.model.num_layers,
     )
-    train_loader = build_synthetic_dataloader(dim=config.model.input_dim, batch_size=config.training.batch_size)
-    val_loader = build_synthetic_dataloader(dim=config.model.input_dim, samples=64, batch_size=config.training.batch_size)
 
     trainer = ResumableTrainer(
         config=config,
@@ -96,6 +117,7 @@ def handle_studio(args: argparse.Namespace) -> int:
         val_loader=val_loader,
         device=device,
     )
+
 
     history = run_interactive_training(
         trainer,
@@ -197,6 +219,9 @@ def main(argv: Optional[list] = None) -> int:
     # train command
     train_parser = subparsers.add_parser("train", help="Run model training")
     train_parser.add_argument("--config", "-c", type=str, required=True, help="Path to YAML experiment config")
+    train_parser.add_argument("--data-path", type=str, default=None, help="Path to Parquet file or directory of partitions")
+    train_parser.add_argument("--lake-dataset", type=str, default=None, help="Dataset ID to load from Spodeian Lake registry")
+    train_parser.add_argument("--lake-dir", type=str, default=None, help="Path to custom Spodeian Lake directory")
     train_parser.add_argument("--tui", action="store_true", help="Launch interactive 4-quadrant TUI flight deck")
     train_parser.add_argument("--epochs", "-e", type=int, default=None, help="Override max epochs")
     train_parser.add_argument("--device", type=str, default=None, help="Device (cpu, cuda)")
@@ -204,9 +229,13 @@ def main(argv: Optional[list] = None) -> int:
     # studio command
     studio_parser = subparsers.add_parser("studio", help="Launch interactive TUI flight deck studio directly")
     studio_parser.add_argument("--config", "-c", type=str, default=None, help="Path to YAML experiment config")
+    studio_parser.add_argument("--data-path", type=str, default=None, help="Path to Parquet file or directory of partitions")
+    studio_parser.add_argument("--lake-dataset", type=str, default=None, help="Dataset ID to load from Spodeian Lake registry")
+    studio_parser.add_argument("--lake-dir", type=str, default=None, help="Path to custom Spodeian Lake directory")
     studio_parser.add_argument("--epochs", "-e", type=int, default=50, help="Max epochs")
     studio_parser.add_argument("--headless", action="store_true", help="Run headlessly without interactive terminal rendering")
     studio_parser.add_argument("--resume", action="store_true", help="Resume tuning parameters from studio_session.json")
+
 
     # experiment command
     experiment_parser = subparsers.add_parser("experiment", help="Query and compare Spodeian Lake experiment runs")
