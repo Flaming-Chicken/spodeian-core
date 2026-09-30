@@ -10,6 +10,7 @@ pub mod factors;
 pub mod heads;
 pub mod loader;
 pub mod logarithmic;
+pub mod quantization;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use adaptation::*;
@@ -21,4 +22,7 @@ pub use heads::*;
 pub use loader::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use logarithmic::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use quantization::*;
+
 
