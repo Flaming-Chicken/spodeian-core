@@ -1,8 +1,11 @@
 //! Responsive layout constraints and breakpoints for egui applications.
+//!
+//! **Stability: Stable** — semver-guaranteed since v1.0
 
 use egui::Ui;
 
 /// Dynamic screen and viewport constraints derived from available dimensions.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ScreenConstraints {
     pub is_mobile: bool,
@@ -13,11 +16,13 @@ pub struct ScreenConstraints {
 
 impl ScreenConstraints {
     /// Computes constraints from available Ui dimensions.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn compute(ui: &Ui) -> Self {
         Self::from_dimensions(ui.available_width(), ui.available_height())
     }
 
     /// Computes constraints from explicit width and height.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn from_dimensions(avail_w: f32, avail_h: f32) -> Self {
         Self {
             is_mobile: avail_w < 800.0,

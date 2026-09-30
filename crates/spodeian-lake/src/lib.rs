@@ -1,18 +1,24 @@
 //! Automated Windows Data Lake with LRU staleness eviction, metadata tracking,
 //! and Apache Parquet streaming for the Spodeian AI ecosystem.
+//!
+//! **Stability: Experimental** — API subject to change
 
 pub mod citation;
 pub mod parquet_io;
 pub mod registry;
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub use citation::{CitationDistiller, CitationFormat};
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub use registry::{DatasetMetadata, ExperimentRecord, LakeRegistry, LakeWalEntry, RegistryError};
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub use parquet_io::{ParquetError, TabularDataset};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
 use thiserror::Error;
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Error, Debug)]
 pub enum LakeError {
     #[error("I/O error: {0}")]
@@ -28,6 +34,7 @@ pub enum LakeError {
 }
 
 /// Configuration options for the local Windows Data Lake.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone)]
 pub struct DataLakeConfig {
     pub lake_root: PathBuf,
@@ -50,6 +57,7 @@ impl Default for DataLakeConfig {
 }
 
 /// High-level summary of Data Lake metrics.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LakeSummary {
     pub total_partitions: usize,
@@ -61,10 +69,12 @@ pub struct LakeSummary {
 }
 
 /// Input descriptor for parallel batch partition storage.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub type BatchPartitionInput<'a> = (&'a str, &'a str, &'a TabularDataset, Option<u64>, f64, bool);
 
 /// Local Windows Data Lake manager providing on-demand ingestion, Parquet streaming,
 /// and automated LRU/TTL staleness eviction.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct WindowsDataLake {
     config: DataLakeConfig,
     registry: LakeRegistry,
@@ -75,6 +85,7 @@ pub struct WindowsDataLake {
 
 impl WindowsDataLake {
     /// Initializes a data lake instance with custom configuration.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn new(config: DataLakeConfig) -> Result<Self, LakeError> {
         fs::create_dir_all(&config.lake_root)?;
         let data_dir = config.lake_root.join("data");
@@ -94,16 +105,19 @@ impl WindowsDataLake {
     }
 
     /// Initializes a data lake using default Windows AppData paths.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn default_windows() -> Result<Self, LakeError> {
         Self::new(DataLakeConfig::default())
     }
 
     /// Returns the active configuration.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn config(&self) -> &DataLakeConfig {
         &self.config
     }
 
     /// Flushes and compacts the append-only WAL into the full JSON registry snapshot.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn flush_wal(&mut self) -> Result<(), LakeError> {
         self.registry.compact_wal(&self.registry_path, &self.wal_path)?;
         self.unflushed_wal_entries = 0;
@@ -126,6 +140,7 @@ impl WindowsDataLake {
     }
 
     /// Stores a `TabularDataset` as a standard Apache Parquet partition.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn store_parquet(
         &mut self,
         dataset_id: &str,
@@ -143,6 +158,7 @@ impl WindowsDataLake {
     }
 
     /// Stores a `TabularDataset` with explicit regime anomaly flags and crisis memory pinning.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn store_parquet_with_options(
         &mut self,
         dataset_id: &str,
@@ -199,6 +215,7 @@ impl WindowsDataLake {
 
     /// Ingests a batch of tabular dataset partitions in parallel using Rayon multicore threads.
     /// Concurrently serializes Parquet buffers, writes files to disk, and calculates SHA-256 hashes.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn store_parquet_batch_parallel(
         &mut self,
         items: &[BatchPartitionInput<'_>],
@@ -274,6 +291,7 @@ impl WindowsDataLake {
 
     /// Concurrently validates the SHA-256 integrity of multiple partitions using Rayon.
     /// Returns Ok(true) if all verified correctly, or LakeError on corruption or failure.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn verify_partitions_parallel(
         &self,
         partition_keys: &[(&str, &str)],
@@ -325,6 +343,7 @@ impl WindowsDataLake {
     }
 
     /// Records training feedback (loss/reconstruction error and exposure count) from ML training loops.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn record_training_feedback(
         &mut self,
         dataset_id: &str,
@@ -358,6 +377,7 @@ impl WindowsDataLake {
     }
 
     /// Pins or unpins a partition to protect it from automated pruning (e.g. historical crisis memories).
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn set_pinned(&mut self, dataset_id: &str, partition_key: &str, pinned: bool) -> Result<bool, LakeError> {
         let updated = self.registry.set_pinned(dataset_id, partition_key, pinned);
         if updated {
@@ -376,6 +396,7 @@ impl WindowsDataLake {
     }
 
     /// Loads a `TabularDataset` partition from disk and updates LRU telemetry.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn load_parquet(
         &mut self,
         dataset_id: &str,
@@ -420,6 +441,7 @@ impl WindowsDataLake {
 
     /// Loads and concatenates all partitions for a given dataset within `[start_epoch, end_epoch]`
     /// sorted in chronological order with SHA-256 verification.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn load_partitions_range(
         &mut self,
         dataset_id: &str,
@@ -441,6 +463,7 @@ impl WindowsDataLake {
     }
 
     /// Prunes stale partitions whose TTL has expired relative to `current_epoch_s`.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn prune_stale(&mut self, current_epoch_s: u64) -> Result<usize, LakeError> {
         let stale_keys = self.registry.get_stale_partitions(current_epoch_s);
         let mut evicted_count = 0;
@@ -461,6 +484,7 @@ impl WindowsDataLake {
     }
 
     /// Prunes partitions whose training utility has decayed below `threshold` and are not crisis memories.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn prune_low_utility(&mut self, threshold: f64) -> Result<usize, LakeError> {
         let mut evicted_count = 0;
         let candidates: Vec<(String, String)> = self
@@ -488,6 +512,7 @@ impl WindowsDataLake {
 
     /// Evicts partitions when total storage exceeds `max_storage_bytes` using training retention priority.
     /// Lowest-value partitions (low loss, zero crisis indicators, high epoch saturation) are pruned first.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn enforce_capacity(&mut self, current_epoch_s: u64) -> Result<usize, LakeError> {
         let mut evicted_count = 0;
         let mut total = self.registry.total_bytes();
@@ -517,6 +542,7 @@ impl WindowsDataLake {
     }
 
     /// Explicitly deletes a specific partition.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn delete_partition(&mut self, dataset_id: &str, partition_key: &str) -> Result<bool, LakeError> {
         if let Some(removed) = self.registry.unregister(dataset_id, partition_key) {
             if removed.file_path.exists() {
@@ -530,6 +556,7 @@ impl WindowsDataLake {
     }
 
     /// Registers an experiment run or strategy benchmark in the data lake.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn register_experiment(&mut self, record: ExperimentRecord) -> Result<(), LakeError> {
         let entry = registry::LakeWalEntry::RegisterExperiment(record.clone());
         LakeRegistry::append_wal(&self.wal_path, &entry)?;
@@ -542,21 +569,25 @@ impl WindowsDataLake {
     }
 
     /// Retrieves an experiment record by run_id.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn get_experiment(&self, run_id: &str) -> Option<&ExperimentRecord> {
         self.registry.get_experiment(run_id)
     }
 
     /// Lists all experiment records sorted by timestamp descending.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn list_experiments(&self) -> Vec<ExperimentRecord> {
         self.registry.list_experiments()
     }
 
     /// Lists experiment records by experiment_name sorted by timestamp descending.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn list_experiments_by_name(&self, experiment_name: &str) -> Vec<ExperimentRecord> {
         self.registry.list_experiments_by_name(experiment_name)
     }
 
     /// Removes an experiment record.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn remove_experiment(&mut self, run_id: &str) -> Result<Option<ExperimentRecord>, LakeError> {
         let entry = registry::LakeWalEntry::RemoveExperiment {
             run_id: run_id.to_string(),
@@ -571,6 +602,7 @@ impl WindowsDataLake {
     }
 
     /// Produces a telemetry summary of current data lake capacity and utilization.
+    #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn summary(&self) -> LakeSummary {
         let total_bytes = self.registry.total_bytes();
         let max_bytes = self.config.max_storage_bytes;

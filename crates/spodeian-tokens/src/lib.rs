@@ -1,10 +1,13 @@
 //! Ecosystem Design Tokens, WCAG 2.1 Accessibility & Typography (`spodeian-tokens`).
 //!
+//! **Stability: Stable** — semver-guaranteed since v1.0
+//!
 //! Provides unified themes, color palettes, responsive screen breakpoints, and KaTeX rendering options
 //! shared across Leptos (web) and egui (desktop/mobile) projects.
 
 use serde::{Deserialize, Serialize};
 
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum ThemeMode {
     #[default]
@@ -15,14 +18,17 @@ pub enum ThemeMode {
 }
 
 impl ThemeMode {
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn is_high_contrast(self) -> bool {
         matches!(self, Self::HighContrastDark | Self::HighContrastLight)
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn is_dark(self) -> bool {
         matches!(self, Self::Dark | Self::HighContrastDark)
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn next(self) -> Self {
         match self {
             Self::Dark => Self::Light,
@@ -32,10 +38,12 @@ impl ThemeMode {
         }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn toggle(self) -> Self {
         self.next()
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Dark => "dark",
@@ -45,6 +53,7 @@ impl ThemeMode {
         }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Self {
         match s {
@@ -55,6 +64,7 @@ impl ThemeMode {
         }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn display_label(self) -> &'static str {
         match self {
             Self::Dark => "Dark",
@@ -64,6 +74,7 @@ impl ThemeMode {
         }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn label(self) -> &'static str {
         match self {
             Self::Dark => "Dark",
@@ -73,6 +84,7 @@ impl ThemeMode {
         }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn icon(self) -> &'static str {
         match self {
             Self::Dark => "🌙",
@@ -94,6 +106,7 @@ impl std::str::FromStr for ThemeMode {
 
 
 /// Standard 8-bit RGBA color representation with WCAG luminance calculations.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ColorRgba {
     pub r: u8,
@@ -103,16 +116,19 @@ pub struct ColorRgba {
 }
 
 impl ColorRgba {
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b, a: 255 }
     }
 
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 
     /// Computes the relative luminance according to WCAG 2.1 specifications:
     /// $L = 0.2126 R + 0.7152 G + 0.0722 B$
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn relative_luminance(self) -> f64 {
         fn channel_l(c: u8) -> f64 {
             let s = (c as f64) / 255.0;
@@ -128,6 +144,7 @@ impl ColorRgba {
 
     /// Computes the WCAG contrast ratio between two colors:
     /// $\text{Ratio} = \frac{L_1 + 0.05}{L_2 + 0.05}$
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn contrast_ratio(c1: Self, c2: Self) -> f64 {
         let l1 = c1.relative_luminance();
         let l2 = c2.relative_luminance();
@@ -137,17 +154,20 @@ impl ColorRgba {
     }
 
     /// Checks if contrast ratio meets WCAG 2.1 AA level for standard text ($\ge 4.5:1$).
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn is_wcag_aa(c1: Self, c2: Self) -> bool {
         Self::contrast_ratio(c1, c2) >= 4.5
     }
 
     /// Checks if contrast ratio meets WCAG 2.1 AAA level for high contrast ($\ge 7.0:1$).
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn is_wcag_aaa(c1: Self, c2: Self) -> bool {
         Self::contrast_ratio(c1, c2) >= 7.0
     }
 }
 
 /// Palette tokens for a UI theme.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ThemePalette {
     pub background: ColorRgba,
@@ -161,6 +181,7 @@ pub struct ThemePalette {
 }
 
 impl ThemePalette {
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn for_mode(mode: ThemeMode) -> Self {
         match mode {
             ThemeMode::Dark => Self {
@@ -208,6 +229,7 @@ impl ThemePalette {
 }
 
 /// Viewport and touch screen constraints for responsive layouts.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ScreenBreakpoints {
     pub is_mobile: bool,
@@ -217,11 +239,12 @@ pub struct ScreenBreakpoints {
 }
 
 impl ScreenBreakpoints {
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn compute(width: f64, height: f64) -> Self {
         Self {
             is_mobile: width < 768.0,
             is_mobile_portrait: width < 650.0 && height >= width,
-            is_tablet: width >= 768.0 && width < 1024.0,
+            is_tablet: (768.0..1024.0).contains(&width),
             is_desktop: width >= 1024.0,
         }
     }

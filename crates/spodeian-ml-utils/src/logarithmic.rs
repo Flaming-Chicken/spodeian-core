@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 
 /// 8-bit Logarithmic Float: 1 sign bit + 7 exponent bits (representing base-2 log with bias 64).
 /// Represents values $x = (-1)^s \cdot 2^{(e - 64) / 4.0}$.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Log8(pub u8);
 
@@ -47,6 +48,7 @@ impl Log8 {
     }
 
     /// Exact multiplication in logarithmic space (exponent addition, sign XOR).
+    #[allow(clippy::should_implement_trait)]
     #[inline(always)]
     pub fn mul(self, other: Self) -> Self {
         if self.0 == 0 || other.0 == 0 {
@@ -63,8 +65,18 @@ impl Log8 {
     }
 }
 
+impl std::ops::Mul for Log8 {
+    type Output = Self;
+
+    #[inline(always)]
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.mul(rhs)
+    }
+}
+
 /// Vector dot product performed natively using logarithmic multiplication.
 /// Converts product terms to accumulator using Mitchell/log-sum-exp or linear accumulation.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn log8_dot_product(a: &[Log8], b: &[Log8]) -> f32 {
     let n = a.len().min(b.len());
     let mut sum = 0.0f32;
@@ -78,11 +90,13 @@ pub fn log8_dot_product(a: &[Log8], b: &[Log8]) -> f32 {
 }
 
 /// Quantizes an f32 vector into a packed Log8 array.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub fn quantize_to_log8(values: &[f32]) -> Vec<Log8> {
     values.iter().map(|&v| Log8::from_f32(v)).collect()
 }
 
 /// WGSL Compute Shader source for hardware-accelerated Logarithmic GEMM.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub const LOGARITHMIC_GEMM_WGSL: &str = r#"
 // WebGPU Compute Shader: Logarithmic GEMM Kernel
 // Multiplies weights and activations natively via exponent addition.

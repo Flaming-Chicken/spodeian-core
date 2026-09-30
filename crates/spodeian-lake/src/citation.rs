@@ -10,6 +10,7 @@ use crate::registry::DatasetMetadata;
 use serde::{Deserialize, Serialize};
 
 /// Citation format targets.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CitationFormat {
     BibTeX,
@@ -19,6 +20,7 @@ pub enum CitationFormat {
 }
 
 /// Metadata Distillation Engine for Dataset Attribution and Lineage.
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub struct CitationDistiller;
 
 impl CitationDistiller {

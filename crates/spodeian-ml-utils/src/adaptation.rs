@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// Implements $O(d^2)$ rank-1 Sherman-Morrison covariance updates with an exponential
 /// forgetting factor $\lambda \in (0, 1]$.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OnlineRlsHead {
     pub dim: usize,
@@ -91,6 +92,7 @@ impl OnlineRlsHead {
 }
 
 /// 64-bit precision Recursive Least Squares (RLS) filter for high-precision quantitative econometrics.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OnlineRlsFilter64 {
     pub num_features: usize,
@@ -99,6 +101,7 @@ pub struct OnlineRlsFilter64 {
     pub lambda: f64,
 }
 
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub type OnlineRlsFilter = OnlineRlsFilter64;
 
 impl OnlineRlsFilter64 {
@@ -172,6 +175,7 @@ impl OnlineRlsFilter64 {
 }
 
 /// Experience replay memory buffer for cross-regime memory preservation.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExperienceReplayBuffer {
     pub capacity: usize,
@@ -203,6 +207,7 @@ impl ExperienceReplayBuffer {
 }
 
 /// 64-bit Sharpness-Aware Minimization (SAM) optimizer for high-precision econometric models.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone)]
 pub struct SharpnessAwareMinimizer64 {
     pub rho: f64,
@@ -248,6 +253,7 @@ impl SharpnessAwareMinimizer64 {
 ///
 /// Computes flat-basin gradient perturbations:
 /// $$\boldsymbol{\epsilon}^* = \rho \frac{\nabla_{\mathbf{w}} L}{\|\nabla_{\mathbf{w}} L\|_2 + 10^{-12}}$$
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone)]
 pub struct SharpnessAwareMinimizer {
     pub rho: f32,
@@ -298,6 +304,7 @@ impl SharpnessAwareMinimizer {
 ///    protected by gradient clipping and flat-basin SAM to prevent catastrophic forgetting.
 /// 2. **Fast Head Adaptation**: Instantaneous tick-by-tick recursive least squares (RLS)
 ///    adapting to non-stationary market drift in real time.
+#[doc = "**Stability: Experimental** — API subject to change"]
 #[derive(Debug, Clone)]
 pub struct DualSpeedAdaptationManager {
     pub rls_head: OnlineRlsHead,
