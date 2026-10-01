@@ -124,3 +124,31 @@ fn test_log_console_widget() {
     assert_eq!(buffer.len(), 2);
 }
 
+#[test]
+fn test_spodeian_widgets_rendering() {
+    let ctx = Context::default();
+    let mut theme_mode = ThemeMode::Light;
+    let mut slider_val = 42.0;
+
+    let card = spodeian_ui::PerformanceMetricCard::new("Sharpe Ratio", "2.45")
+        .unit("annualized")
+        .delta(0.15, "+15 bps")
+        .tooltip("1-year trailing risk-adjusted return");
+
+    let mut output = ctx.run_ui(Default::default(), |ctx| {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            let picker = spodeian_ui::ThemePickerWidget::new(&mut theme_mode);
+            ui.add(picker);
+
+            card.show(ui);
+
+            let slider = spodeian_ui::AccessibleSlider::new(&mut slider_val, 0.0..=100.0, "Volume").step(1.0);
+            ui.add(slider);
+        });
+    });
+    output.textures_delta.clear();
+
+    assert_eq!(card.title, "Sharpe Ratio");
+    assert_eq!(card.value, "2.45");
+}
+

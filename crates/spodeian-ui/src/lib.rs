@@ -9,6 +9,7 @@ pub mod layout;
 pub mod log_viewer;
 pub mod pacing;
 pub mod theme;
+pub mod widgets;
 
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub use accessibility::{configure_accessible_focus, render_accessibility_panel};
@@ -20,3 +21,5 @@ pub use log_viewer::{LogConsoleWidget, LogLevelFilter};
 pub use pacing::ReactiveFramePacer;
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub use theme::{ThemeMode, apply_theme};
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+pub use widgets::{AccessibleSlider, PerformanceMetricCard, ThemePickerWidget};
