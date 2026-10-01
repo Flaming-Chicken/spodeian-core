@@ -33,6 +33,7 @@ SUPPORTED_BENCHMARK_FORMATS = [
     ("INT4", "int4", 4),
     ("Posit16", "posit16", 16),
     ("Posit8", "posit8", 8),
+    ("Log8", "log8", 8),
     ("Ternary", "ternary", 2),
     ("BNN", "binary", 1),
 ]

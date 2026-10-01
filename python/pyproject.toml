@@ -1,12 +1,16 @@
 [project]
 name = "spodeian-ml"
 version = "0.1.0"
-description = "Add your description here"
+description = "Spodeian ML · Scientific deep learning, neural state space models, universal quantization, and active learning engines"
 readme = "README.md"
 authors = [
     { name = "Liam", email = "6039896+Spodeian@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
+
+[project.urls]
+Homepage = "https://github.com/Flaming-Chicken/spodeian-ml"
+Repository = "https://github.com/Flaming-Chicken/spodeian-ml"
 dependencies = [
     "numpy>=2.5.3",
     "pyarrow>=25.0.1",

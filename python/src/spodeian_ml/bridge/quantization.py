@@ -411,7 +411,7 @@ def quantize_weights(
     elif p in ("ternary", "1.58b", "bitnet"):
         t_tensor, scale, meta = quantize_ternary_1_58b(tensor)
         return t_tensor, meta
-    elif p in ("logarithmic", "log", "log2"):
+    elif p in ("logarithmic", "log", "log2", "log8"):
         q_tensor, meta = quantize_logarithmic(tensor)
         return q_tensor, meta
     else:
