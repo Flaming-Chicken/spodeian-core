@@ -11,6 +11,7 @@ pub mod heads;
 pub mod loader;
 pub mod logarithmic;
 pub mod quantization;
+pub mod stability;
 
 pub use candle_core;
 
@@ -27,5 +28,7 @@ pub use loader::*;
 pub use logarithmic::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use quantization::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use stability::*;
 
 

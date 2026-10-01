@@ -10,6 +10,7 @@ description = "Universal egui shell components: responsive layout ScreenConstrai
 egui = { workspace = true }
 serde = { workspace = true }
 spodeian-tokens = { workspace = true }
+spodeian-telemetry = { workspace = true }
 
 [lints]
 workspace = true

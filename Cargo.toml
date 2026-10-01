@@ -19,7 +19,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, unified egui UI, local data lake, and PyO3 desktop bridge"
-repository = "https://github.com/Spodeian/spodeian-core"
+repository = "https://github.com/Flaming-Chicken/spodeian-core"
 
 [workspace.dependencies]
 spodeian-cache = { path = "crates/spodeian-cache", version = "^1.0.0" }
