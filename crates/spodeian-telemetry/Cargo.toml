@@ -8,6 +8,8 @@ description = "Universal, zero-overhead tracing and panic telemetry initializer 
 
 [dependencies]
 tracing = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tracing-subscriber = { workspace = true }

@@ -37,3 +37,90 @@ fn test_theme_mode_application() {
     assert!(!ThemeMode::HighContrastLight.is_dark());
     assert!(ThemeMode::HighContrastLight.is_high_contrast());
 }
+
+#[test]
+fn test_accessible_focus_configuration() {
+    let ctx = Context::default();
+    let prefs = spodeian_tokens::AccessibilityPreferences {
+        high_contrast: true,
+        large_touch_targets: true,
+        reduced_motion: true,
+        font_scale_multiplier: 1.3,
+        ..Default::default()
+    };
+
+    spodeian_ui::configure_accessible_focus(&ctx, &prefs);
+
+    let style = ctx.style_of(egui::Theme::Dark);
+    assert_eq!(style.animation_time, 0.0);
+    assert!(style.spacing.interact_size.x >= 44.0);
+    assert!(style.spacing.interact_size.y >= 44.0);
+
+    let mut output = ctx.run_ui(Default::default(), |ctx| {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            let mut edit_prefs = prefs;
+            let changed = spodeian_ui::render_accessibility_panel(ui, &mut edit_prefs);
+            assert!(!changed);
+        });
+    });
+    output.textures_delta.clear();
+}
+
+#[test]
+fn test_reactive_frame_pacer() {
+    let ctx = Context::default();
+    let mut pacer = spodeian_ui::ReactiveFramePacer::new(
+        std::time::Duration::from_millis(50),
+        std::time::Duration::from_millis(200),
+    );
+
+    // Initial state is active because it was just created
+    assert!(!pacer.is_idle());
+
+    pacer.pace_frame(&ctx, false);
+    // Explicit notify
+    pacer.notify_activity();
+    assert!(!pacer.is_idle());
+
+    // Wait past active linger
+    std::thread::sleep(std::time::Duration::from_millis(60));
+    assert!(pacer.is_idle());
+
+    // Pacing when idle requests delayed repaint
+    pacer.pace_frame(&ctx, false);
+}
+
+#[test]
+fn test_log_console_widget() {
+    use spodeian_telemetry::{LogEntry, LogRingBuffer};
+    use std::sync::Arc;
+
+    let buffer = Arc::new(LogRingBuffer::new(50));
+    buffer.push(LogEntry {
+        timestamp_millis: 1000,
+        level: "INFO".to_string(),
+        target: "spodeian::core".to_string(),
+        message: "Initialization complete".to_string(),
+        fields: vec![("subsystem".to_string(), "audio".to_string())],
+    });
+    buffer.push(LogEntry {
+        timestamp_millis: 1050,
+        level: "ERROR".to_string(),
+        target: "spodeian::dsp".to_string(),
+        message: "Buffer underflow detected".to_string(),
+        fields: vec![],
+    });
+
+    let mut widget = spodeian_ui::LogConsoleWidget::new(buffer.clone());
+
+    let ctx = Context::default();
+    let mut output = ctx.run_ui(Default::default(), |ctx| {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            widget.ui(ui);
+        });
+    });
+    output.textures_delta.clear();
+
+    assert_eq!(buffer.len(), 2);
+}
+
