@@ -6,6 +6,7 @@
 pub mod citation;
 pub mod parquet_io;
 pub mod registry;
+pub mod schema;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use citation::{CitationDistiller, CitationFormat};
@@ -13,6 +14,8 @@ pub use citation::{CitationDistiller, CitationFormat};
 pub use registry::{DatasetMetadata, ExperimentRecord, LakeRegistry, LakeWalEntry, RegistryError};
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use parquet_io::{ParquetError, TabularDataset};
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use schema::{AcousticTelemetrySnapshot, FinancialObservation, PlayerProgressEvent};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
