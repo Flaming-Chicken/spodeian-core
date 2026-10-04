@@ -220,7 +220,11 @@ impl PositDecoder {
         }
 
         let is_neg = (bits >> 15) == 1;
-        let u = if is_neg { (!bits).wrapping_add(1) } else { bits };
+        let u = if is_neg {
+            (!bits).wrapping_add(1)
+        } else {
+            bits
+        };
 
         let r = (u >> 14) & 1;
         let mut bit_pos = 13i32;
@@ -370,7 +374,11 @@ pub fn decode_fp8_e5m2(byte: u8) -> f32 {
     let mant = (byte & 0x03) as f32;
 
     if exp == 31 {
-        if (byte & 0x03) != 0 { f32::NAN } else { sign * f32::INFINITY }
+        if (byte & 0x03) != 0 {
+            f32::NAN
+        } else {
+            sign * f32::INFINITY
+        }
     } else if exp == 0 {
         sign * (mant / 4.0) * 2.0f32.powi(-14)
     } else {
@@ -420,12 +428,7 @@ pub fn ternary_matmul_simd_f32(
 
 /// Vectorized matrix multiplication for INT8 signed integer weights
 #[inline]
-pub fn int8_matmul_simd_f32(
-    weights: &[i8],
-    activations: &[f32],
-    output: &mut [f32],
-    scale: f32,
-) {
+pub fn int8_matmul_simd_f32(weights: &[i8], activations: &[f32], output: &mut [f32], scale: f32) {
     let in_dim = activations.len();
     assert!(
         weights.len() >= output.len() * in_dim,

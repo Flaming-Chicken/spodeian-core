@@ -37,10 +37,10 @@ pub struct DatasetMetadata {
     pub license: Option<String>,
 
     // Value-aware training telemetry & regime retention flags
-    pub training_utility: f64,       // Reconstruction/loss signal in [0.0, 1.0] (high = model still learning)
-    pub anomaly_score: f64,          // Tail-risk / rare regime index in [0.0, 1.0] (high = crisis/rare)
+    pub training_utility: f64, // Reconstruction/loss signal in [0.0, 1.0] (high = model still learning)
+    pub anomaly_score: f64,    // Tail-risk / rare regime index in [0.0, 1.0] (high = crisis/rare)
     pub training_epochs_seen: usize, // Saturation count (higher = diminishing returns)
-    pub is_pinned: bool,             // If true, permanently exempt from automated eviction (e.g. crisis memories)
+    pub is_pinned: bool, // If true, permanently exempt from automated eviction (e.g. crisis memories)
 }
 
 impl DatasetMetadata {
@@ -138,7 +138,12 @@ impl LakeRegistry {
     }
 
     /// Updates the last accessed timestamp for LRU tracking.
-    pub fn record_access(&mut self, dataset_id: &str, partition_key: &str, current_epoch_s: u64) -> bool {
+    pub fn record_access(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+        current_epoch_s: u64,
+    ) -> bool {
         let key = Self::composite_key(dataset_id, partition_key);
         if let Some(entry) = self.partitions.get_mut(&key) {
             entry.last_accessed_epoch_s = current_epoch_s;
@@ -220,7 +225,10 @@ impl LakeRegistry {
 
     /// Returns partitions sorted in ascending order of retention priority (lowest priority first).
     /// Used for value-aware eviction when the data lake reaches capacity.
-    pub fn get_eviction_candidates_by_priority(&self, current_epoch_s: u64) -> Vec<DatasetMetadata> {
+    pub fn get_eviction_candidates_by_priority(
+        &self,
+        current_epoch_s: u64,
+    ) -> Vec<DatasetMetadata> {
         let mut list: Vec<DatasetMetadata> = self
             .partitions
             .values()
@@ -231,7 +239,9 @@ impl LakeRegistry {
         list.sort_by(|a, b| {
             let score_a = a.compute_retention_priority(current_epoch_s);
             let score_b = b.compute_retention_priority(current_epoch_s);
-            score_a.partial_cmp(&score_b).unwrap_or(std::cmp::Ordering::Equal)
+            score_a
+                .partial_cmp(&score_b)
+                .unwrap_or(std::cmp::Ordering::Equal)
         });
 
         list
@@ -322,13 +332,32 @@ impl LakeRegistry {
     pub fn apply_wal_entry(&mut self, entry: &LakeWalEntry) {
         match entry {
             LakeWalEntry::Register(meta) => self.register(meta.clone()),
-            LakeWalEntry::Remove { dataset_id, partition_key } => {
+            LakeWalEntry::Remove {
+                dataset_id,
+                partition_key,
+            } => {
                 self.unregister(dataset_id, partition_key);
             }
-            LakeWalEntry::Feedback { dataset_id, partition_key, utility, anomaly_score, epochs_increment } => {
-                self.record_training_feedback(dataset_id, partition_key, *utility, *anomaly_score, *epochs_increment);
+            LakeWalEntry::Feedback {
+                dataset_id,
+                partition_key,
+                utility,
+                anomaly_score,
+                epochs_increment,
+            } => {
+                self.record_training_feedback(
+                    dataset_id,
+                    partition_key,
+                    *utility,
+                    *anomaly_score,
+                    *epochs_increment,
+                );
             }
-            LakeWalEntry::Pin { dataset_id, partition_key, is_pinned } => {
+            LakeWalEntry::Pin {
+                dataset_id,
+                partition_key,
+                is_pinned,
+            } => {
                 self.set_pinned(dataset_id, partition_key, *is_pinned);
             }
             LakeWalEntry::RegisterExperiment(record) => {

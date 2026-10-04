@@ -11,9 +11,9 @@ pub mod schema;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use citation::{CitationDistiller, CitationFormat};
 #[doc = "**Stability: Experimental** — API subject to change"]
-pub use registry::{DatasetMetadata, ExperimentRecord, LakeRegistry, LakeWalEntry, RegistryError};
-#[doc = "**Stability: Experimental** — API subject to change"]
 pub use parquet_io::{ParquetError, TabularDataset};
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use registry::{DatasetMetadata, ExperimentRecord, LakeRegistry, LakeWalEntry, RegistryError};
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use schema::{AcousticTelemetrySnapshot, FinancialObservation, PlayerProgressEvent};
 use sha2::{Digest, Sha256};
@@ -54,7 +54,7 @@ impl Default for DataLakeConfig {
         Self {
             lake_root: base_dir,
             max_storage_bytes: 10 * 1024 * 1024 * 1024, // 10 GB
-            default_ttl_seconds: Some(30 * 86400),       // 30 days
+            default_ttl_seconds: Some(30 * 86400),      // 30 days
         }
     }
 }
@@ -122,7 +122,8 @@ impl WindowsDataLake {
     /// Flushes and compacts the append-only WAL into the full JSON registry snapshot.
     #[doc = "**Stability: Experimental** — API subject to change"]
     pub fn flush_wal(&mut self) -> Result<(), LakeError> {
-        self.registry.compact_wal(&self.registry_path, &self.wal_path)?;
+        self.registry
+            .compact_wal(&self.registry_path, &self.wal_path)?;
         self.unflushed_wal_entries = 0;
         Ok(())
     }
@@ -157,7 +158,15 @@ impl WindowsDataLake {
             fs::create_dir_all(parent)?;
         }
 
-        self.store_parquet_with_options(dataset_id, partition_key, dataset, ttl_seconds, 0.0, false, current_epoch_s)
+        self.store_parquet_with_options(
+            dataset_id,
+            partition_key,
+            dataset,
+            ttl_seconds,
+            0.0,
+            false,
+            current_epoch_s,
+        )
     }
 
     /// Stores a `TabularDataset` with explicit regime anomaly flags and crisis memory pinning.
@@ -248,36 +257,40 @@ impl WindowsDataLake {
         let serialized_results: Result<Vec<DatasetMetadata>, LakeError> = items
             .par_iter()
             .zip(paths.par_iter())
-            .map(|(&(ds_id, part_key, dataset, ttl, anomaly, pinned), file_path)| {
-                let mut buffer = Vec::new();
-                dataset.write_to_parquet(&mut buffer).map_err(LakeError::Parquet)?;
-                let byte_size = buffer.len() as u64;
+            .map(
+                |(&(ds_id, part_key, dataset, ttl, anomaly, pinned), file_path)| {
+                    let mut buffer = Vec::new();
+                    dataset
+                        .write_to_parquet(&mut buffer)
+                        .map_err(LakeError::Parquet)?;
+                    let byte_size = buffer.len() as u64;
 
-                let mut hasher = Sha256::new();
-                hasher.update(&buffer);
-                let sha256_checksum = format!("{:x}", hasher.finalize());
+                    let mut hasher = Sha256::new();
+                    hasher.update(&buffer);
+                    let sha256_checksum = format!("{:x}", hasher.finalize());
 
-                fs::write(file_path, &buffer).map_err(LakeError::Io)?;
+                    fs::write(file_path, &buffer).map_err(LakeError::Io)?;
 
-                Ok(DatasetMetadata {
-                    dataset_id: ds_id.to_string(),
-                    partition_key: part_key.to_string(),
-                    file_path: file_path.clone(),
-                    record_count: dataset.num_rows,
-                    byte_size,
-                    sha256_checksum,
-                    created_at_epoch_s: current_epoch_s,
-                    last_accessed_epoch_s: current_epoch_s,
-                    ttl_seconds: ttl.or(default_ttl),
-                    author: None,
-                    doi_or_url: None,
-                    license: None,
-                    training_utility: 1.0,
-                    anomaly_score: anomaly.clamp(0.0, 1.0),
-                    training_epochs_seen: 0,
-                    is_pinned: pinned,
-                })
-            })
+                    Ok(DatasetMetadata {
+                        dataset_id: ds_id.to_string(),
+                        partition_key: part_key.to_string(),
+                        file_path: file_path.clone(),
+                        record_count: dataset.num_rows,
+                        byte_size,
+                        sha256_checksum,
+                        created_at_epoch_s: current_epoch_s,
+                        last_accessed_epoch_s: current_epoch_s,
+                        ttl_seconds: ttl.or(default_ttl),
+                        author: None,
+                        doi_or_url: None,
+                        license: None,
+                        training_utility: 1.0,
+                        anomaly_score: anomaly.clamp(0.0, 1.0),
+                        training_epochs_seen: 0,
+                        is_pinned: pinned,
+                    })
+                },
+            )
             .collect();
 
         let metadata_list = serialized_results?;
@@ -308,10 +321,9 @@ impl WindowsDataLake {
         let metas: Result<Vec<DatasetMetadata>, LakeError> = partition_keys
             .iter()
             .map(|&(ds_id, part_key)| {
-                self.registry
-                    .get(ds_id, part_key)
-                    .cloned()
-                    .ok_or_else(|| LakeError::PartitionNotFound(ds_id.to_string(), part_key.to_string()))
+                self.registry.get(ds_id, part_key).cloned().ok_or_else(|| {
+                    LakeError::PartitionNotFound(ds_id.to_string(), part_key.to_string())
+                })
             })
             .collect();
 
@@ -381,7 +393,12 @@ impl WindowsDataLake {
 
     /// Pins or unpins a partition to protect it from automated pruning (e.g. historical crisis memories).
     #[doc = "**Stability: Experimental** — API subject to change"]
-    pub fn set_pinned(&mut self, dataset_id: &str, partition_key: &str, pinned: bool) -> Result<bool, LakeError> {
+    pub fn set_pinned(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+        pinned: bool,
+    ) -> Result<bool, LakeError> {
         let updated = self.registry.set_pinned(dataset_id, partition_key, pinned);
         if updated {
             let entry = registry::LakeWalEntry::Pin {
@@ -410,7 +427,9 @@ impl WindowsDataLake {
             .registry
             .get(dataset_id, partition_key)
             .cloned()
-            .ok_or_else(|| LakeError::PartitionNotFound(dataset_id.to_string(), partition_key.to_string()))?;
+            .ok_or_else(|| {
+                LakeError::PartitionNotFound(dataset_id.to_string(), partition_key.to_string())
+            })?;
 
         if !meta.file_path.exists() {
             return Err(LakeError::PartitionNotFound(
@@ -451,7 +470,9 @@ impl WindowsDataLake {
         start_epoch: u64,
         end_epoch: u64,
     ) -> Result<TabularDataset, LakeError> {
-        let metas = self.registry.get_partitions_in_range(dataset_id, start_epoch, end_epoch);
+        let metas = self
+            .registry
+            .get_partitions_in_range(dataset_id, start_epoch, end_epoch);
         if metas.is_empty() {
             return Ok(TabularDataset::new());
         }
@@ -524,12 +545,17 @@ impl WindowsDataLake {
             return Ok(0);
         }
 
-        let candidates = self.registry.get_eviction_candidates_by_priority(current_epoch_s);
+        let candidates = self
+            .registry
+            .get_eviction_candidates_by_priority(current_epoch_s);
         for meta in candidates {
             if total <= self.config.max_storage_bytes {
                 break;
             }
-            if let Some(removed) = self.registry.unregister(&meta.dataset_id, &meta.partition_key) {
+            if let Some(removed) = self
+                .registry
+                .unregister(&meta.dataset_id, &meta.partition_key)
+            {
                 if removed.file_path.exists() {
                     let _ = fs::remove_file(&removed.file_path);
                 }
@@ -546,7 +572,11 @@ impl WindowsDataLake {
 
     /// Explicitly deletes a specific partition.
     #[doc = "**Stability: Experimental** — API subject to change"]
-    pub fn delete_partition(&mut self, dataset_id: &str, partition_key: &str) -> Result<bool, LakeError> {
+    pub fn delete_partition(
+        &mut self,
+        dataset_id: &str,
+        partition_key: &str,
+    ) -> Result<bool, LakeError> {
         if let Some(removed) = self.registry.unregister(dataset_id, partition_key) {
             if removed.file_path.exists() {
                 fs::remove_file(&removed.file_path)?;
@@ -591,7 +621,10 @@ impl WindowsDataLake {
 
     /// Removes an experiment record.
     #[doc = "**Stability: Experimental** — API subject to change"]
-    pub fn remove_experiment(&mut self, run_id: &str) -> Result<Option<ExperimentRecord>, LakeError> {
+    pub fn remove_experiment(
+        &mut self,
+        run_id: &str,
+    ) -> Result<Option<ExperimentRecord>, LakeError> {
         let entry = registry::LakeWalEntry::RemoveExperiment {
             run_id: run_id.to_string(),
         };

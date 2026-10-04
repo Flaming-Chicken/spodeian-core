@@ -107,7 +107,12 @@ impl PerformanceMetricCard {
                         } else {
                             ui.visuals().text_color()
                         };
-                        ui.label(RichText::new(&self.value).size(18.0).strong().color(val_color));
+                        ui.label(
+                            RichText::new(&self.value)
+                                .size(18.0)
+                                .strong()
+                                .color(val_color),
+                        );
 
                         if let Some(unit) = &self.unit {
                             ui.label(RichText::new(unit).size(12.0).weak());
@@ -123,7 +128,11 @@ impl PerformanceMetricCard {
                         } else {
                             ("•", Color32::GRAY)
                         };
-                        ui.label(RichText::new(format!("{arrow} {text}")).size(10.0).color(color));
+                        ui.label(
+                            RichText::new(format!("{arrow} {text}"))
+                                .size(10.0)
+                                .color(color),
+                        );
                     }
                 });
             })
@@ -147,7 +156,11 @@ pub struct AccessibleSlider<'a> {
 }
 
 impl<'a> AccessibleSlider<'a> {
-    pub fn new(value: &'a mut f64, range: std::ops::RangeInclusive<f64>, label: impl Into<String>) -> Self {
+    pub fn new(
+        value: &'a mut f64,
+        range: std::ops::RangeInclusive<f64>,
+        label: impl Into<String>,
+    ) -> Self {
         Self {
             value,
             range,

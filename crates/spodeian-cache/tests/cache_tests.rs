@@ -1,5 +1,5 @@
-use spodeian_cache::{CacheError, ContentAddressedStorage, PreferentialRouter, StorageTier};
 use serde::{Deserialize, Serialize};
+use spodeian_cache::{CacheError, ContentAddressedStorage, PreferentialRouter, StorageTier};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 struct TestModelWeights {
@@ -27,7 +27,11 @@ fn test_cas_put_get_and_tamper_detection() {
 
     let result = cas.get(&hash);
     match result {
-        Err(CacheError::TamperDetected { key, expected, computed }) => {
+        Err(CacheError::TamperDetected {
+            key,
+            expected,
+            computed,
+        }) => {
             assert_eq!(key, hash);
             assert_eq!(expected, hash);
             assert_ne!(computed, expected);
@@ -59,7 +63,8 @@ fn test_cas_json_entity_roundtrip() {
 
 #[test]
 fn test_preferential_router_tier_decision() {
-    let native_tier = PreferentialRouter::determine_tier(1024 * 1024, "application/octet-stream", true);
+    let native_tier =
+        PreferentialRouter::determine_tier(1024 * 1024, "application/octet-stream", true);
     assert_eq!(native_tier, StorageTier::NativeCas);
 
     let small_native = PreferentialRouter::determine_tier(512, "application/json", false);

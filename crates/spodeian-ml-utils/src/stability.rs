@@ -12,7 +12,9 @@ use thiserror::Error;
 #[derive(Debug, Error, Clone, PartialEq)]
 pub enum ConvergenceError {
     /// Maximum iteration limit reached without meeting tolerance.
-    #[error("Maximum iterations exceeded: reached {iterations} iterations with residual {residual:.6e} > tol {tolerance:.6e}")]
+    #[error(
+        "Maximum iterations exceeded: reached {iterations} iterations with residual {residual:.6e} > tol {tolerance:.6e}"
+    )]
     MaxIterationsExceeded {
         /// Number of iterations executed.
         iterations: usize,
@@ -30,7 +32,9 @@ pub enum ConvergenceError {
         residual: f64,
     },
     /// Matrix dimensions are invalid or non-square.
-    #[error("Invalid matrix dimensions: expected square matrix of size {expected}x{expected}, got {rows}x{cols}")]
+    #[error(
+        "Invalid matrix dimensions: expected square matrix of size {expected}x{expected}, got {rows}x{cols}"
+    )]
     InvalidDimensions {
         /// Expected dimension.
         expected: usize,

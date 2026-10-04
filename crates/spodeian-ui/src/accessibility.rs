@@ -11,8 +11,10 @@ pub fn configure_accessible_focus(ctx: &Context, prefs: &AccessibilityPreference
     for theme in [egui::Theme::Dark, egui::Theme::Light] {
         ctx.style_mut_of(theme, |style| {
             if prefs.high_contrast {
-                style.visuals.widgets.hovered.bg_stroke = Stroke::new(2.5, Color32::from_rgb(255, 230, 0));
-                style.visuals.widgets.active.bg_stroke = Stroke::new(3.0, Color32::from_rgb(255, 230, 0));
+                style.visuals.widgets.hovered.bg_stroke =
+                    Stroke::new(2.5, Color32::from_rgb(255, 230, 0));
+                style.visuals.widgets.active.bg_stroke =
+                    Stroke::new(3.0, Color32::from_rgb(255, 230, 0));
             }
 
             if prefs.large_touch_targets {

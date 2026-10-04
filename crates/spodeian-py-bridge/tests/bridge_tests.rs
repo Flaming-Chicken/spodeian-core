@@ -9,8 +9,14 @@ fn test_temporal_masking_reproducibility() {
     let masked1 = apply_temporal_mask(&input, 0.4, -999.0, 42);
     let masked2 = apply_temporal_mask(&input, 0.4, -999.0, 42);
 
-    assert_eq!(masked1, masked2, "Masking must be deterministic for identical seeds");
-    assert!(masked1.contains(&-999.0), "Masking should replace elements with mask_value");
+    assert_eq!(
+        masked1, masked2,
+        "Masking must be deterministic for identical seeds"
+    );
+    assert!(
+        masked1.contains(&-999.0),
+        "Masking should replace elements with mask_value"
+    );
 }
 
 #[test]
@@ -21,7 +27,10 @@ fn test_gaussian_jitter_properties() {
     assert_eq!(jittered.len(), 100);
     // Values should fluctuate closely around 10.0
     let mean = jittered.iter().sum::<f64>() / 100.0;
-    assert!((mean - 10.0).abs() < 0.05, "Mean of jittered constant should remain close to original");
+    assert!(
+        (mean - 10.0).abs() < 0.05,
+        "Mean of jittered constant should remain close to original"
+    );
 }
 
 #[test]

@@ -257,7 +257,9 @@ fn test_continuous_horizon_head() {
 
     // Predict across continuous horizons: 0.25d (intraday), 1.5d, 7.0d, 21.3d, 252.0d
     let horizons = [0.25f32, 1.5, 7.0, 21.3, 252.0];
-    let results = head.predict_continuous_horizons(&features, &horizons, &device).unwrap();
+    let results = head
+        .predict_continuous_horizons(&features, &horizons, &device)
+        .unwrap();
 
     assert_eq!(results.len(), 5);
     for (i, &(t, val)) in results.iter().enumerate() {
@@ -273,4 +275,3 @@ fn test_continuous_horizon_head() {
         assert!((emb1[j] - emb2[j]).abs() < 1e-3);
     }
 }
-

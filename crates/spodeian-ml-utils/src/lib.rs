@@ -30,5 +30,3 @@ pub use logarithmic::*;
 pub use quantization::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use stability::*;
-
-

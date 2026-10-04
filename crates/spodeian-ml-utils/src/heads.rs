@@ -1,7 +1,7 @@
 //! Dynamic multi-horizon, monotonic non-crossing quantile, and continuous flow heads for Candle.
 
 use candle_core::{DType, Device, Result as CandleResult, Tensor};
-use candle_nn::{linear, Linear, Module, VarBuilder};
+use candle_nn::{Linear, Module, VarBuilder, linear};
 
 /// Dynamic Multi-Horizon Forecast Head.
 ///
@@ -43,18 +43,17 @@ impl DynamicMultiHorizonHead {
     }
 
     /// Predict scalar forecasts paired with their horizon labels: `[(horizon, forecast)]`.
-    pub fn predict_horizons(&self, features: &[f32], device: &Device) -> CandleResult<Vec<(usize, f32)>> {
+    pub fn predict_horizons(
+        &self,
+        features: &[f32],
+        device: &Device,
+    ) -> CandleResult<Vec<(usize, f32)>> {
         let input_tensor = Tensor::from_slice(features, (1, self.input_dim), device)?;
         let output = self.forward(&input_tensor)?;
         let flat = output.flatten_all()?;
         let vals: Vec<f32> = flat.to_vec1()?;
 
-        let result = self
-            .horizons
-            .iter()
-            .copied()
-            .zip(vals)
-            .collect();
+        let result = self.horizons.iter().copied().zip(vals).collect();
         Ok(result)
     }
 }
@@ -143,18 +142,17 @@ impl MonotonicQuantileHead {
     }
 
     /// Predict monotonic quantiles for a feature slice on CPU: returns `[(tau, q_val)]`.
-    pub fn predict_quantiles(&self, features: &[f32], device: &Device) -> CandleResult<Vec<(f32, f32)>> {
+    pub fn predict_quantiles(
+        &self,
+        features: &[f32],
+        device: &Device,
+    ) -> CandleResult<Vec<(f32, f32)>> {
         let input_tensor = Tensor::from_slice(features, (1, self.input_dim), device)?;
         let output = self.forward(&input_tensor)?;
         let flat = output.flatten_all()?;
         let vals: Vec<f32> = flat.to_vec1()?;
 
-        let result = self
-            .quantiles
-            .iter()
-            .copied()
-            .zip(vals)
-            .collect();
+        let result = self.quantiles.iter().copied().zip(vals).collect();
         Ok(result)
     }
 
@@ -184,7 +182,12 @@ pub struct VelocityFlowHead {
 }
 
 impl VelocityFlowHead {
-    pub fn new(vb: VarBuilder, dim: usize, num_freqs: usize, hidden_dim: usize) -> CandleResult<Self> {
+    pub fn new(
+        vb: VarBuilder,
+        dim: usize,
+        num_freqs: usize,
+        hidden_dim: usize,
+    ) -> CandleResult<Self> {
         let time_dim = num_freqs * 2;
         let time_proj = linear(time_dim, hidden_dim, vb.pp("flow_time_proj"))?;
         let hidden_linear = linear(dim + hidden_dim, hidden_dim, vb.pp("flow_hidden"))?;
@@ -244,7 +247,12 @@ pub struct ContinuousHorizonHead {
 }
 
 impl ContinuousHorizonHead {
-    pub fn new(vb: VarBuilder, input_dim: usize, num_freqs: usize, hidden_dim: usize) -> CandleResult<Self> {
+    pub fn new(
+        vb: VarBuilder,
+        input_dim: usize,
+        num_freqs: usize,
+        hidden_dim: usize,
+    ) -> CandleResult<Self> {
         let time_dim = num_freqs * 2;
         let feat_proj = linear(input_dim, hidden_dim, vb.pp("horizon_feat_proj"))?;
         let time_proj = linear(time_dim, hidden_dim, vb.pp("horizon_time_proj"))?;
@@ -261,7 +269,12 @@ impl ContinuousHorizonHead {
     }
 
     /// Creates an initialized mock continuous horizon head with zero weights.
-    pub fn new_mock(input_dim: usize, num_freqs: usize, hidden_dim: usize, device: &Device) -> CandleResult<Self> {
+    pub fn new_mock(
+        input_dim: usize,
+        num_freqs: usize,
+        hidden_dim: usize,
+        device: &Device,
+    ) -> CandleResult<Self> {
         let time_dim = num_freqs * 2;
         let mut tensors = std::collections::HashMap::new();
         tensors.insert(
@@ -336,4 +349,3 @@ impl ContinuousHorizonHead {
         Ok(results)
     }
 }
-

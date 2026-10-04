@@ -1,6 +1,6 @@
 use spodeian_ml_utils::stability::{
-    nearest_psd_matrix, safe_div, safe_div_f32, symmetrize_matrix, ConvergenceError,
-    IterationLimiter, SanitizeFloats,
+    ConvergenceError, IterationLimiter, SanitizeFloats, nearest_psd_matrix, safe_div, safe_div_f32,
+    symmetrize_matrix,
 };
 
 #[test]
@@ -19,7 +19,14 @@ fn test_sanitize_floats_f64() {
 
 #[test]
 fn test_sanitize_floats_f32() {
-    let mut data = vec![1.0f32, f32::NAN, 2.5, f32::INFINITY, -3.0, f32::NEG_INFINITY];
+    let mut data = vec![
+        1.0f32,
+        f32::NAN,
+        2.5,
+        f32::INFINITY,
+        -3.0,
+        f32::NEG_INFINITY,
+    ];
     assert!(!data.is_finite_vector());
 
     let replaced = data.replace_non_finite(0.0);
@@ -45,10 +52,7 @@ fn test_safe_div() {
 
 #[test]
 fn test_symmetrize_matrix() {
-    let mut matrix = vec![
-        1.0, 2.0,
-        4.0, 3.0,
-    ];
+    let mut matrix = vec![1.0, 2.0, 4.0, 3.0];
     symmetrize_matrix(&mut matrix, 2).expect("Symmetrization failed");
     assert_eq!(matrix, vec![1.0, 3.0, 3.0, 3.0]);
 }
@@ -56,10 +60,7 @@ fn test_symmetrize_matrix() {
 #[test]
 fn test_nearest_psd_matrix_already_psd() {
     // Identity matrix is already PSD
-    let identity = vec![
-        1.0, 0.0,
-        0.0, 1.0,
-    ];
+    let identity = vec![1.0, 0.0, 0.0, 1.0];
     let psd = nearest_psd_matrix(&identity, 2, 1e-8).expect("Projection failed");
     for (a, b) in identity.iter().zip(psd.iter()) {
         assert!((a - b).abs() < 1e-10);
@@ -72,10 +73,7 @@ fn test_nearest_psd_matrix_negative_eigenvalues() {
     // [0.5, 1.5]
     // [1.5, 0.5]
     // Trace = 1, Det = 0.25 - 2.25 = -2. Eigenvalues: (1 +/- sqrt(1 - 4(-2)))/2 = (1 +/- 3)/2 = 2 and -1.
-    let non_psd = vec![
-        0.5, 1.5,
-        1.5, 0.5,
-    ];
+    let non_psd = vec![0.5, 1.5, 1.5, 0.5];
 
     let eps = 1e-6;
     let psd = nearest_psd_matrix(&non_psd, 2, eps).expect("Projection failed");
@@ -89,7 +87,10 @@ fn test_nearest_psd_matrix_negative_eigenvalues() {
         [0.0, 1.0],
         [1.0, 1.0],
         [1.0, -1.0],
-        [std::f64::consts::FRAC_1_SQRT_2, -std::f64::consts::FRAC_1_SQRT_2],
+        [
+            std::f64::consts::FRAC_1_SQRT_2,
+            -std::f64::consts::FRAC_1_SQRT_2,
+        ],
     ];
 
     for [x, y] in test_vectors {
@@ -105,9 +106,8 @@ fn test_nearest_psd_matrix_negative_eigenvalues() {
 fn test_nearest_psd_matrix_3x3_ill_conditioned() {
     // 3x3 ill-conditioned matrix
     let matrix = vec![
-        1.0,  0.9,  0.9,
-        0.9,  1.0,  0.9,
-        0.9,  0.9, -0.5, // Corrupted entry causing negative eigenvalue
+        1.0, 0.9, 0.9, 0.9, 1.0, 0.9, 0.9, 0.9,
+        -0.5, // Corrupted entry causing negative eigenvalue
     ];
 
     let psd = nearest_psd_matrix(&matrix, 3, 1e-8).expect("3x3 projection failed");

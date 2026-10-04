@@ -1,5 +1,5 @@
 use spodeian_telemetry::{
-    init_default, init_telemetry, init_telemetry_with_buffer, LogEntry, LogRingBuffer,
+    LogEntry, LogRingBuffer, init_default, init_telemetry, init_telemetry_with_buffer,
 };
 
 #[test]
@@ -71,10 +71,12 @@ fn test_log_ring_buffer_operations() {
 #[test]
 fn test_init_telemetry_with_buffer() {
     let buffer = init_telemetry_with_buffer("test_app", "info");
-    tracing::info!(test_field = "provenance", "Integration event testing ring buffer");
+    tracing::info!(
+        test_field = "provenance",
+        "Integration event testing ring buffer"
+    );
 
     // Give subscriber a moment to capture
     let snapshot = buffer.snapshot();
     assert!(!snapshot.is_empty());
 }
-

@@ -142,7 +142,11 @@ impl tracing::field::Visit for FieldVisitor {
 
 #[cfg(not(target_arch = "wasm32"))]
 impl<S: tracing::Subscriber> tracing_subscriber::Layer<S> for RingBufferLayer {
-    fn on_event(&self, event: &tracing::Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
+    fn on_event(
+        &self,
+        event: &tracing::Event<'_>,
+        _ctx: tracing_subscriber::layer::Context<'_, S>,
+    ) {
         let mut visitor = FieldVisitor {
             message: String::new(),
             fields: Vec::new(),
@@ -207,16 +211,19 @@ pub fn install_panic_hook(app_name: &'static str) {
 
 /// Configures and initializes global tracing subscriber, panic handlers, and in-memory log buffer.
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
-pub fn init_telemetry_with_buffer(app_name: &'static str, default_filter: &str) -> Arc<LogRingBuffer> {
+pub fn init_telemetry_with_buffer(
+    app_name: &'static str,
+    default_filter: &str,
+) -> Arc<LogRingBuffer> {
     let _ = default_filter;
     let buffer = global_ring_buffer();
     install_panic_hook(app_name);
 
     #[cfg(not(target_arch = "wasm32"))]
     {
-        use tracing_subscriber::{fmt, prelude::*, EnvFilter};
-        let filter = EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| EnvFilter::new(default_filter));
+        use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+        let filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(default_filter));
 
         let ring_layer = RingBufferLayer {
             buffer: buffer.clone(),

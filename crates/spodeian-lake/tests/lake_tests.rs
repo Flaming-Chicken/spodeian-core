@@ -3,7 +3,14 @@ use spodeian_lake::{DataLakeConfig, TabularDataset, WindowsDataLake};
 fn create_mock_market_dataset() -> TabularDataset {
     let mut dataset = TabularDataset::new();
     dataset
-        .add_string_column("symbol", vec!["BHP.AX".to_string(), "BHP.AX".to_string(), "BHP.AX".to_string()])
+        .add_string_column(
+            "symbol",
+            vec![
+                "BHP.AX".to_string(),
+                "BHP.AX".to_string(),
+                "BHP.AX".to_string(),
+            ],
+        )
         .unwrap();
     dataset
         .add_int_column("timestamp", vec![1700000000, 1700000060, 1700000120])
@@ -22,17 +29,35 @@ fn test_tabular_dataset_parquet_roundtrip() {
     let dataset = create_mock_market_dataset();
 
     let mut parquet_buffer = Vec::new();
-    dataset.write_to_parquet(&mut parquet_buffer).expect("Parquet serialization failed");
+    dataset
+        .write_to_parquet(&mut parquet_buffer)
+        .expect("Parquet serialization failed");
     assert!(!parquet_buffer.is_empty());
 
-    let restored = TabularDataset::read_from_parquet(&parquet_buffer).expect("Parquet deserialization failed");
+    let restored =
+        TabularDataset::read_from_parquet(&parquet_buffer).expect("Parquet deserialization failed");
 
     assert_eq!(restored.num_rows, 3);
-    assert_eq!(restored.column_names, vec!["symbol", "timestamp", "close", "volume"]);
-    assert_eq!(restored.string_columns.get("symbol").unwrap(), &vec!["BHP.AX", "BHP.AX", "BHP.AX"]);
-    assert_eq!(restored.int_columns.get("timestamp").unwrap(), &vec![1700000000, 1700000060, 1700000120]);
-    assert_eq!(restored.float_columns.get("close").unwrap(), &vec![42.50, 42.75, 42.60]);
-    assert_eq!(restored.float_columns.get("volume").unwrap(), &vec![125000.0, 98000.0, 142000.0]);
+    assert_eq!(
+        restored.column_names,
+        vec!["symbol", "timestamp", "close", "volume"]
+    );
+    assert_eq!(
+        restored.string_columns.get("symbol").unwrap(),
+        &vec!["BHP.AX", "BHP.AX", "BHP.AX"]
+    );
+    assert_eq!(
+        restored.int_columns.get("timestamp").unwrap(),
+        &vec![1700000000, 1700000060, 1700000120]
+    );
+    assert_eq!(
+        restored.float_columns.get("close").unwrap(),
+        &vec![42.50, 42.75, 42.60]
+    );
+    assert_eq!(
+        restored.float_columns.get("volume").unwrap(),
+        &vec![125000.0, 98000.0, 142000.0]
+    );
 }
 
 #[test]
@@ -40,7 +65,7 @@ fn test_windows_data_lake_lifecycle() {
     let temp_dir = std::env::temp_dir().join(format!("spodeian_lake_test_{}", std::process::id()));
     let config = DataLakeConfig {
         lake_root: temp_dir.clone(),
-        max_storage_bytes: 1024 * 1024, // 1 MB
+        max_storage_bytes: 1024 * 1024,  // 1 MB
         default_ttl_seconds: Some(3600), // 1 hour
     };
 
@@ -50,7 +75,13 @@ fn test_windows_data_lake_lifecycle() {
     // Store partition
     let current_epoch = 1700000000;
     let meta = lake
-        .store_parquet("market_ticks", "asx_2026_09", &dataset, Some(3600), current_epoch)
+        .store_parquet(
+            "market_ticks",
+            "asx_2026_09",
+            &dataset,
+            Some(3600),
+            current_epoch,
+        )
         .expect("Failed to store parquet");
 
     assert_eq!(meta.dataset_id, "market_ticks");
@@ -62,7 +93,10 @@ fn test_windows_data_lake_lifecycle() {
         .load_parquet("market_ticks", "asx_2026_09", current_epoch + 10)
         .expect("Failed to load parquet");
     assert_eq!(loaded.num_rows, 3);
-    assert_eq!(loaded.float_columns.get("close").unwrap(), &vec![42.50, 42.75, 42.60]);
+    assert_eq!(
+        loaded.float_columns.get("close").unwrap(),
+        &vec![42.50, 42.75, 42.60]
+    );
 
     // Check summary
     let summary = lake.summary();
@@ -70,10 +104,13 @@ fn test_windows_data_lake_lifecycle() {
     assert_eq!(summary.total_records, 3);
 
     // Record training feedback: model has trained and utility has saturated (dropped to 0.1)
-    lake.record_training_feedback("market_ticks", "asx_2026_09", 0.1, None, 10).unwrap();
+    lake.record_training_feedback("market_ticks", "asx_2026_09", 0.1, None, 10)
+        .unwrap();
 
     // Test TTL staleness pruning (advance time past TTL: +7200s and utility <= 0.4)
-    let evicted = lake.prune_stale(current_epoch + 7200).expect("Failed to prune");
+    let evicted = lake
+        .prune_stale(current_epoch + 7200)
+        .expect("Failed to prune");
     assert_eq!(evicted, 1);
     assert_eq!(lake.summary().total_partitions, 0);
 
@@ -84,7 +121,7 @@ fn test_windows_data_lake_lifecycle() {
 #[test]
 fn test_windows_data_lake_lru_capacity_eviction() {
     let temp_dir = std::env::temp_dir().join(format!("spodeian_lru_test_{}", std::process::id()));
-    
+
     // Create first partition to gauge size
     let dataset = create_mock_market_dataset();
     let mut sample_buf = Vec::new();
@@ -101,11 +138,13 @@ fn test_windows_data_lake_lru_capacity_eviction() {
     let mut lake = WindowsDataLake::new(config).expect("Failed to initialize lake");
 
     // Store partition 1 at t=100
-    lake.store_parquet("ticks", "part_1", &dataset, None, 100).unwrap();
+    lake.store_parquet("ticks", "part_1", &dataset, None, 100)
+        .unwrap();
     assert_eq!(lake.summary().total_partitions, 1);
 
     // Store partition 2 at t=200 -> partition 1 (older access) should be LRU evicted
-    lake.store_parquet("ticks", "part_2", &dataset, None, 200).unwrap();
+    lake.store_parquet("ticks", "part_2", &dataset, None, 200)
+        .unwrap();
 
     let summary = lake.summary();
     assert_eq!(summary.total_partitions, 1);
@@ -130,24 +169,34 @@ fn test_value_aware_training_retention_and_pruning() {
     let dataset = create_mock_market_dataset();
 
     // 1. Ingest normal partition A (will later saturate)
-    lake.store_parquet("market", "partition_a", &dataset, None, 1000).unwrap();
+    lake.store_parquet("market", "partition_a", &dataset, None, 1000)
+        .unwrap();
 
     // 2. Ingest crisis memory partition B (pinned permanently)
-    lake.store_parquet_with_options("market", "crisis_2020", &dataset, None, 0.95, true, 1000).unwrap();
+    lake.store_parquet_with_options("market", "crisis_2020", &dataset, None, 0.95, true, 1000)
+        .unwrap();
 
     // 3. Ingest high-loss active learning partition C
-    lake.store_parquet("market", "partition_c", &dataset, None, 1000).unwrap();
+    lake.store_parquet("market", "partition_c", &dataset, None, 1000)
+        .unwrap();
 
     // Simulate training feedback:
     // Partition A: model has mastered it (utility drops to 0.05, seen 25 epochs)
-    lake.record_training_feedback("market", "partition_a", 0.05, Some(0.0), 25).unwrap();
+    lake.record_training_feedback("market", "partition_a", 0.05, Some(0.0), 25)
+        .unwrap();
 
     // Partition C: model still has high reconstruction error (utility remains 0.90, seen only 2 epochs)
-    lake.record_training_feedback("market", "partition_c", 0.90, Some(0.2), 2).unwrap();
+    lake.record_training_feedback("market", "partition_c", 0.90, Some(0.2), 2)
+        .unwrap();
 
     // Run utility-based pruning: threshold 0.15
-    let evicted = lake.prune_low_utility(0.15).expect("Prune low utility failed");
-    assert_eq!(evicted, 1, "Only partition A should be pruned as model won't benefit from it");
+    let evicted = lake
+        .prune_low_utility(0.15)
+        .expect("Prune low utility failed");
+    assert_eq!(
+        evicted, 1,
+        "Only partition A should be pruned as model won't benefit from it"
+    );
 
     // Verify partition A is gone, but crisis_2020 and partition_c are strictly preserved
     assert!(lake.load_parquet("market", "partition_a", 1010).is_err());
@@ -159,7 +208,8 @@ fn test_value_aware_training_retention_and_pruning() {
 
 #[test]
 fn test_parallel_batch_ingestion_and_verification() {
-    let temp_dir = std::env::temp_dir().join(format!("spodeian_parallel_test_{}", std::process::id()));
+    let temp_dir =
+        std::env::temp_dir().join(format!("spodeian_parallel_test_{}", std::process::id()));
     let config = DataLakeConfig {
         lake_root: temp_dir.clone(),
         max_storage_bytes: 10 * 1024 * 1024,
@@ -178,17 +228,17 @@ fn test_parallel_batch_ingestion_and_verification() {
     ];
 
     // Parallel batch storage
-    let metas = lake.store_parquet_batch_parallel(&batch, 1000).expect("Parallel batch store failed");
+    let metas = lake
+        .store_parquet_batch_parallel(&batch, 1000)
+        .expect("Parallel batch store failed");
     assert_eq!(metas.len(), 3);
     assert_eq!(lake.summary().total_partitions, 3);
 
     // Parallel partition integrity verification
-    let to_verify = vec![
-        ("asx", "part_1"),
-        ("asx", "part_2"),
-        ("asx", "part_3"),
-    ];
-    let verified = lake.verify_partitions_parallel(&to_verify).expect("Parallel verification failed");
+    let to_verify = vec![("asx", "part_1"), ("asx", "part_2"), ("asx", "part_3")];
+    let verified = lake
+        .verify_partitions_parallel(&to_verify)
+        .expect("Parallel verification failed");
     assert!(verified);
 
     let _ = std::fs::remove_dir_all(&temp_dir);
@@ -207,21 +257,29 @@ fn test_debounced_wal_persistence_and_replay() {
 
     {
         let mut lake = WindowsDataLake::new(config.clone()).expect("Failed to initialize lake");
-        lake.store_parquet("market", "tick_partition", &dataset, None, 1000).unwrap();
+        lake.store_parquet("market", "tick_partition", &dataset, None, 1000)
+            .unwrap();
 
         // Perform fast training feedback updates that write to append-only WAL
-        lake.record_training_feedback("market", "tick_partition", 0.42, Some(0.15), 5).unwrap();
+        lake.record_training_feedback("market", "tick_partition", 0.42, Some(0.15), 5)
+            .unwrap();
         lake.set_pinned("market", "tick_partition", true).unwrap();
 
         // Check that wal file exists before full flush
         let wal_path = temp_dir.join("lake_registry.wal");
-        assert!(wal_path.exists(), "WAL file should be created for fast append");
+        assert!(
+            wal_path.exists(),
+            "WAL file should be created for fast append"
+        );
     }
 
     // Now re-open data lake from disk: should replay WAL entries seamlessly
     {
-        let mut lake = WindowsDataLake::new(config).expect("Failed to re-initialize lake with WAL replay");
-        let meta = lake.load_parquet("market", "tick_partition", 1010).expect("Load after WAL replay failed");
+        let mut lake =
+            WindowsDataLake::new(config).expect("Failed to re-initialize lake with WAL replay");
+        let meta = lake
+            .load_parquet("market", "tick_partition", 1010)
+            .expect("Load after WAL replay failed");
         assert_eq!(meta.num_rows, 3);
 
         // Verify replayed in-memory state
@@ -231,7 +289,10 @@ fn test_debounced_wal_persistence_and_replay() {
         // Explicitly flush / compact WAL
         lake.flush_wal().expect("Flush WAL failed");
         let wal_path = temp_dir.join("lake_registry.wal");
-        assert!(!wal_path.exists(), "WAL file should be removed upon compaction");
+        assert!(
+            !wal_path.exists(),
+            "WAL file should be removed upon compaction"
+        );
     }
 
     let _ = std::fs::remove_dir_all(&temp_dir);
@@ -251,12 +312,17 @@ fn test_load_partitions_range_streaming() {
     let dataset2 = create_mock_market_dataset();
 
     // Store across different epochs
-    lake.store_parquet("ticks", "day_1", &dataset1, None, 1000).unwrap();
-    lake.store_parquet("ticks", "day_2", &dataset2, None, 2000).unwrap();
-    lake.store_parquet("ticks", "day_3", &dataset1, None, 5000).unwrap();
+    lake.store_parquet("ticks", "day_1", &dataset1, None, 1000)
+        .unwrap();
+    lake.store_parquet("ticks", "day_2", &dataset2, None, 2000)
+        .unwrap();
+    lake.store_parquet("ticks", "day_3", &dataset1, None, 5000)
+        .unwrap();
 
     // Query range [500, 2500]: should load day_1 and day_2 (total 6 rows)
-    let range_data = lake.load_partitions_range("ticks", 500, 2500).expect("Range query failed");
+    let range_data = lake
+        .load_partitions_range("ticks", 500, 2500)
+        .expect("Range query failed");
     assert_eq!(range_data.num_rows, 6);
     assert_eq!(range_data.float_columns.get("close").unwrap().len(), 6);
 
@@ -265,8 +331,8 @@ fn test_load_partitions_range_streaming() {
 
 #[test]
 fn test_citation_distillation_formats() {
-    use spodeian_lake::{CitationDistiller, CitationFormat};
     use spodeian_lake::registry::DatasetMetadata;
+    use spodeian_lake::{CitationDistiller, CitationFormat};
     use std::path::PathBuf;
 
     let mut meta = DatasetMetadata {
@@ -275,7 +341,8 @@ fn test_citation_distillation_formats() {
         file_path: PathBuf::from("data/asx.parquet"),
         record_count: 50000,
         byte_size: 1048576,
-        sha256_checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string(),
+        sha256_checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            .to_string(),
         created_at_epoch_s: 1780000000,
         last_accessed_epoch_s: 1780000000,
         ttl_seconds: Some(86400),
@@ -376,8 +443,10 @@ fn test_experiment_registry_lifecycle_and_wal() {
     };
 
     // Register experiments
-    lake.register_experiment(exp_a.clone()).expect("Failed to register experiment A");
-    lake.register_experiment(exp_b.clone()).expect("Failed to register experiment B");
+    lake.register_experiment(exp_a.clone())
+        .expect("Failed to register experiment A");
+    lake.register_experiment(exp_b.clone())
+        .expect("Failed to register experiment B");
 
     // Query experiments
     let all = lake.list_experiments();
@@ -389,7 +458,9 @@ fn test_experiment_registry_lifecycle_and_wal() {
     let by_name = lake.list_experiments_by_name("risky_business_ssl_v1");
     assert_eq!(by_name.len(), 2);
 
-    let fetched = lake.get_experiment("run-uuid-001").expect("Missing experiment");
+    let fetched = lake
+        .get_experiment("run-uuid-001")
+        .expect("Missing experiment");
     assert_eq!(fetched.experiment_name, "risky_business_ssl_v1");
     assert_eq!(fetched.final_metrics.get("val_loss").copied(), Some(0.048));
 

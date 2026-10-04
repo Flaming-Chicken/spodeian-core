@@ -101,7 +101,6 @@ fn test_fp8_decoding() {
     assert!((v_e5m2 - 1.0).abs() < 1e-5);
 }
 
-
 #[test]
 fn test_bnn_matmul() {
     // 1-bit packed: bit 0 = 1 (+1.0), bit 1 = 0 (-1.0)
