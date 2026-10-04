@@ -117,7 +117,12 @@ pub fn rolling_zscore_normalize(sequence: &[f64], window: usize) -> Vec<f64> {
 
 /// Random sequence masking for Self-Supervised Learning (SSL).
 #[doc = "**Stability: Experimental** — API subject to change"]
-pub fn apply_temporal_mask(sequence: &[f64], mask_ratio: f64, mask_value: f64, seed: u64) -> Vec<f64> {
+pub fn apply_temporal_mask(
+    sequence: &[f64],
+    mask_ratio: f64,
+    mask_value: f64,
+    seed: u64,
+) -> Vec<f64> {
     if sequence.is_empty() {
         return Vec::new();
     }
@@ -126,7 +131,9 @@ pub fn apply_temporal_mask(sequence: &[f64], mask_ratio: f64, mask_value: f64, s
     let mut rng_state = if seed == 0 { 0x853c49e6748fea9b } else { seed };
 
     for val in result.iter_mut() {
-        rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        rng_state = rng_state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         let rand_float = ((rng_state >> 33) as f64) / ((1u64 << 31) as f64);
         if rand_float < ratio {
             *val = mask_value;
@@ -147,9 +154,13 @@ pub fn apply_gaussian_jitter(sequence: &[f64], std_dev: f64, seed: u64) -> Vec<f
 
     let mut i = 0;
     while i < sequence.len() {
-        rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        rng_state = rng_state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         let u1 = (((rng_state >> 33) as f64) + 1.0) / (((1u64 << 31) as f64) + 2.0);
-        rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        rng_state = rng_state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         let u2 = (((rng_state >> 33) as f64) + 1.0) / (((1u64 << 31) as f64) + 2.0);
 
         let z0 = (-2.0 * u1.ln()).sqrt() * (2.0 * std::f64::consts::PI * u2).cos();

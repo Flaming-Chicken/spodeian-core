@@ -29,13 +29,17 @@ fn test_financial_observation_roundtrip() {
         },
     ];
 
-    let dataset = FinancialObservation::to_tabular_dataset(&records).expect("Failed to convert to tabular dataset");
+    let dataset = FinancialObservation::to_tabular_dataset(&records)
+        .expect("Failed to convert to tabular dataset");
     assert_eq!(dataset.num_rows, 2);
 
     // Parquet buffer roundtrip
     let mut buffer = Vec::new();
-    dataset.write_to_parquet(&mut buffer).expect("Write to parquet failed");
-    let restored_dataset = TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
+    dataset
+        .write_to_parquet(&mut buffer)
+        .expect("Write to parquet failed");
+    let restored_dataset =
+        TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
 
     let restored_records = FinancialObservation::from_tabular_dataset(&restored_dataset)
         .expect("Failed to parse financial observations");
@@ -74,8 +78,11 @@ fn test_acoustic_telemetry_snapshot_roundtrip() {
     assert_eq!(dataset.num_rows, 2);
 
     let mut buffer = Vec::new();
-    dataset.write_to_parquet(&mut buffer).expect("Write to parquet failed");
-    let restored_dataset = TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
+    dataset
+        .write_to_parquet(&mut buffer)
+        .expect("Write to parquet failed");
+    let restored_dataset =
+        TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
 
     let restored_snapshots = AcousticTelemetrySnapshot::from_tabular_dataset(&restored_dataset)
         .expect("Failed to parse acoustic snapshots");
@@ -112,8 +119,11 @@ fn test_player_progress_event_roundtrip() {
     assert_eq!(dataset.num_rows, 2);
 
     let mut buffer = Vec::new();
-    dataset.write_to_parquet(&mut buffer).expect("Write to parquet failed");
-    let restored_dataset = TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
+    dataset
+        .write_to_parquet(&mut buffer)
+        .expect("Write to parquet failed");
+    let restored_dataset =
+        TabularDataset::read_from_parquet(&buffer).expect("Read from parquet failed");
 
     let restored_events = PlayerProgressEvent::from_tabular_dataset(&restored_dataset)
         .expect("Failed to parse player events");

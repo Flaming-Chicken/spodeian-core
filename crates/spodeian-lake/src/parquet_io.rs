@@ -56,7 +56,11 @@ impl TabularDataset {
     }
 
     /// Appends a string column.
-    pub fn with_string_column(mut self, name: &str, data: Vec<String>) -> Result<Self, ParquetError> {
+    pub fn with_string_column(
+        mut self,
+        name: &str,
+        data: Vec<String>,
+    ) -> Result<Self, ParquetError> {
         self.add_string_column(name, data)?;
         Ok(self)
     }
@@ -165,7 +169,9 @@ impl TabularDataset {
                 arrays.push(array);
             } else if let Some(str_data) = self.string_columns.get(col_name) {
                 fields.push(Field::new(col_name, DataType::Utf8, false));
-                let array = Arc::new(StringArray::from_iter_values(str_data.iter().map(|s| s.as_str()))) as ArrayRef;
+                let array = Arc::new(StringArray::from_iter_values(
+                    str_data.iter().map(|s| s.as_str()),
+                )) as ArrayRef;
                 arrays.push(array);
             } else {
                 return Err(ParquetError::ColumnNotFound(col_name.clone()));
@@ -196,24 +202,33 @@ impl TabularDataset {
 
             match field.data_type() {
                 DataType::Float64 => {
-                    let float_arr = col.as_any().downcast_ref::<Float64Array>().ok_or_else(|| {
-                        ParquetError::ColumnNotFound(format!("Failed to downcast float column: {col_name}"))
-                    })?;
+                    let float_arr =
+                        col.as_any().downcast_ref::<Float64Array>().ok_or_else(|| {
+                            ParquetError::ColumnNotFound(format!(
+                                "Failed to downcast float column: {col_name}"
+                            ))
+                        })?;
                     let values: Vec<f64> = (0..num_rows).map(|r| float_arr.value(r)).collect();
                     dataset.float_columns.insert(col_name, values);
                 }
                 DataType::Int64 => {
                     let int_arr = col.as_any().downcast_ref::<Int64Array>().ok_or_else(|| {
-                        ParquetError::ColumnNotFound(format!("Failed to downcast int column: {col_name}"))
+                        ParquetError::ColumnNotFound(format!(
+                            "Failed to downcast int column: {col_name}"
+                        ))
                     })?;
                     let values: Vec<i64> = (0..num_rows).map(|r| int_arr.value(r)).collect();
                     dataset.int_columns.insert(col_name, values);
                 }
                 DataType::Utf8 => {
                     let str_arr = col.as_any().downcast_ref::<StringArray>().ok_or_else(|| {
-                        ParquetError::ColumnNotFound(format!("Failed to downcast string column: {col_name}"))
+                        ParquetError::ColumnNotFound(format!(
+                            "Failed to downcast string column: {col_name}"
+                        ))
                     })?;
-                    let values: Vec<String> = (0..num_rows).map(|r| str_arr.value(r).to_string()).collect();
+                    let values: Vec<String> = (0..num_rows)
+                        .map(|r| str_arr.value(r).to_string())
+                        .collect();
                     dataset.string_columns.insert(col_name, values);
                 }
                 other => {

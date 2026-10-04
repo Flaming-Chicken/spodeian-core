@@ -262,10 +262,7 @@ pub struct SharpnessAwareMinimizer {
 
 impl SharpnessAwareMinimizer {
     pub fn new(rho: f32, max_grad_norm: f32) -> Self {
-        Self {
-            rho,
-            max_grad_norm,
-        }
+        Self { rho, max_grad_norm }
     }
 
     /// Compute L2 norm of gradient slice.

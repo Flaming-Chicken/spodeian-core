@@ -8,7 +8,7 @@
 //! - **LocalStorage**: Dedicated to fast, synchronous configuration toggles (< 16 KB).
 //! - **Native CAS**: Cryptographic Content-Addressed Storage (SHA-256) for native desktop and mobile.
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -20,7 +20,9 @@ pub enum CacheError {
     Io(#[from] std::io::Error),
     #[error("Serialization failure: {0}")]
     Serialization(#[from] serde_json::Error),
-    #[error("Cryptographic tamper detected for key '{key}': expected {expected}, computed {computed}")]
+    #[error(
+        "Cryptographic tamper detected for key '{key}': expected {expected}, computed {computed}"
+    )]
     TamperDetected {
         key: String,
         expected: String,
@@ -83,10 +85,18 @@ impl PreferentialRouter {
     /// 3. Structured relational models $\to$ `IndexedDb`.
     /// 4. Tiny config flags $< 16\text{ KB}$ $\to$ `LocalStorage`.
     #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
-    pub fn determine_tier(size_bytes: usize, content_type: &str, is_immutable: bool) -> StorageTier {
+    pub fn determine_tier(
+        size_bytes: usize,
+        content_type: &str,
+        is_immutable: bool,
+    ) -> StorageTier {
         #[cfg(target_arch = "wasm32")]
         {
-            if is_immutable || size_bytes > 512 * 1024 || content_type.starts_with("model/") || content_type.contains("octet-stream") {
+            if is_immutable
+                || size_bytes > 512 * 1024
+                || content_type.starts_with("model/")
+                || content_type.contains("octet-stream")
+            {
                 StorageTier::CacheApi
             } else if size_bytes < 16 * 1024 && !content_type.contains("json") {
                 StorageTier::LocalStorage

@@ -1,6 +1,6 @@
 //! Integration tests for native Logarithmic Number System (LNS) arithmetic.
 
-use spodeian_ml_utils::logarithmic::{log8_dot_product, quantize_to_log8, Log8};
+use spodeian_ml_utils::logarithmic::{Log8, log8_dot_product, quantize_to_log8};
 
 #[test]
 fn test_log8_f32_roundtrip_precision() {
@@ -14,7 +14,10 @@ fn test_log8_f32_roundtrip_precision() {
         } else {
             // Log8 with 0.25 exponent step has at worst ~9% relative error across 7 orders of magnitude
             let rel_err = ((reconstructed - v) / v).abs();
-            assert!(rel_err < 0.10, "Failed for {v}: reconstructed {reconstructed}");
+            assert!(
+                rel_err < 0.10,
+                "Failed for {v}: reconstructed {reconstructed}"
+            );
         }
     }
 }

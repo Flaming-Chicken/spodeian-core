@@ -142,7 +142,8 @@ fn test_spodeian_widgets_rendering() {
 
             card.show(ui);
 
-            let slider = spodeian_ui::AccessibleSlider::new(&mut slider_val, 0.0..=100.0, "Volume").step(1.0);
+            let slider = spodeian_ui::AccessibleSlider::new(&mut slider_val, 0.0..=100.0, "Volume")
+                .step(1.0);
             ui.add(slider);
         });
     });
@@ -151,4 +152,3 @@ fn test_spodeian_widgets_rendering() {
     assert_eq!(card.title, "Sharpe Ratio");
     assert_eq!(card.value, "2.45");
 }
-

@@ -37,11 +37,15 @@ impl CitationDistiller {
     /// Distills a collection of dataset partition metadata records.
     pub fn distill_manifest(records: &[DatasetMetadata], format: CitationFormat) -> String {
         match format {
-            CitationFormat::BibTeX => {
-                records.iter().map(Self::to_bibtex).collect::<Vec<_>>().join("\n\n")
-            }
+            CitationFormat::BibTeX => records
+                .iter()
+                .map(Self::to_bibtex)
+                .collect::<Vec<_>>()
+                .join("\n\n"),
             CitationFormat::Cff => {
-                let mut out = String::from("cff-version: 1.2.0\nmessage: \"If you use these datasets, please cite them as below.\"\nreferences:\n");
+                let mut out = String::from(
+                    "cff-version: 1.2.0\nmessage: \"If you use these datasets, please cite them as below.\"\nreferences:\n",
+                );
                 for meta in records {
                     let indented = Self::to_cff(meta)
                         .lines()
@@ -52,9 +56,11 @@ impl CitationDistiller {
                 }
                 out
             }
-            CitationFormat::Apa => {
-                records.iter().map(Self::to_apa).collect::<Vec<_>>().join("\n")
-            }
+            CitationFormat::Apa => records
+                .iter()
+                .map(Self::to_apa)
+                .collect::<Vec<_>>()
+                .join("\n"),
             CitationFormat::JsonLd => {
                 let items: Vec<serde_json::Value> = records
                     .iter()
@@ -71,11 +77,24 @@ impl CitationDistiller {
 
     /// Generates standard BibTeX `@misc` / `@dataset` entry.
     pub fn to_bibtex(meta: &DatasetMetadata) -> String {
-        let key = format!("{}_{}", sanitize_key(&meta.dataset_id), sanitize_key(&meta.partition_key));
-        let title = format!("Dataset Partition: {} ({})", meta.dataset_id, meta.partition_key);
-        let author = meta.author.as_deref().unwrap_or("Spodeian Ecosystem Contributor");
+        let key = format!(
+            "{}_{}",
+            sanitize_key(&meta.dataset_id),
+            sanitize_key(&meta.partition_key)
+        );
+        let title = format!(
+            "Dataset Partition: {} ({})",
+            meta.dataset_id, meta.partition_key
+        );
+        let author = meta
+            .author
+            .as_deref()
+            .unwrap_or("Spodeian Ecosystem Contributor");
         let year = epoch_to_year(meta.created_at_epoch_s);
-        let note = format!("SHA256: {}; Size: {} bytes", meta.sha256_checksum, meta.byte_size);
+        let note = format!(
+            "SHA256: {}; Size: {} bytes",
+            meta.sha256_checksum, meta.byte_size
+        );
 
         let mut lines = Vec::new();
         lines.push(format!("@misc{{{key},"));
@@ -96,8 +115,14 @@ impl CitationDistiller {
 
     /// Generates Citation File Format (CFF) representation.
     pub fn to_cff(meta: &DatasetMetadata) -> String {
-        let title = format!("Dataset: {} - Partition: {}", meta.dataset_id, meta.partition_key);
-        let author = meta.author.as_deref().unwrap_or("Spodeian Ecosystem Contributor");
+        let title = format!(
+            "Dataset: {} - Partition: {}",
+            meta.dataset_id, meta.partition_key
+        );
+        let author = meta
+            .author
+            .as_deref()
+            .unwrap_or("Spodeian Ecosystem Contributor");
         let year = epoch_to_year(meta.created_at_epoch_s);
         let license = meta.license.as_deref().unwrap_or("proprietary");
 
@@ -120,7 +145,10 @@ impl CitationDistiller {
 
     /// Generates plain-text APA style reference string.
     pub fn to_apa(meta: &DatasetMetadata) -> String {
-        let author = meta.author.as_deref().unwrap_or("Spodeian Ecosystem Contributor");
+        let author = meta
+            .author
+            .as_deref()
+            .unwrap_or("Spodeian Ecosystem Contributor");
         let year = epoch_to_year(meta.created_at_epoch_s);
         let title = format!("{}: {}", meta.dataset_id, meta.partition_key);
         let url_part = if let Some(url) = &meta.doi_or_url {
@@ -128,15 +156,24 @@ impl CitationDistiller {
         } else {
             String::new()
         };
-        let hash_part = format!(" [Checksum: sha256:{}]", &meta.sha256_checksum[..12.min(meta.sha256_checksum.len())]);
+        let hash_part = format!(
+            " [Checksum: sha256:{}]",
+            &meta.sha256_checksum[..12.min(meta.sha256_checksum.len())]
+        );
 
         format!("{author} ({year}). {title} [Data set]. Spodeian Data Lake.{hash_part}{url_part}")
     }
 
     /// Generates Schema.org JSON-LD Dataset entry.
     pub fn to_json_ld(meta: &DatasetMetadata) -> String {
-        let author = meta.author.as_deref().unwrap_or("Spodeian Ecosystem Contributor");
-        let license = meta.license.as_deref().unwrap_or("https://choosealicense.com/no-permission/");
+        let author = meta
+            .author
+            .as_deref()
+            .unwrap_or("Spodeian Ecosystem Contributor");
+        let license = meta
+            .license
+            .as_deref()
+            .unwrap_or("https://choosealicense.com/no-permission/");
         let url = meta.doi_or_url.as_deref().unwrap_or("urn:spodeian:lake");
 
         let json_obj = serde_json::json!({

@@ -103,8 +103,6 @@ impl std::str::FromStr for ThemeMode {
     }
 }
 
-
-
 /// Standard 8-bit RGBA color representation with WCAG luminance calculations.
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -282,28 +280,28 @@ impl CandlestickColors {
     pub fn for_mode(mode: ColorblindMode) -> Self {
         match mode {
             ColorblindMode::None => Self {
-                up: ColorRgba::rgb(34, 197, 94),     // Emerald green
-                down: ColorRgba::rgb(239, 68, 68),   // Crimson red
+                up: ColorRgba::rgb(34, 197, 94),   // Emerald green
+                down: ColorRgba::rgb(239, 68, 68), // Crimson red
                 neutral: ColorRgba::rgb(156, 163, 175),
             },
             ColorblindMode::Deuteranopia => Self {
-                up: ColorRgba::rgb(59, 130, 246),    // Bright blue
-                down: ColorRgba::rgb(249, 115, 22),   // High-visibility orange
+                up: ColorRgba::rgb(59, 130, 246),   // Bright blue
+                down: ColorRgba::rgb(249, 115, 22), // High-visibility orange
                 neutral: ColorRgba::rgb(156, 163, 175),
             },
             ColorblindMode::Protanopia => Self {
-                up: ColorRgba::rgb(37, 99, 235),     // Blue
-                down: ColorRgba::rgb(234, 88, 12),    // Vermillion
+                up: ColorRgba::rgb(37, 99, 235),   // Blue
+                down: ColorRgba::rgb(234, 88, 12), // Vermillion
                 neutral: ColorRgba::rgb(156, 163, 175),
             },
             ColorblindMode::Tritanopia => Self {
-                up: ColorRgba::rgb(14, 165, 233),    // Cyan
-                down: ColorRgba::rgb(244, 63, 94),    // Rose / Magenta
+                up: ColorRgba::rgb(14, 165, 233),  // Cyan
+                down: ColorRgba::rgb(244, 63, 94), // Rose / Magenta
                 neutral: ColorRgba::rgb(156, 163, 175),
             },
             ColorblindMode::Monochrome => Self {
-                up: ColorRgba::rgb(243, 244, 246),   // Off-white
-                down: ColorRgba::rgb(55, 65, 81),    // Dark slate
+                up: ColorRgba::rgb(243, 244, 246), // Off-white
+                down: ColorRgba::rgb(55, 65, 81),  // Dark slate
                 neutral: ColorRgba::rgb(156, 163, 175),
             },
         }
@@ -420,4 +418,3 @@ impl CliAccessibility {
         !self.no_color
     }
 }
-

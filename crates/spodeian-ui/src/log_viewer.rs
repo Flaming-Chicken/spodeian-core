@@ -84,7 +84,10 @@ impl LogConsoleWidget {
                     ("Warn+", LogLevelFilter::Warn),
                     ("Error", LogLevelFilter::Error),
                 ] {
-                    if ui.selectable_label(self.filter_level == filter, name).clicked() {
+                    if ui
+                        .selectable_label(self.filter_level == filter, name)
+                        .clicked()
+                    {
                         self.filter_level = filter;
                     }
                 }

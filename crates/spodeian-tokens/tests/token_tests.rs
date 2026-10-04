@@ -106,4 +106,3 @@ fn test_cli_accessibility_helpers() {
     assert!(!cli_standard.plain);
     assert!(!cli_standard.json);
 }
-
