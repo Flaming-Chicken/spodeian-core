@@ -3,20 +3,39 @@ resolver = "3"
 members = [
     "crates/spodeian-cache",
     "crates/spodeian-tokens",
+    "crates/spodeian-telemetry",
+    "crates/spodeian-export",
+    "crates/spodeian-web-utils",
+    "crates/spodeian-ui",
+    "crates/spodeian-lake",
+    "crates/spodeian-py-bridge",
+    "crates/spodeian-ml-utils",
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage (Cache API / IndexedDB / OPFS), design tokens, and KaTeX rendering"
-repository = "https://github.com/Spodeian/spodeian-core"
+description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, unified egui UI, local data lake, and PyO3 desktop bridge"
+repository = "https://github.com/Flaming-Chicken/spodeian-core"
 
 [workspace.dependencies]
-spodeian-cache = { path = "crates/spodeian-cache" }
-spodeian-tokens = { path = "crates/spodeian-tokens" }
+spodeian-cache = { path = "crates/spodeian-cache", version = "^1.0.0" }
+spodeian-tokens = { path = "crates/spodeian-tokens", version = "^1.0.0" }
+spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "^1.0.0" }
+spodeian-export = { path = "crates/spodeian-export", version = "^1.0.0" }
+spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "^1.0.0" }
+spodeian-ui = { path = "crates/spodeian-ui", version = "^1.0.0" }
+spodeian-lake = { path = "crates/spodeian-lake", version = "^0.1.0" }
+spodeian-ml-utils = { path = "crates/spodeian-ml-utils", version = "^0.1.0" }
+spodeian-py-bridge = { path = "crates/spodeian-py-bridge", version = "^0.1.0" }
+
+# Machine Learning & Tensors
+candle-core = "0.11"
+candle-nn = "0.11"
+safetensors = "0.5"
 
 # Serialization & Cryptography
 serde = { version = "1.0", features = ["derive"] }
@@ -25,10 +44,27 @@ thiserror = "2.0"
 anyhow = "1.0"
 sha2 = "0.10"
 base64 = "0.22"
+bson = "2"
+miniz_oxide = "0.8"
+rayon = "1.10"
+
+# Columnar Parquet & Arrow
+parquet = { version = "53", default-features = false, features = ["arrow", "flate2"] }
+arrow-schema = "53"
+arrow-array = "53"
+bytes = "1.10"
+
+# Python FFI Bridge
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
 
 # Logging & Telemetry
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "ansi", "tracing-log"] }
+tracing-web = "0.1"
+console_error_panic_hook = "0.1.7"
+
+# UI
+egui = { version = "0.36", default-features = false, features = ["default_fonts"] }
 
 # WASM Web Bindings
 wasm-bindgen = "0.2"
@@ -54,6 +90,14 @@ web-sys = { version = "0.3", features = [
     "FileSystemDirectoryHandle",
     "FileSystemFileHandle",
     "Headers",
+    "HtmlCanvasElement",
+    "Element",
+    "Url",
+    "HtmlAnchorElement",
+    "HtmlDocument",
+    "Location",
+    "Navigator",
+    "Clipboard",
 ] }
 
 # Benchmarking
