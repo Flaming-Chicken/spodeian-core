@@ -70,3 +70,76 @@ fn test_preferential_router_tier_decision() {
     let small_native = PreferentialRouter::determine_tier(512, "application/json", false);
     assert_eq!(small_native, StorageTier::NativeCas);
 }
+
+#[test]
+fn test_bounded_memory_cache_lru_eviction() {
+    use spodeian_cache::BoundedMemoryCache;
+
+    let mut cache = BoundedMemoryCache::new(3);
+    assert_eq!(cache.capacity(), 3);
+    assert!(cache.is_empty());
+
+    assert_eq!(cache.put("k1", "v1"), None);
+    assert_eq!(cache.put("k2", "v2"), None);
+    assert_eq!(cache.put("k3", "v3"), None);
+    assert_eq!(cache.len(), 3);
+
+    // Access k1 so k2 becomes the LRU
+    assert_eq!(cache.get(&"k1"), Some(&"v1"));
+
+    // Inserting k4 should evict k2 (LRU)
+    let evicted = cache.put("k4", "v4");
+    assert_eq!(evicted, Some(("k2", "v2")));
+
+    assert_eq!(cache.len(), 3);
+    assert!(cache.contains_key(&"k1"));
+    assert!(!cache.contains_key(&"k2"));
+    assert!(cache.contains_key(&"k3"));
+    assert!(cache.contains_key(&"k4"));
+}
+
+#[test]
+fn test_tiered_memory_store_fallback_and_memory_protection() {
+    use spodeian_cache::TieredMemoryStore;
+
+    let temp_dir = std::env::temp_dir().join("spodeian_test_tiered_store");
+    let _ = std::fs::remove_dir_all(&temp_dir);
+
+    // Max 2 items in RAM; excess must spill to persistent CAS fallback
+    let mut store = TieredMemoryStore::<String>::new(2, Some(&temp_dir)).expect("create store");
+    assert_eq!(store.memory_capacity(), 2);
+
+    store.put("item1", "value1".to_string()).expect("put item1");
+    store.put("item2", "value2".to_string()).expect("put item2");
+
+    let metrics = store.metrics();
+    assert_eq!(metrics.memory_items_count, 2);
+    assert_eq!(metrics.fallback_items_count, 0);
+
+    // Putting item3 should evict item1 to fallback to prevent memory from overfilling!
+    store.put("item3", "value3".to_string()).expect("put item3");
+
+    let metrics = store.metrics();
+    assert_eq!(metrics.memory_items_count, 2);
+    assert_eq!(metrics.fallback_items_count, 1);
+    assert_eq!(metrics.evictions_to_fallback, 1);
+
+    // item3 is in memory (hit)
+    assert_eq!(
+        store.get("item3").expect("get item3"),
+        Some("value3".to_string())
+    );
+    assert_eq!(store.metrics().memory_hits, 1);
+
+    // item1 was evicted to fallback; querying it should succeed via fallback hit!
+    assert_eq!(
+        store.get("item1").expect("get item1"),
+        Some("value1".to_string())
+    );
+    assert_eq!(store.metrics().fallback_hits, 1);
+
+    // Memory capacity constraint was strictly preserved throughout
+    assert!(store.metrics().memory_items_count <= 2);
+
+    let _ = std::fs::remove_dir_all(&temp_dir);
+}
