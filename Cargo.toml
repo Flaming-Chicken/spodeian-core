@@ -14,7 +14,7 @@ members = [
 
 [workspace.package]
 version = "1.0.0"
-authors = ["Liam <spodeian@proton.me>"]
+authors = ["Spodeian Contributors <https://github.com/Flaming-Chicken/spodeian-core>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
