@@ -1,0 +1,17 @@
+[package]
+name = "spodeian-export"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Universal serialization, CSV line parser/escaper, and compressed BSON/JSON interchange"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+bson = { workspace = true }
+miniz_oxide = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true
