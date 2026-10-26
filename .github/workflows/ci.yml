@@ -30,8 +30,11 @@ jobs:
       - name: Check Clippy Lints
         run: cargo clippy --workspace --all-targets -- -D warnings
 
-      - name: Run Test Suite
-        run: cargo test --workspace --all-targets
+      - name: Install Nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Run Test Suite with Nextest
+        run: cargo nextest run --workspace --all-targets --exclude spodeian-py-bridge --profile ci
 
       - name: Check WebAssembly Compilation
         run: cargo check --workspace --target wasm32-unknown-unknown

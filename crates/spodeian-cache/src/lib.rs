@@ -7,6 +7,10 @@
 //! - **IndexedDB (`idb`)**: Dedicated to structured, relational, transaction-safe records (user states, incremental OHLCV ticks, factor loadings, replay memories).
 //! - **LocalStorage**: Dedicated to fast, synchronous configuration toggles (< 16 KB).
 //! - **Native CAS**: Cryptographic Content-Addressed Storage (SHA-256) for native desktop and mobile.
+pub mod tiered_memory;
+
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+pub use tiered_memory::{BoundedMemoryCache, TieredMemoryMetrics, TieredMemoryStore};
 
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use sha2::{Digest, Sha256};
@@ -115,6 +119,7 @@ impl PreferentialRouter {
 
 /// Cryptographic Content-Addressed Storage (CAS) for native desktop, mobile, and offline runtimes.
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+#[derive(Debug, Clone)]
 pub struct ContentAddressedStorage {
     root_dir: PathBuf,
 }
