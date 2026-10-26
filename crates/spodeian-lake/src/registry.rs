@@ -1,3 +1,7 @@
+//! Partition registry, write-ahead logging (WAL), and provenance metadata tracking for Spodeian Data Lake.
+//!
+//! **Stability: Experimental** — API subject to change
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
