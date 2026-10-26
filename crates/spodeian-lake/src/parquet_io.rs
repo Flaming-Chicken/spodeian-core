@@ -1,3 +1,7 @@
+//! Columnar Parquet I/O serialization, deserialization, and Arrow schema mapping for tabular data lakes.
+//!
+//! **Stability: Experimental** — API subject to change
+
 use arrow_array::{ArrayRef, Float64Array, Int64Array, RecordBatch, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use parquet::arrow::ArrowWriter;
