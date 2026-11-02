@@ -2,7 +2,7 @@
 
 [![Rust Toolchain](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](Cargo.toml)
 [![Candle Core](https://img.shields.io/badge/Candle-0.8.2-blue.svg)](crates/ai-candle)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](Cargo.toml)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](LICENSE)
 
 High-performance, zero-Python, memory-safe Rust machine learning architectures and hardware compute kernels, covering 263 topics across 18 categories.
 
