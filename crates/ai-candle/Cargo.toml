@@ -1,0 +1,16 @@
+[package]
+name = "ai-candle"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+candle-core = { workspace = true }
+candle-nn = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+candle-core = { workspace = true }
+candle-nn = { workspace = true }

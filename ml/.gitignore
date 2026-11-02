@@ -1,0 +1,13 @@
+# Rust Build Artifacts
+/target/
+**/*.rs.bk
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/

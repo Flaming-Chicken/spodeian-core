@@ -1,0 +1,18 @@
+[package]
+name = "aix"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "AI-Examples repository toolchain: contract checks, crate sync, notebook runner and topic scaffolding"
+readme = "README.md"
+
+[[bin]]
+name = "aix"
+path = "src/main.rs"
+
+# Deliberately dependency-light (serde + serde_json are already in the workspace lockfile)
+# so the production build is fast, offline-friendly and independent of the ML crates.
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

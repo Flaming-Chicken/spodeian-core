@@ -1,0 +1,20 @@
+[package]
+name = "ai-kernel"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+wgpu = { version = "23", optional = true }
+pollster = { version = "0.4", optional = true }
+bytemuck = { version = "1.16", features = ["derive"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[features]
+default = ["wgpu"]
+wgpu = ["dep:wgpu", "dep:pollster"]
+
+[dev-dependencies]
+candle-core = { workspace = true }
