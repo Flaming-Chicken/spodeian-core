@@ -124,12 +124,85 @@ mod fallback {
     pub trait ParallelSliceMut<T> {
         /// Returns parallel mutable chunks of `chunk_size` elements (sequential on WASM).
         fn par_chunks_mut(&mut self, chunk_size: usize) -> core::slice::ChunksMut<'_, T>;
+
+        /// Sorts the slice in-place (unstable, sequential on WASM).
+        fn par_sort_unstable(&mut self)
+        where
+            T: Ord;
+
+        /// Sorts the slice in-place with a comparator (unstable, sequential on WASM).
+        fn par_sort_unstable_by<F>(&mut self, compare: F)
+        where
+            F: FnMut(&T, &T) -> core::cmp::Ordering;
+
+        /// Sorts the slice in-place with a key extraction function (unstable, sequential on WASM).
+        fn par_sort_unstable_by_key<K, F>(&mut self, f: F)
+        where
+            K: Ord,
+            F: FnMut(&T) -> K;
+
+        /// Sorts the slice in-place (stable, sequential on WASM).
+        fn par_sort(&mut self)
+        where
+            T: Ord;
+
+        /// Sorts the slice in-place with a comparator (stable, sequential on WASM).
+        fn par_sort_by<F>(&mut self, compare: F)
+        where
+            F: FnMut(&T, &T) -> core::cmp::Ordering;
     }
 
     impl<T> ParallelSliceMut<T> for [T] {
         #[inline(always)]
         fn par_chunks_mut(&mut self, chunk_size: usize) -> core::slice::ChunksMut<'_, T> {
             self.chunks_mut(chunk_size)
+        }
+
+        #[inline(always)]
+        fn par_sort_unstable(&mut self)
+        where
+            T: Ord,
+        {
+            self.sort_unstable();
+        }
+
+        #[inline(always)]
+        fn par_sort_unstable_by<F>(&mut self, compare: F)
+        where
+            F: FnMut(&T, &T) -> core::cmp::Ordering,
+        {
+            self.sort_unstable_by(compare);
+        }
+
+        #[inline(always)]
+        fn par_sort_unstable_by_key<K, F>(&mut self, f: F)
+        where
+            K: Ord,
+            F: FnMut(&T) -> K,
+        {
+            self.sort_unstable_by_key(f);
+        }
+
+        #[inline(always)]
+        fn par_sort(&mut self)
+        where
+            T: Ord,
+        {
+            #[cfg(feature = "parallel")]
+            self.sort();
+            #[cfg(not(feature = "parallel"))]
+            self.sort_unstable();
+        }
+
+        #[inline(always)]
+        fn par_sort_by<F>(&mut self, compare: F)
+        where
+            F: FnMut(&T, &T) -> core::cmp::Ordering,
+        {
+            #[cfg(feature = "parallel")]
+            self.sort_by(compare);
+            #[cfg(not(feature = "parallel"))]
+            self.sort_unstable_by(compare);
         }
     }
 }
@@ -181,5 +254,12 @@ mod tests {
             }
         });
         assert_eq!(data, vec![2.0, 4.0, 6.0, 8.0]);
+    }
+
+    #[test]
+    fn test_par_sort_unstable() {
+        let mut data = vec![5, 1, 4, 2, 3];
+        data.par_sort_unstable();
+        assert_eq!(data, vec![1, 2, 3, 4, 5]);
     }
 }

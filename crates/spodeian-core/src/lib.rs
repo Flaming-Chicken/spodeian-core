@@ -56,6 +56,6 @@ pub mod prelude {
 
     #[cfg(feature = "ml-utils")]
     pub use spodeian_ml_utils::{
-        ContinuousIntegrator, EulerStepper, HeunPredictorCorrector, StepResult,
+        ContinuousIntegrator, EulerStepper, HeunPredictorCorrector, Rk4Stepper, StepResult,
     };
 }

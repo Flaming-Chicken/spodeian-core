@@ -90,6 +90,47 @@ pub fn parse_csv_line(line: &str) -> Vec<String> {
     fields
 }
 
+/// Zero-copy optimized CSV line parsing returning borrowed slices whenever unquoted.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+pub fn parse_csv_line_borrowed<'a>(line: &'a str) -> Vec<std::borrow::Cow<'a, str>> {
+    if !line.contains('"') {
+        return line
+            .split(',')
+            .map(|s| std::borrow::Cow::Borrowed(s.trim()))
+            .collect();
+    }
+
+    let mut fields = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+    let mut chars = line.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            '"' if in_quotes => {
+                if chars.peek() == Some(&'"') {
+                    current.push('"');
+                    chars.next();
+                } else {
+                    in_quotes = false;
+                }
+            }
+            '"' => {
+                in_quotes = true;
+            }
+            ',' if !in_quotes => {
+                fields.push(std::borrow::Cow::Owned(current.trim().to_string()));
+                current.clear();
+            }
+            _ => {
+                current.push(ch);
+            }
+        }
+    }
+    fields.push(std::borrow::Cow::Owned(current.trim().to_string()));
+    fields
+}
+
 /// Serializes headers and tabular string rows into standard RFC 4180 CSV text.
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn export_to_csv(headers: &[&str], rows: &[Vec<String>]) -> String {
@@ -282,6 +323,54 @@ pub fn export_to_wav_pcm32f(
     Ok(wav)
 }
 
+/// Pure-Rust audio serialization into standard 16-bit signed integer linear PCM RIFF/WAVE format.
+///
+/// Uses format tag `0x0001` (Standard Linear PCM), 16-bit samples, compatible with all browsers and media players.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+pub fn export_to_wav_pcm16i(
+    samples: &[f32],
+    sample_rate: u32,
+    channels: u16,
+) -> Result<Vec<u8>, ExportError> {
+    if channels == 0 {
+        return Err(ExportError::Audio("Channel count must be > 0".to_string()));
+    }
+
+    let bytes_per_sample = 2u32;
+    let block_align = (channels as u32) * bytes_per_sample;
+    let byte_rate = sample_rate * block_align;
+    let data_bytes = (samples.len() as u32) * bytes_per_sample;
+    let riff_chunk_size = 36 + data_bytes;
+
+    let mut wav = Vec::with_capacity((44 + data_bytes) as usize);
+
+    // 1. RIFF Header
+    wav.extend_from_slice(b"RIFF");
+    wav.extend_from_slice(&riff_chunk_size.to_le_bytes());
+    wav.extend_from_slice(b"WAVE");
+
+    // 2. fmt Sub-chunk
+    wav.extend_from_slice(b"fmt ");
+    wav.extend_from_slice(&16u32.to_le_bytes()); // Subchunk1Size = 16 for PCM
+    wav.extend_from_slice(&1u16.to_le_bytes()); // AudioFormat = 1 (Linear PCM)
+    wav.extend_from_slice(&channels.to_le_bytes());
+    wav.extend_from_slice(&sample_rate.to_le_bytes());
+    wav.extend_from_slice(&byte_rate.to_le_bytes());
+    wav.extend_from_slice(&(block_align as u16).to_le_bytes());
+    wav.extend_from_slice(&16u16.to_le_bytes()); // BitsPerSample = 16
+
+    // 3. data Sub-chunk
+    wav.extend_from_slice(b"data");
+    wav.extend_from_slice(&data_bytes.to_le_bytes());
+    for &sample in samples {
+        let clamped = sample.clamp(-1.0, 1.0);
+        let s_i16 = (clamped * 32767.0).round() as i16;
+        wav.extend_from_slice(&s_i16.to_le_bytes());
+    }
+
+    Ok(wav)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -339,5 +428,26 @@ mod tests {
         assert_eq!(&wav_bytes[0..4], b"RIFF");
         assert_eq!(&wav_bytes[8..12], b"WAVE");
         assert_eq!(&wav_bytes[12..16], b"fmt ");
+    }
+
+    #[test]
+    fn test_wav_pcm16i_and_borrowed_csv() {
+        let samples = vec![0.0f32, 0.5, 1.0, -1.0];
+        let wav16 = export_to_wav_pcm16i(&samples, 48000, 1).expect("WAV 16i created");
+        assert_eq!(&wav16[0..4], b"RIFF");
+        assert_eq!(&wav16[8..12], b"WAVE");
+        // AudioFormat should be 1 (PCM)
+        let fmt_code = u16::from_le_bytes([wav16[20], wav16[21]]);
+        assert_eq!(fmt_code, 1);
+        let bits_per_sample = u16::from_le_bytes([wav16[34], wav16[35]]);
+        assert_eq!(bits_per_sample, 16);
+
+        // Zero-copy CSV line
+        let line = "BHP.AX, 42.50, 10000";
+        let fields = parse_csv_line_borrowed(line);
+        assert_eq!(fields.len(), 3);
+        assert_eq!(fields[0], "BHP.AX");
+        assert_eq!(fields[1], "42.50");
+        assert!(matches!(fields[0], std::borrow::Cow::Borrowed(_)));
     }
 }

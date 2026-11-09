@@ -57,6 +57,9 @@ pub trait SanitizeFloats {
 
     /// Clamps all values in-place to the closed interval `[min, max]`.
     fn clamp_range(&mut self, min: f64, max: f64);
+
+    /// Combined single-pass float sanitization: replaces non-finite values and clamps within `[min, max]`.
+    fn sanitize_in_place(&mut self, min: f64, max: f64, fallback: f64) -> usize;
 }
 
 impl SanitizeFloats for [f64] {
@@ -87,6 +90,21 @@ impl SanitizeFloats for [f64] {
             }
         }
     }
+
+    #[inline]
+    fn sanitize_in_place(&mut self, min: f64, max: f64, fallback: f64) -> usize {
+        let fallback_clamped = fallback.clamp(min, max);
+        let mut count = 0;
+        for x in self.iter_mut() {
+            if !x.is_finite() {
+                *x = fallback_clamped;
+                count += 1;
+            } else {
+                *x = x.clamp(min, max);
+            }
+        }
+        count
+    }
 }
 
 impl SanitizeFloats for Vec<f64> {
@@ -103,6 +121,11 @@ impl SanitizeFloats for Vec<f64> {
     #[inline]
     fn clamp_range(&mut self, min: f64, max: f64) {
         self.as_mut_slice().clamp_range(min, max);
+    }
+
+    #[inline]
+    fn sanitize_in_place(&mut self, min: f64, max: f64, fallback: f64) -> usize {
+        self.as_mut_slice().sanitize_in_place(min, max, fallback)
     }
 }
 
@@ -137,6 +160,23 @@ impl SanitizeFloats for [f32] {
             }
         }
     }
+
+    #[inline]
+    fn sanitize_in_place(&mut self, min: f64, max: f64, fallback: f64) -> usize {
+        let min_f32 = min as f32;
+        let max_f32 = max as f32;
+        let fallback_f32 = (fallback as f32).clamp(min_f32, max_f32);
+        let mut count = 0;
+        for x in self.iter_mut() {
+            if !x.is_finite() {
+                *x = fallback_f32;
+                count += 1;
+            } else {
+                *x = x.clamp(min_f32, max_f32);
+            }
+        }
+        count
+    }
 }
 
 impl SanitizeFloats for Vec<f32> {
@@ -153,6 +193,11 @@ impl SanitizeFloats for Vec<f32> {
     #[inline]
     fn clamp_range(&mut self, min: f64, max: f64) {
         self.as_mut_slice().clamp_range(min, max);
+    }
+
+    #[inline]
+    fn sanitize_in_place(&mut self, min: f64, max: f64, fallback: f64) -> usize {
+        self.as_mut_slice().sanitize_in_place(min, max, fallback)
     }
 }
 
@@ -321,19 +366,19 @@ pub fn nearest_psd_matrix(
         eigenvalues[i] = a[i * n + i].max(min_eigenvalue);
     }
 
-    // Reconstruct A_psd = V * Lambda_+ * V^T
+    // Reconstruct symmetric A_psd = V * Lambda_+ * V^T exploiting symmetry (j >= i)
     let mut result = vec![0.0; n * n];
     for i in 0..n {
-        for j in 0..n {
+        for j in i..n {
             let mut sum = 0.0;
             for k in 0..n {
                 sum += v[i * n + k] * eigenvalues[k] * v[j * n + k];
             }
             result[i * n + j] = sum;
+            result[j * n + i] = sum;
         }
     }
 
-    symmetrize_matrix(&mut result, n)?;
     Ok(result)
 }
 

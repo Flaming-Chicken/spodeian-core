@@ -66,6 +66,29 @@ impl LogRingBuffer {
             .unwrap_or_default()
     }
 
+    /// Returns a cloned snapshot of at most the `limit` most recent entries.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+    pub fn snapshot_recent(&self, limit: usize) -> Vec<LogEntry> {
+        self.entries
+            .read()
+            .map(|entries| {
+                let skip = entries.len().saturating_sub(limit);
+                entries.iter().skip(skip).cloned().collect()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Invokes a visitor closure on the `limit` most recent entries without intermediate allocations.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+    pub fn for_each_recent<F: FnMut(&LogEntry)>(&self, limit: usize, mut visitor: F) {
+        if let Ok(entries) = self.entries.read() {
+            let skip = entries.len().saturating_sub(limit);
+            for entry in entries.iter().skip(skip) {
+                visitor(entry);
+            }
+        }
+    }
+
     /// Returns the number of entries currently stored.
     #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn len(&self) -> usize {

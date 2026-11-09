@@ -17,6 +17,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Log8(pub u8);
 
+static LOG8_TO_F32_LUT: std::sync::LazyLock<[f32; 256]> = std::sync::LazyLock::new(|| {
+    let mut lut = [0.0f32; 256];
+    for b in 1..=255u8 {
+        let sign: f32 = if (b & 0x80) != 0 { -1.0 } else { 1.0 };
+        let biased_exp = (b & 0x7F) as i32;
+        let log2_val = (biased_exp - 64) as f32 / 4.0;
+        lut[b as usize] = sign * 2.0f32.powf(log2_val);
+    }
+    lut
+});
+
 impl Log8 {
     pub const ZERO: Self = Self(0);
 
@@ -34,17 +45,10 @@ impl Log8 {
         Self(sign_bit | biased_exp)
     }
 
-    /// Converts an 8-bit logarithmic scalar back to an f32.
+    /// Converts an 8-bit logarithmic scalar back to an f32 using a 1-cycle L1 lookup table.
+    #[inline(always)]
     pub fn to_f32(self) -> f32 {
-        if self.0 == 0 {
-            return 0.0;
-        }
-
-        let sign: f32 = if (self.0 & 0x80) != 0 { -1.0 } else { 1.0 };
-        let biased_exp = (self.0 & 0x7F) as i32;
-        let log2_val = (biased_exp - 64) as f32 / 4.0;
-
-        sign * 2.0f32.powf(log2_val)
+        LOG8_TO_F32_LUT[self.0 as usize]
     }
 
     /// Exact multiplication in logarithmic space (exponent addition, sign XOR).

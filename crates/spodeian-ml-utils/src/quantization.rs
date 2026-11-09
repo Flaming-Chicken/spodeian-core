@@ -441,16 +441,20 @@ pub fn int8_matmul_simd_f32(weights: &[i8], activations: &[f32], output: &mut [f
         let w_row = &weights[w_offset..w_offset + in_dim];
         let mut sum = 0.0f32;
 
-        let iters_4 = in_dim / 4;
-        for j in 0..iters_4 {
-            let idx = j * 4;
+        let iters_8 = in_dim / 8;
+        for j in 0..iters_8 {
+            let idx = j * 8;
             sum += (w_row[idx] as f32) * activations[idx]
                 + (w_row[idx + 1] as f32) * activations[idx + 1]
                 + (w_row[idx + 2] as f32) * activations[idx + 2]
-                + (w_row[idx + 3] as f32) * activations[idx + 3];
+                + (w_row[idx + 3] as f32) * activations[idx + 3]
+                + (w_row[idx + 4] as f32) * activations[idx + 4]
+                + (w_row[idx + 5] as f32) * activations[idx + 5]
+                + (w_row[idx + 6] as f32) * activations[idx + 6]
+                + (w_row[idx + 7] as f32) * activations[idx + 7];
         }
 
-        for j in (iters_4 * 4)..in_dim {
+        for j in (iters_8 * 8)..in_dim {
             sum += (w_row[j] as f32) * activations[j];
         }
 
@@ -621,4 +625,214 @@ pub trait QuantizedKernel: Send + Sync {
 
     /// Compute SQNR of this quantized kernel relative to an FP32 reference matrix
     fn evaluate_metrics(&self, reference_fp32: &[f32]) -> QuantizationMetrics;
+}
+
+/// INT8 Linear Kernel implementation
+#[derive(Clone, Debug, PartialEq)]
+pub struct Int8LinearKernel {
+    pub in_features: usize,
+    pub out_features: usize,
+    pub weights: Vec<i8>,
+    pub scale: f32,
+}
+
+impl Int8LinearKernel {
+    pub fn new(in_features: usize, out_features: usize, weights: Vec<i8>, scale: f32) -> Self {
+        assert_eq!(weights.len(), in_features * out_features);
+        Self { in_features, out_features, weights, scale }
+    }
+}
+
+impl QuantizedKernel for Int8LinearKernel {
+    fn format(&self) -> QuantizedFormat {
+        QuantizedFormat::Int8
+    }
+
+    fn matmul(&self, activations: &[f32], output: &mut [f32]) {
+        assert_eq!(activations.len(), self.in_features);
+        assert_eq!(output.len(), self.out_features);
+        int8_matmul_simd_f32(&self.weights, activations, output, self.scale);
+    }
+
+    fn dequantize(&self, output_weights: &mut [f32]) {
+        assert_eq!(output_weights.len(), self.weights.len());
+        let inv_127 = self.scale / 127.0;
+        for (w, out) in self.weights.iter().zip(output_weights.iter_mut()) {
+            *out = (*w as f32) * inv_127;
+        }
+    }
+
+    fn evaluate_metrics(&self, reference_fp32: &[f32]) -> QuantizationMetrics {
+        let mut deq = vec![0.0f32; self.weights.len()];
+        self.dequantize(&mut deq);
+        evaluate_quantization_metrics(self.format(), &deq, reference_fp32)
+    }
+}
+
+/// NF4 Linear Kernel implementation
+#[derive(Clone, Debug, PartialEq)]
+pub struct Nf4LinearKernel {
+    pub in_features: usize,
+    pub out_features: usize,
+    pub packed_weights: Vec<u8>,
+    pub scale: f32,
+}
+
+impl Nf4LinearKernel {
+    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, scale: f32) -> Self {
+        let expected_bytes = out_features * in_features.div_ceil(2);
+        assert_eq!(packed_weights.len(), expected_bytes);
+        Self { in_features, out_features, packed_weights, scale }
+    }
+}
+
+impl QuantizedKernel for Nf4LinearKernel {
+    fn format(&self) -> QuantizedFormat {
+        QuantizedFormat::Nf4
+    }
+
+    fn matmul(&self, activations: &[f32], output: &mut [f32]) {
+        assert_eq!(activations.len(), self.in_features);
+        assert_eq!(output.len(), self.out_features);
+        nf4_matmul_simd_f32(&self.packed_weights, activations, output, self.scale);
+    }
+
+    fn dequantize(&self, output_weights: &mut [f32]) {
+        assert_eq!(output_weights.len(), self.out_features * self.in_features);
+        let bytes_per_row = self.in_features.div_ceil(2);
+        for i in 0..self.out_features {
+            let row_bytes = &self.packed_weights[i * bytes_per_row..(i + 1) * bytes_per_row];
+            let out_row = &mut output_weights[i * self.in_features..(i + 1) * self.in_features];
+            for (b_idx, &byte) in row_bytes.iter().enumerate() {
+                let idx0 = b_idx * 2;
+                if idx0 < self.in_features {
+                    out_row[idx0] = dequantize_nf4(byte & 0x0F) * self.scale;
+                }
+                let idx1 = idx0 + 1;
+                if idx1 < self.in_features {
+                    out_row[idx1] = dequantize_nf4((byte >> 4) & 0x0F) * self.scale;
+                }
+            }
+        }
+    }
+
+    fn evaluate_metrics(&self, reference_fp32: &[f32]) -> QuantizationMetrics {
+        let mut deq = vec![0.0f32; self.out_features * self.in_features];
+        self.dequantize(&mut deq);
+        evaluate_quantization_metrics(self.format(), &deq, reference_fp32)
+    }
+}
+
+/// Ternary 1.58-Bit Linear Kernel implementation
+#[derive(Clone, Debug, PartialEq)]
+pub struct Ternary158LinearKernel {
+    pub in_features: usize,
+    pub out_features: usize,
+    pub packed_weights: Vec<u8>,
+    pub gamma: f32,
+}
+
+impl Ternary158LinearKernel {
+    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, gamma: f32) -> Self {
+        let expected_bytes = out_features * in_features.div_ceil(4);
+        assert_eq!(packed_weights.len(), expected_bytes);
+        Self { in_features, out_features, packed_weights, gamma }
+    }
+}
+
+impl QuantizedKernel for Ternary158LinearKernel {
+    fn format(&self) -> QuantizedFormat {
+        QuantizedFormat::Ternary158
+    }
+
+    fn matmul(&self, activations: &[f32], output: &mut [f32]) {
+        assert_eq!(activations.len(), self.in_features);
+        assert_eq!(output.len(), self.out_features);
+        ternary_matmul_simd_f32(&self.packed_weights, activations, output, self.gamma);
+    }
+
+    fn dequantize(&self, output_weights: &mut [f32]) {
+        assert_eq!(output_weights.len(), self.out_features * self.in_features);
+        let bytes_per_row = self.in_features.div_ceil(4);
+        for i in 0..self.out_features {
+            let row_bytes = &self.packed_weights[i * bytes_per_row..(i + 1) * bytes_per_row];
+            let out_row = &mut output_weights[i * self.in_features..(i + 1) * self.in_features];
+            for (b_idx, &byte) in row_bytes.iter().enumerate() {
+                let act_offset = b_idx * 4;
+                for bit_shift in 0..4 {
+                    let idx = act_offset + bit_shift;
+                    if idx < self.in_features {
+                        let code = (byte >> (bit_shift * 2)) & 0x03;
+                        let w = match code {
+                            0x01 => 1.0f32,
+                            0x03 => -1.0f32,
+                            _ => 0.0f32,
+                        };
+                        out_row[idx] = w * self.gamma;
+                    }
+                }
+            }
+        }
+    }
+
+    fn evaluate_metrics(&self, reference_fp32: &[f32]) -> QuantizationMetrics {
+        let mut deq = vec![0.0f32; self.out_features * self.in_features];
+        self.dequantize(&mut deq);
+        evaluate_quantization_metrics(self.format(), &deq, reference_fp32)
+    }
+}
+
+/// 1-Bit Binary Neural Network (BNN) Linear Kernel implementation
+#[derive(Clone, Debug, PartialEq)]
+pub struct BnnLinearKernel {
+    pub in_features: usize,
+    pub out_features: usize,
+    pub packed_weights: Vec<u8>,
+    pub scale: f32,
+}
+
+impl BnnLinearKernel {
+    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, scale: f32) -> Self {
+        let expected_bytes = out_features * in_features.div_ceil(8);
+        assert_eq!(packed_weights.len(), expected_bytes);
+        Self { in_features, out_features, packed_weights, scale }
+    }
+}
+
+impl QuantizedKernel for BnnLinearKernel {
+    fn format(&self) -> QuantizedFormat {
+        QuantizedFormat::Bnn1Bit
+    }
+
+    fn matmul(&self, activations: &[f32], output: &mut [f32]) {
+        assert_eq!(activations.len(), self.in_features);
+        assert_eq!(output.len(), self.out_features);
+        bnn_matmul_simd_f32(&self.packed_weights, activations, output, self.scale);
+    }
+
+    fn dequantize(&self, output_weights: &mut [f32]) {
+        assert_eq!(output_weights.len(), self.out_features * self.in_features);
+        let bytes_per_row = self.in_features.div_ceil(8);
+        for i in 0..self.out_features {
+            let row_bytes = &self.packed_weights[i * bytes_per_row..(i + 1) * bytes_per_row];
+            let out_row = &mut output_weights[i * self.in_features..(i + 1) * self.in_features];
+            for (b_idx, &byte) in row_bytes.iter().enumerate() {
+                let act_base = b_idx * 8;
+                for bit in 0..8 {
+                    let idx = act_base + bit;
+                    if idx < self.in_features {
+                        let bit_val = (byte >> bit) & 1;
+                        let w = if bit_val == 1 { 1.0f32 } else { -1.0f32 };
+                        out_row[idx] = w * self.scale;
+                    }
+                }
+            }
+        }
+    }
+
+    fn evaluate_metrics(&self, reference_fp32: &[f32]) -> QuantizationMetrics {
+        let mut deq = vec![0.0f32; self.out_features * self.in_features];
+        self.dequantize(&mut deq);
+        evaluate_quantization_metrics(self.format(), &deq, reference_fp32)
+    }
 }
