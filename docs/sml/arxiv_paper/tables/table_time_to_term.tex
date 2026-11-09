@@ -1,0 +1,37 @@
+% Auto-generated from time_to_termination_and_integration_error.json
+\begin{table*}[t]
+\centering
+\caption{Time-to-Termination and Integration Error Suite (5 Dual Regimes).}
+\label{tab:time_to_term}
+\footnotesize
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{Regime / Problem} & \textbf{Method} & \textbf{Final Metric} & \textbf{Steps to $10^{-2}$} & \textbf{Steps to $10^{-4}$} & \textbf{Steps / NFE} & \textbf{Energy Drift} \\
+\midrule
+  \multirow{5}{*}{Rosenbrock Banana Valley} & \textbf{Self-Optimizing Meta} & $0.0362$ & --- & --- & 150 & --- \\
+   & ScheduleFree AdamW & $0.9759$ & --- & --- & 150 & --- \\
+   & AdamW & $3.1704$ & --- & --- & 150 & --- \\
+   & Lion & $1.3380$ & --- & --- & 150 & --- \\
+   & Nesterov Accelerated SGD & $0.0394$ & 42 & --- & 150 & --- \\
+\midrule
+  \multirow{5}{*}{Beale Non-Convex Valley} & \textbf{Self-Optimizing Meta} & $5.11 \times 10^{-9}$ & 26 & 41 & 150 & --- \\
+   & ScheduleFree AdamW & $0.0114$ & 44 & --- & 150 & --- \\
+   & AdamW & $0.0058$ & 133 & --- & 150 & --- \\
+   & Lion & $3.2000$ & --- & --- & 150 & --- \\
+   & Nesterov Accelerated SGD & $2.57 \times 10^{-6}$ & 40 & 74 & 150 & --- \\
+\midrule
+  \multirow{5}{*}{Deep Neural Network Two-Moons (MLP)} & \textbf{Self-Optimizing Meta} & $4.26 \times 10^{-5}$ & 35 & 65 & 150 & --- \\
+   & ScheduleFree AdamW & $0.0005$ & 46 & --- & 150 & --- \\
+   & AdamW & $4.88 \times 10^{-5}$ & 34 & 63 & 150 & --- \\
+   & Lion & $0.0748$ & --- & --- & 150 & --- \\
+   & Nesterov Accelerated SGD & $0.6926$ & --- & --- & 150 & --- \\
+\midrule
+  \multirow{3}{*}{Conservative Kepler 2-Body (e=0.6)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.4337$ ($L_2$) & --- & --- & 224 NFEs & $0.0000$ \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.0154$ ($L_2$) & --- & --- & 216 NFEs & $0.0005$ \\
+   & Fixed-Step RK4 (100 Steps) & $2.5991$ ($L_2$) & --- & --- & 400 NFEs & $1.19 \times 10^{-7}$ \\
+\midrule
+  \multirow{2}{*}{Stiff Van der Pol Oscillator (mu=100)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.0050$ ($L_2$) & --- & --- & 304 NFEs & $0.0000$ \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.0080$ ($L_2$) & --- & --- & 1164 NFEs & $0.0000$ \\
+\bottomrule
+\end{tabular}
+\end{table*}

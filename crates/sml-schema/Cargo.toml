@@ -1,16 +1,11 @@
 [package]
-name = "ai-candle"
+name = "sml-schema"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
+description = "Shared Rust serde data models, tensor parameter descriptors, and golden vector manifests for Spodeian ML"
 
 [dependencies]
-candle-core = { workspace = true }
-candle-nn = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-
-[dev-dependencies]
-candle-core = { workspace = true }
-candle-nn = { workspace = true }

@@ -1,0 +1,46 @@
+[package]
+name = "sml-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Spodeian ML Runtime · SafeTensors streaming loader, continuous flow ODE solvers, dynamic heads, universal quantization, and RLS online adaptation for Candle"
+
+[features]
+default = ["simd"]
+simd = []
+parallel = ["dep:rayon"]
+
+[dependencies]
+candle-core = { workspace = true }
+candle-nn = { workspace = true }
+safetensors = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+smallvec = { workspace = true }
+byteorder = { workspace = true }
+ahash = { workspace = true }
+rand = { workspace = true }
+rayon = { workspace = true, optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+[lints.clippy]
+needless_range_loop = "allow"
+while_let_on_iterator = "allow"
+useless_vec = "allow"
+collapsible_if = "allow"
+manual_memcpy = "allow"
+type_complexity = "allow"
+manual_div_ceil = "allow"
+manual_is_multiple_of = "allow"
+too_many_arguments = "allow"
+excessive_precision = "allow"
+len_without_is_empty = "allow"
+field_reassign_with_default = "allow"
+derivable_impls = "allow"
+doc_lazy_continuation = "allow"
+manual_checked_ops = "allow"

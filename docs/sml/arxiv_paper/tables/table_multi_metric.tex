@@ -1,0 +1,50 @@
+% Auto-generated from comprehensive_multi_metric_audit.json
+\begin{table*}[t]
+\centering
+\caption{Comprehensive Multi-Metric Audit Across 6 Core Regimes (Ground-Truth Telemetry).}
+\label{tab:multi_metric_audit}
+\footnotesize
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{Regime} & \textbf{Optimizer} & \textbf{Initial $\mathcal{L}_0$} & \textbf{Final $\mathcal{L}_T$} & \textbf{Steps to $10^{-4}$} & \textbf{Step Latency ($\mu$s)} & \textbf{Aux Bytes/Param} \\
+\midrule
+  \multirow{7}{*}{Isotropic Bowl ($\kappa=1$)} & \textbf{Self-Optimizing Meta} & $64.0$ & $\mathbf{0.0000}$ & 9 & 80.1 & 12 \\
+   & ScheduleFree AdamW & $64.0$ & $0.0029$ & 33 & 77.0 & 8 \\
+   & AdamW & $64.0$ & $0.8745$ & 24 & 70.7 & 8 \\
+   & Nesterov Accelerated SGD & $64.0$ & $0.0131$ & 34 & 53.7 & 4 \\
+   & Euler Step (SGD) & $64.0$ & $0.0140$ & --- & 41.7 & 0 \\
+   & Lion & $64.0$ & $2.5600$ & 20 & 59.2 & 4 \\
+   & Sophia-G & $64.0$ & $54.2$ & --- & 79.7 & 8 \\
+\midrule
+  \multirow{4}{*}{Low-Gradient Desert ($g=10^{-6}$)} & \textbf{Self-Optimizing Meta} & $1.00 \times 10^{-5}$ & $\mathbf{0.0000}$ & --- & 35.4 & 12 \\
+   & Lion & $1.00 \times 10^{-5}$ & $6.00 \times 10^{-6}$ & --- & 49.2 & 4 \\
+   & ScheduleFree AdamW & $1.00 \times 10^{-5}$ & $\mathbf{0.0000}$ & --- & 55.8 & 8 \\
+   & Euler Step (SGD) & $1.00 \times 10^{-5}$ & $1.00 \times 10^{-5}$ & --- & 35.4 & 0 \\
+\midrule
+  \multirow{6}{*}{Rotated Ellipsoid ($45^\circ, \kappa=10^4$)} & \textbf{Self-Optimizing Meta} & $40000.0$ & $2.05 \times 10^{-6}$ & 33 & 120.4 & 12 \\
+   & Self-Optimizing Meta (Matched lr=0.0001) & $40000.0$ & $35202.2$ & --- & 118.8 & 12 \\
+   & Nesterov Accelerated SGD (Tuned lr=0.0001) & $40000.0$ & $\mathbf{0.0000}$ & 2 & 124.9 & 4 \\
+   & ScheduleFree AdamW & $40000.0$ & $4.7543$ & --- & 133.3 & 12 \\
+   & AdamW & $40000.0$ & $20362.2$ & --- & 131.4 & 8 \\
+   & Sophia-G & $40000.0$ & $39999.0$ & --- & 140.9 & 12 \\
+\midrule
+  \multirow{4}{*}{Ultra-Stiff Ravine ($\kappa=10^8$)} & \textbf{Self-Optimizing Meta} & $2.5000$ & $1.7573$ & --- & 89.7 & 12 \\
+   & ScheduleFree AdamW & $2.5000$ & $1.9405$ & --- & 107.0 & 12 \\
+   & Sophia-G & $2.5000$ & $2.4944$ & --- & 113.1 & 12 \\
+   & Euler Step (SGD) & $2.5000$ & $2.0000$ & --- & 89.0 & 0 \\
+\midrule
+  \multirow{6}{*}{Beale Curved Valley} & \textbf{Self-Optimizing Meta} & $14.2$ & $1.09 \times 10^{-11}$ & --- & 195.9 & 12 \\
+   & Self-Optimizing Meta (Matched lr=0.005) & $14.2$ & $0.0017$ & --- & 194.4 & 12 \\
+   & ScheduleFree AdamW & $14.2$ & $0.0133$ & --- & 217.8 & 12 \\
+   & AdamW & $14.2$ & $0.0700$ & --- & 214.7 & 8 \\
+   & Lion & $14.2$ & $3.2533$ & --- & 201.2 & 4 \\
+   & Nesterov Accelerated SGD (Tuned lr=0.005) & $14.2$ & $6.05 \times 10^{-5}$ & --- & 196.7 & 4 \\
+\midrule
+  \multirow{5}{*}{Two-Moons Deep MLP ($L=6$)} & \textbf{Self-Optimizing Meta} & $0.6931$ & $9.10 \times 10^{-5}$ & --- & 148.2 & 12 \\
+   & ScheduleFree AdamW & $0.6931$ & $0.2818$ & --- & 271.3 & 12 \\
+   & AdamW & $0.6931$ & $0.0169$ & --- & 259.7 & 8 \\
+   & Lion & $0.6931$ & $0.2469$ & --- & 181.3 & 4 \\
+   & Nesterov Accelerated SGD & $0.6931$ & $0.6931$ & --- & 154.2 & 4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
