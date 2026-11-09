@@ -11,15 +11,17 @@
 
 | Crate | Stability | Description |
 | :--- | :--- | :--- |
-| [`spodeian-cache`](file:///crates/spodeian-cache) | **Stable (v1.0)** | Preferential CAS and multi-tier storage routing immutable blobs to Cache API / Native CAS, structured records to IndexedDB, and bounded in-memory caching (`BoundedMemoryCache`, `TieredMemoryStore`) with persistent fallback to prevent RAM overfilling. |
-| [`spodeian-tokens`](file:///crates/spodeian-tokens) | **Stable (v1.0)** | WCAG 2.1 AAA themes, colorblind-safe palettes (Deuteranopia, Protanopia, Tritanopia, Monochrome), spectrogram colormaps, and CLI accessibility. |
-| [`spodeian-telemetry`](file:///crates/spodeian-telemetry) | **Stable (v1.0)** | Universal zero-overhead tracing, circular in-memory `LogRingBuffer` for UI consoles, and crash report panic hooks. |
-| [`spodeian-export`](file:///crates/spodeian-export) | **Stable (v1.0)** | Fast streaming serialization supporting CSV, JSON, and compressed BSON formats. |
-| [`spodeian-ui`](file:///crates/spodeian-ui) | **Stable (v1.0)** | Universal egui shell components: responsive `ScreenConstraints`, accessible focus styling, reactive frame pacer, and `LogConsoleWidget`. |
-| [`spodeian-web-utils`](file:///crates/spodeian-web-utils) | **Stable (v1.0)** | Cross-target web and native runtime detection, clipboard copy, and file download fallbacks. |
-| [`spodeian-lake`](file:///crates/spodeian-lake) | **Beta (v0.1)** | Local embedded columnar Parquet data lake, debounced WAL persistence, partition streaming, and retention eviction. |
-| [`spodeian-ml-utils`](file:///crates/spodeian-ml-utils) | **Beta (v0.1)** | Numerical stability (Higham nearest PSD projection, safe float sanitization, iteration limiter), universal quantization (12 precisions including Log8), multi-horizon heads, and RLS solvers. |
-| [`spodeian-py-bridge`](file:///crates/spodeian-py-bridge) | **Beta (v0.1)** | High-throughput zero-copy Python bridge via PyO3, Apache Arrow arrays, and rolling statistical indicators. |
+| [`spodeian-core`](crates/spodeian-core) | **Stable (v1.0)** | Unified umbrella facade re-exporting all Spodeian micro-crates with standard ecosystem prelude. |
+| [`spodeian-parallel`](crates/spodeian-parallel) | **Stable (v1.0)** | Zero-overhead concurrency facade executing Rayon on native platforms with transparent sequential fallback on WebAssembly. |
+| [`spodeian-cache`](crates/spodeian-cache) | **Stable (v1.0)** | Preferential CAS and multi-tier storage routing immutable blobs to Cache API / Native CAS, structured records to IndexedDB, and bounded in-memory caching (`BoundedMemoryCache`, `TieredMemoryStore`) with persistent fallback to prevent RAM overfilling. |
+| [`spodeian-tokens`](crates/spodeian-tokens) | **Stable (v1.0)** | WCAG 2.1 AAA themes, colorblind-safe palettes (Deuteranopia, Protanopia, Tritanopia, Monochrome), spectrogram colormaps, and CLI accessibility. |
+| [`spodeian-telemetry`](crates/spodeian-telemetry) | **Stable (v1.0)** | Universal zero-overhead tracing, circular in-memory `LogRingBuffer` for UI consoles, and crash report panic hooks. |
+| [`spodeian-export`](crates/spodeian-export) | **Stable (v1.0)** | Fast streaming serialization supporting RFC 4180 CSV, JSON, compressed BSON, SafeTensors, and 16-bit linear PCM WAV audio. |
+| [`spodeian-ui`](crates/spodeian-ui) | **Stable (v1.0)** | Universal egui shell components: responsive `ScreenConstraints`, accessible focus styling, reactive frame pacer, and `LogConsoleWidget`. |
+| [`spodeian-web-utils`](crates/spodeian-web-utils) | **Stable (v1.0)** | Cross-target web and native runtime detection, clipboard copy, and file download fallbacks. |
+| [`spodeian-lake`](crates/spodeian-lake) | **Beta (v0.1)** | Local embedded columnar Parquet data lake, debounced WAL persistence, partition streaming, retention eviction, and procedural synthetic generators (`SyntheticMarketGenerator`, `SyntheticAcousticGenerator`). |
+| [`spodeian-ml-utils`](crates/spodeian-ml-utils) | **Beta (v0.1)** | Constant-time $O(1)$ streaming statistics (`RollingWindow`, `OnlineSlidingStats`), compute execution router (`ComputeRouter`), L-BFGS quasi-Newton optimizer, RK4 continuous ODE solvers, numerical parity harness, Higham nearest PSD projection, and universal quantization. |
+| [`spodeian-py-bridge`](crates/spodeian-py-bridge) | **Beta (v0.1)** | High-throughput zero-copy Python bridge via PyO3, Apache Arrow arrays, and rolling statistical indicators. |
 
 ---
 

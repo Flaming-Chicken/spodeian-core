@@ -10,7 +10,7 @@ description = "Spodeian Core · Unified ecosystem umbrella facade re-exporting a
 workspace = true
 
 [features]
-default = ["parallel", "telemetry", "tokens", "export"]
+default = ["full"]
 full = [
     "parallel",
     "telemetry",

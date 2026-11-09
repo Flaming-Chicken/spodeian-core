@@ -46,6 +46,16 @@ pub enum ExportError {
 // ============================================================================
 
 /// Escapes a string field for CSV inclusion following standard RFC 4180 rules.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_export::escape_csv_field;
+///
+/// assert_eq!(escape_csv_field("simple"), "simple");
+/// assert_eq!(escape_csv_field("hello, world"), "\"hello, world\"");
+/// assert_eq!(escape_csv_field("quote: \"hi\""), "\"quote: \"\"hi\"\"\"");
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn escape_csv_field(field: &str) -> String {
     if field.contains(',') || field.contains('"') || field.contains('\n') || field.contains('\r') {
@@ -57,6 +67,15 @@ pub fn escape_csv_field(field: &str) -> String {
 }
 
 /// Parses a single CSV line into discrete fields respecting quoted delimiters and escaped quotes.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_export::parse_csv_line;
+///
+/// let fields = parse_csv_line("AAPL,150.25,\"New York, USA\"");
+/// assert_eq!(fields, vec!["AAPL", "150.25", "New York, USA"]);
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub fn parse_csv_line(line: &str) -> Vec<String> {
     let mut fields = Vec::new();

@@ -83,6 +83,20 @@ impl GoldenParityHarnessBuilder {
 }
 
 /// Universal parity verification harness.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::GoldenParityHarness;
+///
+/// let harness = GoldenParityHarness::new(1e-4);
+/// let candidate = vec![1.00001, 2.00002, 3.00001];
+/// let reference = vec![1.0, 2.0, 3.0];
+///
+/// let report = harness.verify("layer1.weight", &candidate, &reference).unwrap();
+/// assert!(report.passed);
+/// assert!(report.max_abs_error < 1e-4);
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GoldenParityHarness {
     pub tolerance: f32,

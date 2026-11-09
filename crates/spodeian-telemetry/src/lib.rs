@@ -29,6 +29,22 @@ pub struct LogEntry {
 }
 
 /// Thread-safe circular in-memory buffer storing recent log entries for diagnostic UI viewers.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_telemetry::{LogRingBuffer, LogEntry};
+///
+/// let buffer = LogRingBuffer::new(2);
+/// buffer.push(LogEntry {
+///     timestamp_millis: 1000,
+///     level: "INFO".to_string(),
+///     target: "app".to_string(),
+///     message: "Started".to_string(),
+///     fields: vec![],
+/// });
+/// assert_eq!(buffer.len(), 1);
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug)]
 pub struct LogRingBuffer {

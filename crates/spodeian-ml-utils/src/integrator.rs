@@ -502,6 +502,20 @@ impl ContinuousIntegrator<f64> for HeunPredictorCorrector {
 }
 
 /// Classical 4th-Order Runge-Kutta (RK4) Stepper with embedded truncation error estimation.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::{Rk4Stepper, ContinuousIntegrator};
+///
+/// let stepper = Rk4Stepper;
+/// let y0 = vec![1.0];
+/// // dy/dt = -y => y(t) = e^(-t)
+/// let mut decay = |y: &Vec<f64>, _t: f64| vec![-y[0]];
+/// let result = stepper.step(&y0, 0.0, 0.1, 1e-3, &mut decay);
+/// assert!(result.accepted);
+/// assert!((result.next_state[0] - (-0.1f64).exp()).abs() < 1e-5);
+/// ```
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Rk4Stepper;
 

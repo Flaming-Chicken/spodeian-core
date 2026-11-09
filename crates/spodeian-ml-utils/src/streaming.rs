@@ -14,6 +14,23 @@
 use serde::{Deserialize, Serialize};
 
 /// Generic sliding window buffer maintaining a fixed capacity with $O(1)$ push and pop.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::RollingWindow;
+///
+/// let mut window = RollingWindow::new(3);
+/// assert_eq!(window.push(10), None);
+/// assert_eq!(window.push(20), None);
+/// assert_eq!(window.push(30), None);
+/// assert!(window.is_full());
+///
+/// // Pushing a 4th item evicts the oldest (10)
+/// assert_eq!(window.push(40), Some(10));
+/// assert_eq!(window.latest(), Some(&40));
+/// assert_eq!(window.oldest(), Some(&20));
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RollingWindow<T> {
     buffer: Vec<T>,
@@ -125,6 +142,27 @@ impl<T: Clone> RollingWindow<T> {
 }
 
 /// Numerically stable online sliding statistics maintaining mean, variance, and standard deviation in $O(1)$ time.
+///
+/// # Mathematical Background
+///
+/// Tracks the running sum $S_1 = \sum x_i$ and sum-of-squares $S_2 = \sum x_i^2$.
+/// Upon sample insertion and eviction, computes the sample variance in $O(1)$ operations via:
+///
+/// $$\sigma^2 = \frac{S_2 - \frac{S_1^2}{N}}{N - 1}$$
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::OnlineSlidingStats;
+///
+/// let mut stats = OnlineSlidingStats::new(4);
+/// for val in [1.0, 2.0, 3.0, 4.0] {
+///     stats.push(val);
+/// }
+/// assert_eq!(stats.mean(), 2.5);
+/// assert!((stats.variance() - 1.6666666666666667).abs() < 1e-12);
+/// assert!((stats.z_score(4.0) - 1.161895003862225).abs() < 1e-6);
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OnlineSlidingStats {
     window: RollingWindow<f64>,
@@ -232,6 +270,24 @@ impl OnlineSlidingStats {
 }
 
 /// Exponential Moving Average (EMA) online accumulator.
+///
+/// # Mathematical Background
+///
+/// Given smoothing parameter $\alpha = \frac{2}{\text{span} + 1}$, updates state:
+///
+/// $$\text{EMA}_t = \alpha \cdot x_t + (1 - \alpha) \cdot \text{EMA}_{t-1}$$
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::ExponentialMovingAverage;
+///
+/// let mut ema = ExponentialMovingAverage::with_span(9);
+/// assert_eq!(ema.update(100.0), 100.0);
+/// let val = ema.update(110.0);
+/// assert!((val - 102.0).abs() < 1e-6);
+/// assert_eq!(ema.value(), Some(val));
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ExponentialMovingAverage {
     alpha: f64,
@@ -284,6 +340,24 @@ impl ExponentialMovingAverage {
 }
 
 /// Online sliding covariance and Pearson correlation coefficient between two streaming series.
+///
+/// # Mathematical Background
+///
+/// Computes sample covariance $\text{Cov}(X, Y) = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{N - 1}$
+/// and Pearson correlation $r = \frac{\text{Cov}(X, Y)}{s_x s_y}$ in $O(1)$ operations per update.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::OnlineSlidingCovariance;
+///
+/// let mut cov = OnlineSlidingCovariance::new(5);
+/// for i in 1..=5 {
+///     cov.push(i as f64, (2 * i) as f64);
+/// }
+/// assert!((cov.correlation() - 1.0).abs() < 1e-6);
+/// assert!((cov.beta() - 0.5).abs() < 1e-6);
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OnlineSlidingCovariance {
     window_x: RollingWindow<f64>,

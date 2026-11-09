@@ -117,6 +117,18 @@ impl SimplePrng {
 }
 
 /// Procedural financial market data generator simulating Geometric Brownian Motion and micro-structure spreads.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_lake::SyntheticMarketGenerator;
+///
+/// let generator = SyntheticMarketGenerator::new(42);
+/// let ticks = generator.generate_ticks("AAPL", 10, 150.0, 0.25);
+/// assert_eq!(ticks.len(), 10);
+/// assert_eq!(ticks[0].symbol, "AAPL");
+/// assert!(ticks[0].close > 0.0);
+/// ```
 #[derive(Debug, Clone)]
 pub struct SyntheticMarketGenerator {
     seed: u64,
@@ -191,6 +203,17 @@ impl SyntheticMarketGenerator {
 }
 
 /// Procedural acoustic and audio signal telemetry generator for audio testing and synthesis verification.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_lake::SyntheticAcousticGenerator;
+///
+/// let generator = SyntheticAcousticGenerator::new(42);
+/// let snapshots = generator.generate_telemetry(5);
+/// assert_eq!(snapshots.len(), 5);
+/// assert!(snapshots[0].spectral_centroid > 0.0);
+/// ```
 #[derive(Debug, Clone)]
 pub struct SyntheticAcousticGenerator {
     seed: u64,

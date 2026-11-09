@@ -38,6 +38,22 @@ pub struct TieredMemoryMetrics {
 /// Bounded in-memory cache utilizing an LRU eviction strategy.
 ///
 /// Designed to keep active working sets in RAM without unbounded memory growth.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_cache::BoundedMemoryCache;
+///
+/// let mut cache = BoundedMemoryCache::new(2);
+/// cache.put("a", 1);
+/// cache.put("b", 2);
+/// assert_eq!(cache.get(&"a"), Some(&1));
+///
+/// // Pushing "c" exceeds capacity, evicting the least recently used ("b")
+/// let evicted = cache.put("c", 3);
+/// assert_eq!(evicted, Some(("b", 2)));
+/// assert_eq!(cache.get(&"b"), None);
+/// ```
 #[derive(Debug, Clone)]
 pub struct BoundedMemoryCache<K, V> {
     capacity: usize,

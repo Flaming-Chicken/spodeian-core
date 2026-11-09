@@ -10,6 +10,16 @@
 //!
 //! This enables writing performance-critical loops ONCE across the entire Spodeian ecosystem without
 //! scattering repetitive `#[cfg(target_arch = "wasm32")]` blocks.
+//!
+//! # Examples
+//!
+//! ```rust
+//! use spodeian_parallel::prelude::*;
+//!
+//! let data = vec![1, 2, 3, 4, 5];
+//! let sum: i32 = data.into_par_iter().map(|x| x * 2).sum();
+//! assert_eq!(sum, 30);
+//! ```
 
 #![cfg_attr(not(feature = "parallel"), no_std)]
 

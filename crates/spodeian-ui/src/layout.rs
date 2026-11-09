@@ -5,6 +5,17 @@
 use egui::Ui;
 
 /// Dynamic screen and viewport constraints derived from available dimensions.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ui::ScreenConstraints;
+///
+/// let constraints = ScreenConstraints::from_dimensions(500.0, 700.0);
+/// assert!(constraints.is_mobile);
+/// assert!(constraints.is_mobile_portrait);
+/// assert!(!constraints.is_ultra_tight);
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ScreenConstraints {

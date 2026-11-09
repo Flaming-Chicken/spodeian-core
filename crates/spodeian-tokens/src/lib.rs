@@ -7,6 +7,18 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Theme mode for user interfaces.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_tokens::ThemeMode;
+///
+/// let mode = ThemeMode::Dark;
+/// assert!(mode.is_dark());
+/// assert!(!mode.is_high_contrast());
+/// assert_eq!(mode.next(), ThemeMode::Light);
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum ThemeMode {

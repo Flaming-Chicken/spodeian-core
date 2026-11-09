@@ -144,6 +144,24 @@ pub struct OptimizationResult {
 }
 
 /// Limited-Memory BFGS nonlinear numerical optimizer with Armijo backtracking line search.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::LbfgsOptimizer;
+///
+/// // Minimize quadratic: f(x, y) = (x - 3)^2 + 2*(y + 1)^2
+/// let optimizer = LbfgsOptimizer::new(50, 1e-6);
+/// let res = optimizer.minimize(&[0.0, 0.0], |x| {
+///     let loss = (x[0] - 3.0).powi(2) + 2.0 * (x[1] + 1.0).powi(2);
+///     let grad = vec![2.0 * (x[0] - 3.0), 4.0 * (x[1] + 1.0)];
+///     (loss, grad)
+/// });
+///
+/// assert!(res.converged);
+/// assert!((res.solution[0] - 3.0).abs() < 1e-4);
+/// assert!((res.solution[1] - (-1.0)).abs() < 1e-4);
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LbfgsOptimizer {
     pub max_iterations: usize,

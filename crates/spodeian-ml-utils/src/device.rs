@@ -10,6 +10,19 @@
 use serde::{Deserialize, Serialize};
 
 /// Universal hardware compute devices supported across Spodeian engines.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::ComputeDevice;
+///
+/// let dev = ComputeDevice::Cpu;
+/// assert_eq!(dev.as_str(), "cpu");
+/// assert!(!dev.is_accelerated());
+///
+/// let cuda = ComputeDevice::Cuda(0);
+/// assert!(cuda.is_accelerated());
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 pub enum ComputeDevice {
     /// Host CPU (fallback architecture supported everywhere).
@@ -95,6 +108,18 @@ pub struct ComputeCapabilities {
 }
 
 /// Central hardware discovery and compute routing engine.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_ml_utils::{ComputeRouter, ComputeDevice};
+///
+/// let device = ComputeRouter::parse_device("cpu").unwrap();
+/// assert_eq!(device, ComputeDevice::Cpu);
+///
+/// let caps = ComputeRouter::query_capabilities(device);
+/// assert!(caps.max_threads >= 1);
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct ComputeRouter;
 
