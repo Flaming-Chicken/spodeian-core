@@ -27,7 +27,7 @@
    - Dual-speed online adaptation, Sharpness-Aware Minimization (SAM), and continuous velocity flow heads.
 
 3. **Data Lake Integration (`spodeian_ml.lake`)**:
-   - Zero-copy Apache Arrow streaming loader reading columnar Parquet partitions from `spodeian-lake`.
+   - Zero-copy Apache Arrow streaming loader reading columnar Parquet partitions from `sml-lake` in `spodeian-ml-rs`.
    - Streaming data iterators, memory-mapped caching, and dataset validation.
 
 4. **Experiment Tracking & Terminal Studio (`spodeian_ml.ops`)**:
