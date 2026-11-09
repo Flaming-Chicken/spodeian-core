@@ -1,16 +1,17 @@
 [project]
-name = "spodeian-ml"
+name = "spodeian-ml-py"
 version = "0.1.0"
-description = "Spodeian ML · Scientific deep learning, neural state space models, universal quantization, and active learning engines"
+description = "Spodeian ML (Python) · Scientific deep learning, neural state space models, universal quantization, and active learning engines"
 readme = "README.md"
+license = { text = "CC-BY-NC-SA-4.0" }
 authors = [
     { name = "Liam", email = "6039896+Spodeian@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
 
 [project.urls]
-Homepage = "https://github.com/Flaming-Chicken/spodeian-ml"
-Repository = "https://github.com/Flaming-Chicken/spodeian-ml"
+Homepage = "https://github.com/Flaming-Chicken/spodeian-ml-py"
+Repository = "https://github.com/Flaming-Chicken/spodeian-ml-py"
 dependencies = [
     "numpy>=2.5.3",
     "pyarrow>=25.0.1",
@@ -22,6 +23,7 @@ dependencies = [
 
 [project.scripts]
 spodeian-ml = "spodeian_ml:main"
+spodeian-ml-py = "spodeian_ml:main"
 
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]

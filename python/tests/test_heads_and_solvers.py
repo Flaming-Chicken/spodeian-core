@@ -73,3 +73,40 @@ def test_learned_flow_solver_controller_trajectory():
     for param in velocity_head.parameters():
         assert param.grad is not None
         assert not torch.isnan(param.grad).any()
+
+
+def test_learned_flow_solver_dynamic_gating_and_hamiltonian():
+    state_dim = 4
+    velocity_head = FlowVelocityHead(state_dim=state_dim, hidden_dim=32, time_embed_dim=16)
+    solver = LearnedFlowSolverController(state_dim=state_dim, hidden_dim=32, min_h=0.05, max_h=0.25)
+
+    x0 = torch.randn(2, state_dim)
+    target_x1 = torch.randn(2, state_dim)
+
+    # 1. Gated trajectory with 4-tier gating (PE <-> PEC <-> PECE <-> PECEC)
+    final_x, trajectory, metrics = solver.solve_gated_trajectory(velocity_head, x0, max_steps=20)
+    assert final_x.shape == (2, state_dim)
+    assert len(trajectory) > 1
+    assert metrics["total_nfe"] > 0
+    assert "pe_steps" in metrics
+    assert "pec_steps" in metrics
+    assert "pece_steps" in metrics
+    assert "pecec_steps" in metrics
+    # Gated NFE should be less than or equal to 2 * steps
+    assert metrics["total_nfe"] <= 2 * len(trajectory)
+
+    # 2. Hamiltonian energy conservation loss
+    class HarmonicEnergy(nn.Module):
+        def forward(self, x):
+            return 0.5 * (x ** 2).sum(dim=-1, keepdim=True)
+
+    hamiltonian_net = HarmonicEnergy()
+    loss, endpoint_loss = solver.compute_trained_solver_loss(
+        velocity_head,
+        x0,
+        target_x1,
+        hamiltonian_fn=hamiltonian_net,
+        lambda_hamiltonian=0.1,
+    )
+    assert loss.item() > 0.0
+    assert not torch.isnan(loss).any()
