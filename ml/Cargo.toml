@@ -9,6 +9,14 @@ members = [
     "crates/sml-schema",
     "crates/sml-tools",
 ]
+default-members = [
+    "crates/sml-candle",
+    "crates/sml-kernel",
+    "crates/sml-lake",
+    "crates/sml-runtime",
+    "crates/sml-schema",
+    "crates/sml-tools",
+]
 
 [workspace.package]
 version = "0.1.0"

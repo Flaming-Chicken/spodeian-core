@@ -1,41 +1,32 @@
-# ai-systems-rs: Systems-Level Rust ML & Hardware Compute Kernels
+# spodeian-ml-rs: High-Performance Systems-Level Rust ML & Hardware Compute Kernels
 
-[![Rust Toolchain](https://img.shields.io/badge/Rust-1.80%2B-orange.svg)](Cargo.toml)
-[![Candle Core](https://img.shields.io/badge/Candle-0.8.2-blue.svg)](crates/ai-candle)
+[![Rust Toolchain](https://img.shields.io/badge/Rust-1.85%2B%20%7C%202024%20Edition-orange.svg)](Cargo.toml)
+[![Candle Core](https://img.shields.io/badge/Candle-0.11-blue.svg)](crates/sml-candle)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](LICENSE)
 
-High-performance, zero-Python, memory-safe Rust machine learning architectures and hardware compute kernels, covering 263 topics across 18 categories.
+High-performance, zero-Python, memory-safe Rust machine learning runtime, local embedded columnar Parquet data lake, PyO3 bindings, and WebGPU/SIMD hardware compute kernels.
 
-## Architecture & Crates
+## Workspace Architecture & Member Crates
 
-This repository is organized as a Cargo workspace with four core crates and two source tracks:
+| Crate | Directory | Purpose |
+| :--- | :--- | :--- |
+| **`sml-runtime`** | [`crates/sml-runtime`](crates/sml-runtime) | Production inference & training runtime: SafeTensors streaming loader, continuous flow ODE/SDE solvers (Adaptive RK45, Symplectic Verlet, PCEC Adams-Moulton 4, Self-Optimizing Meta-Integrator), universal quantization (12 precisions including Log8/DistributionFloat4/Posit), and advanced sampling (Mirostat v2, Min-P, XTC, Dynamic Temp). |
+| **`sml-lake`** | [`crates/sml-lake`](crates/sml-lake) | Embedded columnar local data lake: Apache Parquet partition persistence, debounced write-ahead log (WAL), LRU staleness eviction, and streaming Arrow record batches. |
+| **`sml-py-bridge`** | [`crates/sml-py-bridge`](crates/sml-py-bridge) | Zero-copy PyO3 Python FFI bridge exposing Rust data transformations, fast numerical solvers, and Arrow arrays to `spodeian-ml-py`. |
+| **`sml-candle`** | [`crates/sml-candle`](crates/sml-candle) | Pure Rust neural network implementations using Hugging Face's Candle framework covering foundations, continuous flow models, and Mamba-2 state space heads. |
+| **`sml-kernel`** | [`crates/sml-kernel`](crates/sml-kernel) | Hardware compute acceleration: WebGPU (WGSL) compute pipelines with automatic CPU SIMD vectorized fallbacks. |
+| **`sml-schema`** | [`crates/sml-schema`](crates/sml-schema) | Strongly typed Rust `serde` descriptors, architecture blueprints (`AiDesignSpec`), and golden vector validation envelopes. |
+| **`sml-tools`** | [`crates/sml-tools`](crates/sml-tools) | CLI toolchain: cross-language parity verifiers, notebook scaffolding, model quantization inspection, and test harness execution. |
 
-- **`crates/ai-candle` (`candle/`)**:
-  Zero-Python, zero-GC implementations using Hugging Face's [Candle](https://github.com/huggingface/candle) framework across all 18 categories:
-  - `00_foundations` through `17_deployment_low_level_and_capstones`
-  - High-performance tensor operations, layer architectures, optimizers, and loss functions.
-
-- **`crates/ai-kernel` (`kernels/`)**:
-  Hardware compute kernel track providing:
-  - Native CPU SIMD / vectorized kernel algorithms.
-  - WebGPU (WGSL) compute shader pipelines with automatic CPU fallback.
-
-- **`crates/ai-architect-schema`**:
-  Shared Rust `serde` data models, architecture descriptors, and specification envelopes.
-
-- **`crates/aix`**:
-  Repository toolchain CLI: contract checks, crate synchronisation, code scaffolding, and verification.
-
-## Building & Testing
+## Quick Verification
 
 ```bash
 # Check all workspace crates
 cargo check --workspace
 
-# Run tests across crates
-cargo test -p ai-candle
-cargo test -p ai-kernel
+# Run core runtime tests
+cargo test -p sml-runtime
 
-# Build release binaries
-cargo build --release --workspace
+# Execute data lake and Parquet benchmarks
+cargo test -p sml-lake
 ```
