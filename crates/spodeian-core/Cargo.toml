@@ -1,0 +1,45 @@
+[package]
+name = "spodeian-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Spodeian Core · Unified ecosystem umbrella facade re-exporting all Spodeian micro-crates"
+
+[lints]
+workspace = true
+
+[features]
+default = ["parallel", "telemetry", "tokens", "export"]
+full = [
+    "parallel",
+    "telemetry",
+    "tokens",
+    "export",
+    "cache",
+    "web-utils",
+    "ui",
+    "lake",
+    "ml-utils",
+]
+
+parallel = ["dep:spodeian-parallel"]
+telemetry = ["dep:spodeian-telemetry"]
+tokens = ["dep:spodeian-tokens"]
+export = ["dep:spodeian-export"]
+cache = ["dep:spodeian-cache"]
+web-utils = ["dep:spodeian-web-utils"]
+ui = ["dep:spodeian-ui"]
+lake = ["dep:spodeian-lake"]
+ml-utils = ["dep:spodeian-ml-utils"]
+
+[dependencies]
+spodeian-parallel = { workspace = true, optional = true }
+spodeian-telemetry = { workspace = true, optional = true }
+spodeian-tokens = { workspace = true, optional = true }
+spodeian-export = { workspace = true, optional = true }
+spodeian-cache = { workspace = true, optional = true }
+spodeian-web-utils = { workspace = true, optional = true }
+spodeian-ui = { workspace = true, optional = true }
+spodeian-lake = { workspace = true, optional = true }
+spodeian-ml-utils = { workspace = true, optional = true }

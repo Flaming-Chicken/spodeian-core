@@ -4,14 +4,23 @@ version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Universal serialization, CSV line parser/escaper, and compressed BSON/JSON interchange"
-
-[dependencies]
-serde = { workspace = true }
-serde_json = { workspace = true }
-bson = { workspace = true }
-miniz_oxide = { workspace = true }
-thiserror = { workspace = true }
+description = "Universal serialization, CSV/TSV table parser/escaper, SafeTensors tensor export, WAV audio export, and compressed BSON/JSON interchange"
 
 [lints]
 workspace = true
+
+[features]
+default = ["json", "csv", "bson", "safetensors", "audio-wav"]
+json = ["dep:serde_json"]
+csv = []
+bson = ["dep:bson", "dep:miniz_oxide"]
+safetensors = ["dep:safetensors"]
+audio-wav = []
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true, optional = true }
+bson = { workspace = true, optional = true }
+miniz_oxide = { workspace = true, optional = true }
+safetensors = { workspace = true, optional = true }
+thiserror = { workspace = true }

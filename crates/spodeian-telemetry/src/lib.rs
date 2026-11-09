@@ -103,18 +103,20 @@ fn current_time_millis() -> u64 {
         .unwrap_or(0)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(target_arch = "wasm32")]
+fn current_time_millis() -> u64 {
+    js_sys::Date::now() as u64
+}
+
 struct RingBufferLayer {
     buffer: Arc<LogRingBuffer>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 struct FieldVisitor {
     message: String,
     fields: Vec<(String, String)>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 impl tracing::field::Visit for FieldVisitor {
     fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
         if field.name() == "message" {
@@ -140,7 +142,6 @@ impl tracing::field::Visit for FieldVisitor {
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 impl<S: tracing::Subscriber> tracing_subscriber::Layer<S> for RingBufferLayer {
     fn on_event(
         &self,
@@ -238,10 +239,23 @@ pub fn init_telemetry_with_buffer(
 
     #[cfg(target_arch = "wasm32")]
     {
-        let _ = tracing_subscriber::fmt()
+        use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry};
+        let filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(default_filter));
+
+        let ring_layer = RingBufferLayer {
+            buffer: buffer.clone(),
+        };
+
+        let console_layer = tracing_subscriber::fmt::layer()
             .with_writer(tracing_web::MakeConsoleWriter)
             .without_time()
-            .with_ansi(false)
+            .with_ansi(false);
+
+        let _ = registry()
+            .with(console_layer)
+            .with(ring_layer)
+            .with(filter)
             .try_init();
     }
 

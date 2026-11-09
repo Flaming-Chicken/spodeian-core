@@ -1,6 +1,8 @@
 [workspace]
 resolver = "3"
 members = [
+    "crates/spodeian-parallel",
+    "crates/spodeian-core",
     "crates/spodeian-cache",
     "crates/spodeian-tokens",
     "crates/spodeian-telemetry",
@@ -22,6 +24,8 @@ description = "Spodeian Core · Cross-project shared ecosystem foundation: prefe
 repository = "https://github.com/Flaming-Chicken/spodeian-core"
 
 [workspace.dependencies]
+spodeian-parallel = { path = "crates/spodeian-parallel", version = "^1.0.0" }
+spodeian-core = { path = "crates/spodeian-core", version = "^1.0.0" }
 spodeian-cache = { path = "crates/spodeian-cache", version = "^1.0.0" }
 spodeian-tokens = { path = "crates/spodeian-tokens", version = "^1.0.0" }
 spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "^1.0.0" }

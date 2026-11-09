@@ -8,6 +8,7 @@
 pub mod adaptation;
 pub mod factors;
 pub mod heads;
+pub mod integrator;
 pub mod loader;
 pub mod logarithmic;
 pub mod quantization;
@@ -17,6 +18,9 @@ pub use candle_core;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use adaptation::*;
+
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use integrator::*;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use factors::*;

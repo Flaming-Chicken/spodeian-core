@@ -2127,11 +2127,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "spodeian-core"
+version = "1.0.0"
+dependencies = [
+ "spodeian-cache",
+ "spodeian-export",
+ "spodeian-lake",
+ "spodeian-ml-utils",
+ "spodeian-parallel",
+ "spodeian-telemetry",
+ "spodeian-tokens",
+ "spodeian-ui",
+ "spodeian-web-utils",
+]
+
+[[package]]
 name = "spodeian-export"
 version = "1.0.0"
 dependencies = [
  "bson",
  "miniz_oxide 0.8.9",
+ "safetensors 0.5.3",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
@@ -2168,6 +2184,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "spodeian-parallel"
+version = "1.0.0"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
 name = "spodeian-py-bridge"
 version = "0.1.0"
 dependencies = [
@@ -2185,6 +2208,7 @@ name = "spodeian-telemetry"
 version = "1.0.0"
 dependencies = [
  "console_error_panic_hook",
+ "js-sys",
  "serde",
  "serde_json",
  "tracing",
