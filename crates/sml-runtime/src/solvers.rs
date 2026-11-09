@@ -2648,6 +2648,184 @@ impl std::fmt::Debug for HamiltonianEnergyFn {
 /// - Gustafsson, K. (1994). *Control-theoretic techniques for stepsize selection in implicit Runge-Kutta methods*. ACM TOMS, 20(4), 496–517.
 /// - Söderlind, G. (2002). *Automatic control and adaptive time-stepping*. Numerical Algorithms, 31(1), 281–310.
 /// - Filippov, A. F. (1988). *Differential Equations with Discontinuous Righthand Sides*. Kluwer Academic Publishers.
+/// Norm type used to aggregate multi-coordinate error vectors into a scalar diagnostic.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ErrorAggregationNorm {
+    /// Root-mean-square norm: $\sqrt{\frac{1}{n} \sum_i e_i^2}$. (Default, scale-invariant).
+    #[default]
+    Rms,
+    /// Euclidean 2-norm: $\sqrt{\sum_i e_i^2}$.
+    L2,
+    /// Maximum coordinate norm: $\max_i |e_i|$.
+    LInf,
+    /// Mean absolute norm: $\frac{1}{n} \sum_i |e_i|$.
+    L1Mean,
+}
+
+impl ErrorAggregationNorm {
+    #[inline]
+    pub fn compute(&self, err_vec: &[f32]) -> f32 {
+        if err_vec.is_empty() {
+            return 0.0;
+        }
+        let n = err_vec.len();
+        match self {
+            Self::Rms => {
+                let sum_sq: f32 = err_vec.iter().map(|&x| x * x).sum();
+                (sum_sq / n as f32).sqrt()
+            }
+            Self::L2 => {
+                let sum_sq: f32 = err_vec.iter().map(|&x| x * x).sum();
+                sum_sq.sqrt()
+            }
+            Self::LInf => {
+                err_vec.iter().fold(0.0f32, |acc, &x| acc.max(x.abs()))
+            }
+            Self::L1Mean => {
+                let sum_abs: f32 = err_vec.iter().map(|&x| x.abs()).sum();
+                sum_abs / n as f32
+            }
+        }
+    }
+}
+
+/// Detailed input data error and uncertainty specification for initial conditions and vector fields.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct InputErrorEstimate {
+    /// Coordinate-wise absolute uncertainty in the initial/observed state $x_0$ ($\sigma_{x, i}$).
+    /// Stack-inlined for up to 64 dimensions to preserve zero-heap allocation guarantees.
+    pub state_abs_error: SmallVec<[f32; 64]>,
+    /// Relative uncertainty in the state vector ($\text{rel}_x$).
+    pub state_rel_error: f32,
+    /// Coordinate-wise absolute uncertainty in the evaluated vector field/derivative $f(x, t)$ ($\sigma_{v, i}$).
+    pub velocity_abs_error: SmallVec<[f32; 64]>,
+    /// Relative uncertainty in the vector field evaluations ($\text{rel}_v$).
+    pub velocity_rel_error: f32,
+    /// Known or estimated upper bound on the Lipschitz constant $L = \|\nabla f\|$.
+    /// When `None`, the meta-integrator autonomously computes the directional Lipschitz sensitivity online:
+    /// $L_{n, i} \approx \frac{|v_{pred, i} - history_{i}[0]|}{|x_{pred, i} - curr\_x_i| + \varepsilon_{denom}}$.
+    pub lipschitz_bound: Option<f32>,
+}
+
+impl InputErrorEstimate {
+    pub fn none() -> Self {
+        Self::default()
+    }
+
+    pub fn from_state_noise(sigma_x: f32) -> Self {
+        let mut err = Self::default();
+        err.state_abs_error.push(sigma_x.abs());
+        err
+    }
+
+    pub fn from_state_and_velocity_noise(sigma_x: f32, sigma_v: f32) -> Self {
+        let mut err = Self::default();
+        err.state_abs_error.push(sigma_x.abs());
+        err.velocity_abs_error.push(sigma_v.abs());
+        err
+    }
+
+    pub fn from_slices(state_err: &[f32], velocity_err: &[f32]) -> Self {
+        Self {
+            state_abs_error: SmallVec::from_slice(state_err),
+            state_rel_error: 0.0,
+            velocity_abs_error: SmallVec::from_slice(velocity_err),
+            velocity_rel_error: 0.0,
+            lipschitz_bound: None,
+        }
+    }
+
+    pub fn with_state_rel_error(mut self, rel: f32) -> Self {
+        self.state_rel_error = rel.abs();
+        self
+    }
+
+    pub fn with_velocity_rel_error(mut self, rel: f32) -> Self {
+        self.velocity_rel_error = rel.abs();
+        self
+    }
+
+    pub fn with_lipschitz_bound(mut self, l: f32) -> Self {
+        self.lipschitz_bound = Some(l.abs());
+        self
+    }
+
+    #[inline]
+    pub fn is_zero(&self) -> bool {
+        self.state_rel_error == 0.0
+            && self.velocity_rel_error == 0.0
+            && self.state_abs_error.iter().all(|&v| v == 0.0)
+            && self.velocity_abs_error.iter().all(|&v| v == 0.0)
+    }
+
+    #[inline]
+    pub fn initial_state_error(&self, x0: &[f32]) -> SmallVec<[f32; 64]> {
+        let n = x0.len();
+        let mut err: SmallVec<[f32; 64]> = smallvec![0.0f32; n];
+        for i in 0..n {
+            let base_abs = if self.state_abs_error.is_empty() {
+                0.0f32
+            } else if self.state_abs_error.len() == 1 {
+                self.state_abs_error[0]
+            } else if i < self.state_abs_error.len() {
+                self.state_abs_error[i]
+            } else {
+                0.0f32
+            };
+            err[i] = base_abs + self.state_rel_error * x0[i].abs();
+        }
+        err
+    }
+
+    #[inline]
+    pub fn velocity_error_at(&self, v: &[f32]) -> SmallVec<[f32; 64]> {
+        let n = v.len();
+        let mut err: SmallVec<[f32; 64]> = smallvec![0.0f32; n];
+        for i in 0..n {
+            let base_abs = if self.velocity_abs_error.is_empty() {
+                0.0f32
+            } else if self.velocity_abs_error.len() == 1 {
+                self.velocity_abs_error[0]
+            } else if i < self.velocity_abs_error.len() {
+                self.velocity_abs_error[i]
+            } else {
+                0.0f32
+            };
+            err[i] = base_abs + self.velocity_rel_error * v[i].abs();
+        }
+        err
+    }
+}
+
+/// Configuration for the robust dual-component error estimator in `SelfOptimizingMetaIntegrator`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RobustErrorConfig {
+    /// Whether robust error estimation and input uncertainty propagation are enabled.
+    /// When `false` (the default), zero extra computations or allocations are performed.
+    pub enabled: bool,
+    /// Input data uncertainty specification.
+    pub input_error: InputErrorEstimate,
+    /// Method used to aggregate coordinate-wise error vectors into scalar error metrics.
+    pub aggregation_norm: ErrorAggregationNorm,
+    /// When enabled, the PID step controller respects the irreducible input noise floor,
+    /// preventing step-size collapse when local truncation error drops below measurement noise.
+    pub noise_floor_aware_stepping: bool,
+    /// Safety inflation factor applied to the error upper bound (default 1.05).
+    pub safety_factor: f32,
+}
+
+impl Default for RobustErrorConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            input_error: InputErrorEstimate::none(),
+            aggregation_norm: ErrorAggregationNorm::Rms,
+            noise_floor_aware_stepping: true,
+            safety_factor: 1.05,
+        }
+    }
+}
+
 /// Diagnostic metadata recorded per integration step by `SelfOptimizingMetaIntegrator`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MetaStepDiagnostics {
@@ -2657,6 +2835,12 @@ pub struct MetaStepDiagnostics {
     pub detected_regime: &'static str,
     pub estimated_curvature: f32,
     pub local_truncation_error: f32,
+    /// Propagated input error estimate at the current step (None if robust error estimation is disabled).
+    pub propagated_input_error: Option<f32>,
+    /// Robust total error upper bound combining local truncation error and propagated input error.
+    pub total_error_bound: Option<f32>,
+    /// Whether the step size was bounded/clamped by the irreducible input noise floor.
+    pub noise_floor_active: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -2686,6 +2870,7 @@ pub struct SelfOptimizingMetaIntegrator {
     pub gating_method: SmoothGatingMethod,
     pub clamping_method: SmoothClampingMethod,
     pub max_method: SmoothMaxMethod,
+    pub robust_error_config: RobustErrorConfig,
 }
 
 impl Default for SelfOptimizingMetaIntegrator {
@@ -2716,6 +2901,7 @@ impl Default for SelfOptimizingMetaIntegrator {
             gating_method: SmoothGatingMethod::AlgebraicSigmoid,
             clamping_method: SmoothClampingMethod::AlgebraicSigmoid,
             max_method: SmoothMaxMethod::AlgebraicSquareRoot,
+            robust_error_config: RobustErrorConfig::default(),
         }
     }
 }
@@ -2726,6 +2912,22 @@ impl SelfOptimizingMetaIntegrator {
             target_tolerance: target_tol,
             ..Default::default()
         }
+    }
+
+    pub fn with_robust_error_estimation(mut self, enabled: bool) -> Self {
+        self.robust_error_config.enabled = enabled;
+        self
+    }
+
+    pub fn with_input_error(mut self, input_error: InputErrorEstimate) -> Self {
+        self.robust_error_config.enabled = true;
+        self.robust_error_config.input_error = input_error;
+        self
+    }
+
+    pub fn with_robust_error_config(mut self, config: RobustErrorConfig) -> Self {
+        self.robust_error_config = config;
+        self
     }
 
     pub fn with_fast_starter(mut self, fast: bool) -> Self {
@@ -3012,6 +3214,11 @@ impl SelfOptimizingMetaIntegrator {
         let mut v_damped_vec: SmallVec<[f32; 64]> = smallvec![0.0f32; n];
         let mut rk_stage_x: SmallVec<[f32; 64]> = smallvec![0.0f32; n];
         let mut rd_buffer = RateDistortionResidualBuffer::new(n);
+        let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
+            self.robust_error_config.input_error.initial_state_error(&curr_x)
+        } else {
+            smallvec![]
+        };
         let mut prev_err = self.target_tolerance;
         let mut prev_err2 = self.target_tolerance;
         let mut prev_curvature = 0.0f32;
@@ -3367,6 +3574,39 @@ impl SelfOptimizingMetaIntegrator {
                 }
             }
 
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
+                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_damped_vec);
+                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+
+                for i in 0..n {
+                    let l_eff = if let Some(l) = given_l {
+                        l
+                    } else {
+                        let dx = (stabilized_x[i] - curr_x[i]).abs();
+                        let dv = (v_pred[i] - history[i][0]).abs();
+                        (dv / (dx + denom_guard)).min(1e4)
+                    };
+
+                    let phi = if is_singular || curvature > 1.2 {
+                        (1.0 + 0.5 * h * l_eff) / (1.0 + 0.1 * h * l_eff)
+                    } else {
+                        1.0 + h * l_eff
+                    };
+
+                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
+                }
+
+                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
+                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+
+                let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                    && prop_scalar > self.target_tolerance;
+
+                (Some(prop_scalar), Some(total_bound), noise_active)
+            } else {
+                (None, None, false)
+            };
+
             if self.record_diagnostics && diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
                     step_index: step_count,
@@ -3375,6 +3615,9 @@ impl SelfOptimizingMetaIntegrator {
                     detected_regime: regime,
                     estimated_curvature: curvature,
                     local_truncation_error: err,
+                    propagated_input_error: prop_err_scalar,
+                    total_error_bound: total_err_bound,
+                    noise_floor_active: is_noise_floor_active,
                 });
             }
 
@@ -3402,6 +3645,12 @@ impl SelfOptimizingMetaIntegrator {
                 FunctionCostRegime::Moderate | FunctionCostRegime::Auto => (0.4f32, 2.0f32),
                 FunctionCostRegime::Free => (0.2f32, 2.5f32),
             };
+            let effective_tol = if is_noise_floor_active {
+                let noise_floor = 0.5 * prop_err_scalar.unwrap_or(0.0);
+                self.target_tolerance.max(noise_floor)
+            } else {
+                self.target_tolerance
+            };
             let e_curr = err.max(antiwindup);
             let raw_scale = if self.super_smooth_routing {
                 // Gustafsson Predictive Digital PI/PID Controller
@@ -3410,12 +3659,12 @@ impl SelfOptimizingMetaIntegrator {
                 let ki = 0.35f32 / (p_order + 1.0);
                 let kp = 0.25f32 / (p_order + 1.0);
                 let kd = 0.05f32 / (p_order + 1.0);
-                let r_i = (self.target_tolerance / e_curr).powf(ki);
+                let r_i = (effective_tol / e_curr).powf(ki);
                 let r_p = (prev_err.max(antiwindup) / e_curr).powf(kp);
                 let r_d = ((prev_err.max(antiwindup) * prev_err.max(antiwindup)) / (e_curr * prev_err2.max(antiwindup))).powf(kd);
                 safety * r_i * r_p * r_d
             } else {
-                let error_ratio = self.target_tolerance / e_curr;
+                let error_ratio = effective_tol / e_curr;
                 safety * error_ratio.powf(exp_p)
             };
             prev_err2 = prev_err;
@@ -3465,6 +3714,11 @@ impl SelfOptimizingMetaIntegrator {
 
         let mut x_pred = vec![0.0f32; n];
         let mut x_next = vec![0.0f32; n];
+        let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
+            self.robust_error_config.input_error.initial_state_error(&curr_x)
+        } else {
+            smallvec![]
+        };
 
         while t < t1 - temporal_guard {
             if step_count >= self.max_steps {
@@ -3530,6 +3784,35 @@ impl SelfOptimizingMetaIntegrator {
                 (2, "SDE: Drift-Curved (Conformal Stochastic Heun, 2 NFE)", curvature * h * h * 0.05 + 0.05 * s_norm * sqrt_h)
             };
 
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
+                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_curr);
+                let s_err = self.robust_error_config.input_error.velocity_error_at(&s_curr);
+                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+
+                for i in 0..n {
+                    let l_eff = if let Some(l) = given_l {
+                        l
+                    } else {
+                        let dx = (x_next[i] - curr_x[i]).abs();
+                        let dv = (v_curr[i] * h).abs();
+                        (dv / (dx + 1e-6)).min(1e4)
+                    };
+
+                    let phi = 1.0 + h * l_eff;
+                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i] + sqrt_h * s_err[i];
+                }
+
+                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
+                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+
+                let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                    && prop_scalar > self.target_tolerance;
+
+                (Some(prop_scalar), Some(total_bound), noise_active)
+            } else {
+                (None, None, false)
+            };
+
             if diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
                     step_index: step_count,
@@ -3538,6 +3821,9 @@ impl SelfOptimizingMetaIntegrator {
                     detected_regime: regime,
                     estimated_curvature: rho_s,
                     local_truncation_error: err,
+                    propagated_input_error: prop_err_scalar,
+                    total_error_bound: total_err_bound,
+                    noise_floor_active: is_noise_floor_active,
                 });
             }
 
@@ -3545,8 +3831,14 @@ impl SelfOptimizingMetaIntegrator {
             t += h;
             step_count += 1;
 
-            // SDE Step size adaptation: bounded by stochastic stability
-            let ratio = (self.target_tolerance / err.max(1e-6)).powf(0.33);
+            // SDE Step size adaptation: bounded by stochastic stability and noise floor
+            let effective_tol = if is_noise_floor_active {
+                let noise_floor = 0.5 * prop_err_scalar.unwrap_or(0.0);
+                self.target_tolerance.max(noise_floor)
+            } else {
+                self.target_tolerance
+            };
+            let ratio = (effective_tol / err.max(1e-6)).powf(0.33);
             let raw_sde_scale = 0.9 * ratio;
             let scale = if self.super_smooth_routing {
                 apply_smooth_clamp(raw_sde_scale, 0.5, 1.5, self.clamping_method)
@@ -3588,6 +3880,11 @@ impl SelfOptimizingMetaIntegrator {
         let mut last_regime_is_singular = false;
 
         let mut history = vec![[0.0f32; 3]; n];
+        let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
+            self.robust_error_config.input_error.initial_state_error(&curr_x)
+        } else {
+            smallvec![]
+        };
         let h_half = h * 0.5;
         let v0 = velocity_fn(&curr_x, 0.0);
         total_nfe += 1;
@@ -3718,6 +4015,34 @@ impl SelfOptimizingMetaIntegrator {
                 history[i][0] = v_next[i];
             }
 
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
+                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_next);
+                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+
+                for i in 0..n {
+                    let l_eff = if let Some(l) = given_l {
+                        l
+                    } else {
+                        let dx = (next_x[i] - curr_x[i]).abs();
+                        let dv = (v_next[i] - v_curr[i]).abs();
+                        (dv / (dx + denom_guard)).min(1e4)
+                    };
+
+                    let phi = 1.0 + h * l_eff;
+                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
+                }
+
+                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
+                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+
+                let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                    && prop_scalar > self.target_tolerance;
+
+                (Some(prop_scalar), Some(total_bound), noise_active)
+            } else {
+                (None, None, false)
+            };
+
             if diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
                     step_index: step_count,
@@ -3726,6 +4051,9 @@ impl SelfOptimizingMetaIntegrator {
                     detected_regime: regime,
                     estimated_curvature: curvature,
                     local_truncation_error: err,
+                    propagated_input_error: prop_err_scalar,
+                    total_error_bound: total_err_bound,
+                    noise_floor_active: is_noise_floor_active,
                 });
             }
 
@@ -3734,7 +4062,13 @@ impl SelfOptimizingMetaIntegrator {
             t += h;
             step_count += 1;
 
-            let error_ratio = self.target_tolerance / err.max(antiwindup);
+            let effective_tol = if is_noise_floor_active {
+                let noise_floor = 0.5 * prop_err_scalar.unwrap_or(0.0);
+                self.target_tolerance.max(noise_floor)
+            } else {
+                self.target_tolerance
+            };
+            let error_ratio = effective_tol / err.max(antiwindup);
             let raw_dense_scale = 0.9 * error_ratio.powf(0.25);
             let scale = if self.super_smooth_routing {
                 apply_smooth_clamp(raw_dense_scale, 0.4, 1.8, self.clamping_method)
@@ -3745,6 +4079,24 @@ impl SelfOptimizingMetaIntegrator {
         }
 
         (curr_x, dense, diagnostics, total_nfe)
+    }
+
+    /// Autonomously integrates with robust error estimation accounting for input data uncertainty.
+    pub fn solve_interval_robust<F>(
+        &self,
+        x0: &[f32],
+        t0: f32,
+        t1: f32,
+        input_error: InputErrorEstimate,
+        velocity_fn: F,
+    ) -> (Vec<f32>, Vec<MetaStepDiagnostics>, usize)
+    where
+        F: FnMut(&[f32], f32) -> Vec<f32>,
+    {
+        let mut runner = self.clone();
+        runner.robust_error_config.enabled = true;
+        runner.robust_error_config.input_error = input_error;
+        runner.solve_interval(x0, t0, t1, velocity_fn)
     }
 }
 
@@ -3951,5 +4303,164 @@ mod tests {
         assert!(nfe > 0);
         let target = (-1.0f32).exp();
         assert!((final_x[0] - target).abs() < 1e-2, "Integration error: expected {}, got {}", target, final_x[0]);
+    }
+
+    #[test]
+    fn test_robust_error_estimation_toggled_off_vs_on() {
+        // dx/dt = -0.5 * x, x(0) = 2.0 on [0, 1]
+        let x0 = [2.0f32];
+        let v_fn = |x: &[f32], _t: f32| vec![-0.5 * x[0]];
+
+        // Case 1: Toggled OFF (default)
+        let integrator_off = SelfOptimizingMetaIntegrator::new(1e-4)
+            .with_robust_error_estimation(false);
+        assert!(!integrator_off.robust_error_config.enabled);
+
+        let (res_off, diag_off, nfe_off) = integrator_off.solve_interval(&x0, 0.0, 1.0, v_fn);
+        assert!(nfe_off > 0);
+        assert!(!diag_off.is_empty());
+        for d in &diag_off {
+            assert!(d.propagated_input_error.is_none(), "When toggled OFF, propagated_input_error must be None");
+            assert!(d.total_error_bound.is_none(), "When toggled OFF, total_error_bound must be None");
+            assert!(!d.noise_floor_active, "When toggled OFF, noise_floor_active must be false");
+            assert!(d.local_truncation_error >= 0.0);
+        }
+
+        // Case 2: Toggled ON with input uncertainty
+        let input_err = InputErrorEstimate::from_state_and_velocity_noise(0.02, 0.01)
+            .with_state_rel_error(0.005)
+            .with_velocity_rel_error(0.002);
+
+        let integrator_on = SelfOptimizingMetaIntegrator::new(1e-4)
+            .with_input_error(input_err);
+        assert!(integrator_on.robust_error_config.enabled);
+
+        let (res_on, diag_on, nfe_on) = integrator_on.solve_interval(&x0, 0.0, 1.0, v_fn);
+        assert!(nfe_on > 0);
+        assert!(!diag_on.is_empty());
+
+        // Numerical solutions should be close
+        assert!((res_off[0] - res_on[0]).abs() < 0.05, "Numerical solution drifted excessively");
+
+        // Verify robust error invariants
+        for d in &diag_on {
+            assert!(d.propagated_input_error.is_some(), "When toggled ON, propagated_input_error must be Some");
+            assert!(d.total_error_bound.is_some(), "When toggled ON, total_error_bound must be Some");
+
+            let prop = d.propagated_input_error.unwrap();
+            let total = d.total_error_bound.unwrap();
+            let lte = d.local_truncation_error;
+
+            assert!(prop >= 0.02, "Propagated error {} must reflect initial state uncertainty >= 0.02", prop);
+            assert!(total >= prop, "Total error bound {} must be >= propagated input error {}", total, prop);
+            assert!(total >= lte, "Total error bound {} must be >= local truncation error {}", total, lte);
+        }
+    }
+
+    #[test]
+    fn test_robust_error_input_noise_scaling() {
+        let x0 = [1.0f32, 2.0f32];
+        let v_fn = |x: &[f32], _t: f32| vec![-x[0], -0.5 * x[1]];
+
+        // Run with small noise: sigma_x = 1e-4
+        let err_small = InputErrorEstimate::from_state_noise(1e-4);
+        let integrator_small = SelfOptimizingMetaIntegrator::new(1e-4)
+            .with_input_error(err_small);
+        let (_, diag_small, _) = integrator_small.solve_interval(&x0, 0.0, 1.0, v_fn);
+
+        // Run with large noise: sigma_x = 1e-1
+        let err_large = InputErrorEstimate::from_state_noise(1e-1);
+        let integrator_large = SelfOptimizingMetaIntegrator::new(1e-4)
+            .with_input_error(err_large);
+        let (_, diag_large, _) = integrator_large.solve_interval(&x0, 0.0, 1.0, v_fn);
+
+        let last_small_prop = diag_small.last().unwrap().propagated_input_error.unwrap();
+        let last_large_prop = diag_large.last().unwrap().propagated_input_error.unwrap();
+
+        // Ratio of propagated errors should scale proportionally (~1000x)
+        let ratio = last_large_prop / last_small_prop;
+        assert!(ratio > 500.0 && ratio < 1500.0, "Propagated error ratio {} should be ~1000x", ratio);
+
+        // Test aggregation norms
+        let err_slice = [0.1f32, 0.2f32];
+        assert!((ErrorAggregationNorm::L2.compute(&err_slice) - (0.01f32 + 0.04).sqrt()).abs() < 1e-6);
+        assert_eq!(ErrorAggregationNorm::LInf.compute(&err_slice), 0.2);
+        assert!((ErrorAggregationNorm::L1Mean.compute(&err_slice) - 0.15).abs() < 1e-6);
+        assert!((ErrorAggregationNorm::Rms.compute(&err_slice) - (0.05f32 / 2.0).sqrt()).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_robust_error_noise_floor_guard_prevents_step_collapse() {
+        // Stiff linear decay: dx/dt = -10 * x, x(0) = 1.0
+        let x0 = [1.0f32];
+        let v_fn = |x: &[f32], _t: f32| vec![-10.0 * x[0]];
+
+        // High input noise: sigma_x = 0.05, but user sets an aggressive target tolerance 1e-6
+        let input_err = InputErrorEstimate::from_state_noise(0.05);
+
+        // Case A: Noise floor aware stepping enabled
+        let integrator_aware = SelfOptimizingMetaIntegrator::new(1e-6)
+            .with_input_error(input_err.clone())
+            .with_step_bounds(1e-6, 0.25);
+        let (_, diag_aware, nfe_aware) = integrator_aware.solve_interval(&x0, 0.0, 1.0, v_fn);
+
+        // Case B: Noise floor aware stepping disabled
+        let config_unaware = RobustErrorConfig {
+            enabled: true,
+            input_error: input_err,
+            aggregation_norm: ErrorAggregationNorm::Rms,
+            noise_floor_aware_stepping: false,
+            safety_factor: 1.05,
+        };
+        let integrator_unaware = SelfOptimizingMetaIntegrator::new(1e-6)
+            .with_robust_error_config(config_unaware)
+            .with_step_bounds(1e-6, 0.25);
+        let (_, diag_unaware, nfe_unaware) = integrator_unaware.solve_interval(&x0, 0.0, 1.0, v_fn);
+
+        // Verify noise_floor_active triggered in aware mode
+        let active_count = diag_aware.iter().filter(|d| d.noise_floor_active).count();
+        assert!(active_count > 0, "Noise floor guard should activate when LTE < 0.5 * input_error");
+
+        // Aware stepping should require fewer or equal evaluations by not over-refining below noise floor
+        println!("AWARE NFE: {}, UNAWARE NFE: {}, ACTIVE STEPS: {}", nfe_aware, nfe_unaware, active_count);
+        assert!(diag_aware.len() <= diag_unaware.len(), "Aware controller should take fewer or equal steps");
+    }
+
+    #[test]
+    fn test_robust_error_sde_and_dense_trajectory() {
+        let x0 = [1.0f32];
+        let drift = |x: &[f32], _t: f32| vec![-0.5 * x[0]];
+        let diff = |x: &[f32], _t: f32| vec![0.1 * x[0]];
+        let noise = |n: usize| vec![0.05f32; n];
+
+        let input_err = InputErrorEstimate::from_state_and_velocity_noise(0.03, 0.01);
+
+        // Test SDE with robust error
+        let integrator_sde = SelfOptimizingMetaIntegrator::new(1e-3)
+            .with_input_error(input_err.clone());
+        let (x_sde, diag_sde, nfe_sde) = integrator_sde.solve_sde(&x0, 0.0, 1.0, drift, diff, noise);
+
+        assert!(nfe_sde > 0);
+        assert!(x_sde[0].is_finite());
+        assert!(!diag_sde.is_empty());
+        for d in &diag_sde {
+            assert!(d.propagated_input_error.is_some(), "SDE must report propagated input error");
+            assert!(d.total_error_bound.is_some(), "SDE must report total error bound");
+            assert!(d.total_error_bound.unwrap() >= d.propagated_input_error.unwrap());
+        }
+
+        // Test Dense trajectory with robust error
+        let integrator_dense = SelfOptimizingMetaIntegrator::new(1e-3)
+            .with_input_error(input_err);
+        let (x_dense, dense_traj, diag_dense, nfe_dense) = integrator_dense.solve_auto_dense(&x0, |x, _t| vec![-0.5 * x[0]]);
+
+        assert!(nfe_dense > 0);
+        assert!(x_dense[0].is_finite());
+        let mid_sample = dense_traj.evaluate_at(0.5);
+        assert!(mid_sample.is_some());
+        for d in &diag_dense {
+            assert!(d.propagated_input_error.is_some(), "Dense must report propagated input error");
+            assert!(d.total_error_bound.is_some(), "Dense must report total error bound");
+        }
     }
 }
