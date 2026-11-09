@@ -54,8 +54,16 @@ pub mod prelude {
     #[cfg(feature = "ui")]
     pub use spodeian_ui::ScreenConstraints;
 
+    #[cfg(feature = "lake")]
+    pub use spodeian_lake::{
+        SyntheticAcousticGenerator, SyntheticMarketGenerator, TabularDataset, TabularSchema,
+    };
+
     #[cfg(feature = "ml-utils")]
     pub use spodeian_ml_utils::{
-        ContinuousIntegrator, EulerStepper, HeunPredictorCorrector, Rk4Stepper, StepResult,
+        ComputeDevice, ComputeRouter, ContinuousIntegrator, EulerStepper,
+        ExponentialMovingAverage, GoldenParityHarness, HeunPredictorCorrector,
+        LbfgsCurvatureTracker, LbfgsOptimizer, OnlineSlidingCovariance,
+        OnlineSlidingStats, ParityReport, Rk4Stepper, RollingWindow, StepResult,
     };
 }
