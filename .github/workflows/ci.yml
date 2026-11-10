@@ -75,10 +75,10 @@ jobs:
         uses: taiki-e/install-action@cargo-semver-checks
 
       - name: Verify Semver Guarantees for Stable Crates
+        # Compared against main: spodeian crates are not published on crates.io.
         run: |
-          cargo semver-checks check-release -p spodeian-cache || true
-          cargo semver-checks check-release -p spodeian-export || true
-          cargo semver-checks check-release -p spodeian-telemetry || true
-          cargo semver-checks check-release -p spodeian-tokens || true
-          cargo semver-checks check-release -p spodeian-ui || true
-          cargo semver-checks check-release -p spodeian-web-utils || true
+          status=0
+          for crate in spodeian-cache spodeian-export spodeian-telemetry spodeian-tokens spodeian-ui spodeian-web-utils; do
+            cargo semver-checks check-release -p "$crate" --baseline-rev origin/main || status=1
+          done
+          exit $status
