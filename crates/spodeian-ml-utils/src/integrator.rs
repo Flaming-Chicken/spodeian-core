@@ -154,7 +154,14 @@ impl ContinuousIntegrator<f64> for EulerStepper {
         F: FnMut(&Self::State, f64) -> Self::Velocity,
     {
         let clamped_dt = initial_dt.clamp(min_dt, max_dt);
-        self.solve_trajectory(initial_state, t_span, clamped_dt, tolerance, max_steps, dynamics)
+        self.solve_trajectory(
+            initial_state,
+            t_span,
+            clamped_dt,
+            tolerance,
+            max_steps,
+            dynamics,
+        )
     }
 }
 
@@ -235,7 +242,14 @@ impl ContinuousIntegrator<f32> for EulerStepper {
         F: FnMut(&Self::State, f32) -> Self::Velocity,
     {
         let clamped_dt = initial_dt.clamp(min_dt, max_dt);
-        self.solve_trajectory(initial_state, t_span, clamped_dt, tolerance, max_steps, dynamics)
+        self.solve_trajectory(
+            initial_state,
+            t_span,
+            clamped_dt,
+            tolerance,
+            max_steps,
+            dynamics,
+        )
     }
 }
 
@@ -351,7 +365,9 @@ impl ContinuousIntegrator<f32> for HeunPredictorCorrector {
         let eps = (t_end - t_start).abs() * 1e-6;
         while t + eps < t_end {
             if steps >= max_steps {
-                return Err(format!("Exceeded maximum step budget of {max_steps} in adaptive trajectory"));
+                return Err(format!(
+                    "Exceeded maximum step budget of {max_steps} in adaptive trajectory"
+                ));
             }
             let step_dt = dt.min(t_end - t);
             let res = self.step(&state, t, step_dt, tolerance, &mut dynamics);
@@ -480,7 +496,9 @@ impl ContinuousIntegrator<f64> for HeunPredictorCorrector {
         let eps = (t_end - t_start).abs() * 1e-6;
         while t + eps < t_end {
             if steps >= max_steps {
-                return Err(format!("Exceeded maximum step budget of {max_steps} in adaptive trajectory"));
+                return Err(format!(
+                    "Exceeded maximum step budget of {max_steps} in adaptive trajectory"
+                ));
             }
             let step_dt = dt.min(t_end - t);
             let res = self.step(&state, t, step_dt, tolerance, &mut dynamics);
@@ -566,7 +584,8 @@ impl ContinuousIntegrator<f64> for Rk4Stepper {
         let mut max_err = 0.0f64;
 
         for i in 0..n {
-            let next_val = current_state[i] + sixth_dt * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
+            let next_val =
+                current_state[i] + sixth_dt * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
             // Compare against 2nd-order RK2 estimate: y + dt * k2
             let rk2_val = current_state[i] + dt * k2[i];
             let err = (next_val - rk2_val).abs();
@@ -648,7 +667,9 @@ impl ContinuousIntegrator<f64> for Rk4Stepper {
         let eps = (t_end - t_start).abs() * 1e-6;
         while t + eps < t_end {
             if steps >= max_steps {
-                return Err(format!("Exceeded maximum step budget of {max_steps} in adaptive trajectory"));
+                return Err(format!(
+                    "Exceeded maximum step budget of {max_steps} in adaptive trajectory"
+                ));
             }
             let step_dt = dt.min(t_end - t);
             let res = self.step(&state, t, step_dt, tolerance, &mut dynamics);
@@ -712,7 +733,8 @@ impl ContinuousIntegrator<f32> for Rk4Stepper {
         let mut max_err = 0.0f32;
 
         for i in 0..n {
-            let next_val = current_state[i] + sixth_dt * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
+            let next_val =
+                current_state[i] + sixth_dt * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
             let rk2_val = current_state[i] + dt * k2[i];
             let err = (next_val - rk2_val).abs();
             if err > max_err {
@@ -793,7 +815,9 @@ impl ContinuousIntegrator<f32> for Rk4Stepper {
         let eps = (t_end - t_start).abs() * 1e-6;
         while t + eps < t_end {
             if steps >= max_steps {
-                return Err(format!("Exceeded maximum step budget of {max_steps} in adaptive trajectory"));
+                return Err(format!(
+                    "Exceeded maximum step budget of {max_steps} in adaptive trajectory"
+                ));
             }
             let step_dt = dt.min(t_end - t);
             let res = self.step(&state, t, step_dt, tolerance, &mut dynamics);
@@ -883,7 +907,10 @@ mod tests {
         assert!(err1 < 1e-6);
         assert!(err2 < 1e-7);
         let ratio = err1 / err2;
-        assert!(ratio > 14.0 && ratio < 18.0, "Expected ~16x error reduction, got {ratio}");
+        assert!(
+            ratio > 14.0 && ratio < 18.0,
+            "Expected ~16x error reduction, got {ratio}"
+        );
     }
 
     #[test]
@@ -905,6 +932,9 @@ mod tests {
 
         let expected = (-1.0f64).exp();
         assert!((x_final[0] - expected).abs() < 1e-5);
-        assert!(steps <= 35, "Adaptive solver should converge in few steps: got {steps}");
+        assert!(
+            steps <= 35,
+            "Adaptive solver should converge in few steps: got {steps}"
+        );
     }
 }

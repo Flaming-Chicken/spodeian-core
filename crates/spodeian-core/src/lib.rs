@@ -60,7 +60,9 @@ pub mod prelude {
     pub use spodeian_parallel::prelude::*;
 
     #[cfg(feature = "telemetry")]
-    pub use spodeian_telemetry::{LogEntry, LogRingBuffer, global_ring_buffer, init_default, init_telemetry};
+    pub use spodeian_telemetry::{
+        LogEntry, LogRingBuffer, global_ring_buffer, init_default, init_telemetry,
+    };
 
     #[cfg(feature = "tokens")]
     pub use spodeian_tokens::*;
@@ -75,9 +77,9 @@ pub mod prelude {
 
     #[cfg(feature = "ml-utils")]
     pub use spodeian_ml_utils::{
-        ComputeDevice, ComputeRouter, ContinuousIntegrator, EulerStepper,
-        ExponentialMovingAverage, GoldenParityHarness, HeunPredictorCorrector,
-        LbfgsCurvatureTracker, LbfgsOptimizer, OnlineSlidingCovariance,
-        OnlineSlidingStats, ParityReport, Rk4Stepper, RollingWindow, StepResult,
+        ComputeDevice, ComputeRouter, ContinuousIntegrator, EulerStepper, ExponentialMovingAverage,
+        GoldenParityHarness, HeunPredictorCorrector, LbfgsCurvatureTracker, LbfgsOptimizer,
+        OnlineSlidingCovariance, OnlineSlidingStats, ParityReport, Rk4Stepper, RollingWindow,
+        StepResult,
     };
 }

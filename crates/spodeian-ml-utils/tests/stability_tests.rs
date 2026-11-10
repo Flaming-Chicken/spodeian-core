@@ -40,7 +40,14 @@ fn test_sanitize_floats_f32() {
 
 #[test]
 fn test_sanitize_in_place() {
-    let mut data = vec![1.0f64, f64::NAN, 10.0, f64::INFINITY, -5.0, f64::NEG_INFINITY];
+    let mut data = vec![
+        1.0f64,
+        f64::NAN,
+        10.0,
+        f64::INFINITY,
+        -5.0,
+        f64::NEG_INFINITY,
+    ];
     let replaced = data.sanitize_in_place(-2.0, 2.0, 0.0);
     assert_eq!(replaced, 3);
     assert_eq!(data, vec![1.0, 0.0, 2.0, 0.0, -2.0, 0.0]);

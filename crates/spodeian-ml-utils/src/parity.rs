@@ -226,7 +226,9 @@ mod tests {
         let reference = vec![1.0, 2.0, 3.0, 4.0];
         let candidate = vec![1.0001, 1.9999, 3.0002, 3.9998];
 
-        let report = harness.verify("layer1.output", &candidate, &reference).unwrap();
+        let report = harness
+            .verify("layer1.output", &candidate, &reference)
+            .unwrap();
         assert!(report.passed);
         assert!(report.max_abs_error < 1e-3);
         assert!(report.cosine_similarity > 0.9999);
@@ -239,7 +241,9 @@ mod tests {
         let reference = vec![1.0, 2.0, 3.0, 4.0];
         let candidate = vec![1.0, 2.0, 3.05, 4.0]; // Drift at index 2
 
-        let err = harness.verify("layer1.output", &candidate, &reference).unwrap_err();
+        let err = harness
+            .verify("layer1.output", &candidate, &reference)
+            .unwrap_err();
         match err {
             ParityError::ToleranceExceeded {
                 max_error_index,

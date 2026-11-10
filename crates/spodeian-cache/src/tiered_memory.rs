@@ -140,13 +140,12 @@ impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
         } else {
             while self.entries.len() >= self.capacity {
                 if let Some((candidate_key, candidate_access)) = self.order.pop_front() {
-                    if let Some((_, entry_access)) = self.entries.get(&candidate_key) {
-                        if *entry_access == candidate_access {
-                            if let Some((lru_val, _)) = self.entries.remove(&candidate_key) {
-                                evicted = Some((candidate_key, lru_val));
-                                break;
-                            }
-                        }
+                    if let Some((_, entry_access)) = self.entries.get(&candidate_key)
+                        && *entry_access == candidate_access
+                        && let Some((lru_val, _)) = self.entries.remove(&candidate_key)
+                    {
+                        evicted = Some((candidate_key, lru_val));
+                        break;
                     }
                 } else {
                     break;

@@ -25,7 +25,15 @@ pub trait TabularSchema: Sized {
 impl TabularSchema for FinancialObservation {
     fn column_names() -> &'static [&'static str] {
         &[
-            "timestamp", "symbol", "open", "high", "low", "close", "volume", "vwap", "spread",
+            "timestamp",
+            "symbol",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "vwap",
+            "spread",
         ]
     }
 
@@ -159,8 +167,8 @@ impl SyntheticMarketGenerator {
 
         for i in 0..count {
             let z = prng.next_gaussian();
-            let return_step = (mu - 0.5 * annualized_vol * annualized_vol) * dt
-                + annualized_vol * dt_sqrt * z;
+            let return_step =
+                (mu - 0.5 * annualized_vol * annualized_vol) * dt + annualized_vol * dt_sqrt * z;
             let close_price = (current_price * return_step.exp()).max(0.01);
 
             let high_bump = prng.next_f64().abs() * 0.01 * close_price;
