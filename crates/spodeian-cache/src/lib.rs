@@ -7,7 +7,16 @@
 //! - **IndexedDB (`idb`)**: Dedicated to structured, relational, transaction-safe records (user states, incremental OHLCV ticks, factor loadings, replay memories).
 //! - **LocalStorage**: Dedicated to fast, synchronous configuration toggles (< 16 KB).
 //! - **Native CAS**: Cryptographic Content-Addressed Storage (SHA-256) for native desktop and mobile.
+pub mod async_tiered;
+pub mod preferential_store;
 pub mod tiered_memory;
+#[cfg(target_arch = "wasm32")]
+pub mod web;
+
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+pub use async_tiered::AsyncTieredStore;
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+pub use preferential_store::PreferentialStore;
 
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub use tiered_memory::{BoundedMemoryCache, TieredMemoryMetrics, TieredMemoryStore};
