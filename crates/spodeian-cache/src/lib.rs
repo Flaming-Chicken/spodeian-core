@@ -192,4 +192,118 @@ impl ContentAddressedStorage {
     pub fn contains(&self, hash: &str) -> bool {
         self.root_dir.join(hash).exists()
     }
+
+    // ------------------------------------------------------------------
+    // Named references: stable keys that point at content hashes, so data
+    // stored in one session can be found again after a restart.
+    // ------------------------------------------------------------------
+
+    fn refs_dir(&self) -> PathBuf {
+        self.root_dir.join("refs")
+    }
+
+    fn ref_path(&self, name: &str) -> PathBuf {
+        use base64::Engine as _;
+        let encoded = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(name.as_bytes());
+        self.refs_dir().join(encoded)
+    }
+
+    /// Stores data and points `name` at it, replacing any previous target.
+    ///
+    /// Returns the content hash. Names may contain any characters.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use spodeian_cache::ContentAddressedStorage;
+    ///
+    /// let dir = std::env::temp_dir().join("spodeian_doc_named_refs");
+    /// let cas = ContentAddressedStorage::new(&dir).unwrap();
+    /// cas.put_named("settings/theme", b"dark").unwrap();
+    ///
+    /// // A fresh handle on the same directory finds the data by name.
+    /// let reopened = ContentAddressedStorage::new(&dir).unwrap();
+    /// assert_eq!(reopened.get_named("settings/theme").unwrap(), b"dark");
+    /// # let _ = std::fs::remove_dir_all(&dir);
+    /// ```
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn put_named(&self, name: &str, data: &[u8]) -> Result<String, CacheError> {
+        let hash = self.put(data)?;
+        std::fs::create_dir_all(self.refs_dir())?;
+        let target = self.ref_path(name);
+        // Write then rename, so a crash never leaves a half-written reference.
+        let staging = target.with_extension("tmp");
+        std::fs::write(&staging, hash.as_bytes())?;
+        std::fs::rename(&staging, &target)?;
+        Ok(hash)
+    }
+
+    /// Returns the content hash `name` points at, if the reference exists.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn resolve_name(&self, name: &str) -> Option<String> {
+        std::fs::read_to_string(self.ref_path(name))
+            .ok()
+            .map(|s| s.trim().to_string())
+    }
+
+    /// Retrieves the data `name` points at, verifying its integrity.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn get_named(&self, name: &str) -> Result<Vec<u8>, CacheError> {
+        let hash = self
+            .resolve_name(name)
+            .ok_or_else(|| CacheError::NotFound(name.to_string()))?;
+        self.get(&hash)
+    }
+
+    /// Stores a serializable entity as JSON under `name`.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn put_named_json<T: Serialize>(&self, name: &str, item: &T) -> Result<String, CacheError> {
+        let json_bytes = serde_json::to_vec(item)?;
+        self.put_named(name, &json_bytes)
+    }
+
+    /// Retrieves and deserializes the JSON entity stored under `name`.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn get_named_json<T: DeserializeOwned>(&self, name: &str) -> Result<T, CacheError> {
+        let bytes = self.get_named(name)?;
+        Ok(serde_json::from_slice(&bytes)?)
+    }
+
+    /// Removes the reference `name`; the content itself is left in place, since other
+    /// references may share it. Returns whether a reference existed.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn remove_named(&self, name: &str) -> Result<bool, CacheError> {
+        match std::fs::remove_file(self.ref_path(name)) {
+            Ok(()) => Ok(true),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    /// Lists every reference name, in no particular order.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn list_names(&self) -> Result<Vec<String>, CacheError> {
+        use base64::Engine as _;
+        let dir = match std::fs::read_dir(self.refs_dir()) {
+            Ok(dir) => dir,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+            Err(e) => return Err(e.into()),
+        };
+        let mut names = Vec::new();
+        for entry in dir {
+            let file_name = entry?.file_name();
+            let Some(encoded) = file_name.to_str() else {
+                continue;
+            };
+            if encoded.ends_with(".tmp") {
+                continue;
+            }
+            if let Ok(bytes) = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(encoded)
+                && let Ok(name) = String::from_utf8(bytes)
+            {
+                names.push(name);
+            }
+        }
+        Ok(names)
+    }
 }

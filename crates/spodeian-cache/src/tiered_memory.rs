@@ -183,16 +183,23 @@ impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
 
     fn compact_order(&mut self) {
         let entries = &self.entries;
-        self.order.retain(|(k, acc)| {
-            entries.get(k).map(|(_, a)| *a == *acc).unwrap_or(false)
-        });
+        self.order
+            .retain(|(k, acc)| entries.get(k).map(|(_, a)| *a == *acc).unwrap_or(false));
     }
 }
+
+/// Name prefix for the references a [`TieredMemoryStore`] keeps in its fallback directory.
+const FALLBACK_REF_PREFIX: &str = "spodeian-tiered-memory/";
 
 /// Tiered memory store coordinating bounded in-memory caching with a persistent fallback tier.
 ///
 /// Ensures high-frequency operations occur at in-memory speed, while offloading cold items
-/// to disk or IndexedDB so memory does not overfill.
+/// to a content-addressed directory on disk so memory does not overfill. For the browser,
+/// where storage is asynchronous, see `AsyncTieredStore`.
+///
+/// Since v1.1 the fallback index is itself persisted as named references, so items that
+/// spilled to disk are found again when a store is reopened on the same directory. Items
+/// still in memory are not persisted until they spill or [`TieredMemoryStore::flush`] runs.
 #[derive(Debug)]
 pub struct TieredMemoryStore<V> {
     memory: BoundedMemoryCache<String, V>,
@@ -209,16 +216,30 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
             None => None,
         };
 
-        Ok(Self {
+        // Rebuild the fallback index from references left by a previous session.
+        let mut fallback_index = HashMap::new();
+        if let Some(cas) = &fallback_cas {
+            for name in cas.list_names()? {
+                if let Some(key) = name.strip_prefix(FALLBACK_REF_PREFIX)
+                    && let Some(hash) = cas.resolve_name(&name)
+                {
+                    fallback_index.insert(key.to_string(), hash);
+                }
+            }
+        }
+
+        let mut store = Self {
             memory: BoundedMemoryCache::new(capacity),
             fallback_cas,
-            fallback_index: HashMap::new(),
+            fallback_index,
             metrics: TieredMemoryMetrics {
                 memory_items_count: 0,
                 fallback_items_count: 0,
                 ..Default::default()
             },
-        })
+        };
+        store.update_counts();
+        Ok(store)
     }
 
     /// Inserts an item into memory. If the in-memory capacity is reached, the oldest item is
@@ -227,7 +248,9 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
         let k = key.into();
 
         // If the key was previously in fallback, remove its stale fallback entry
-        self.fallback_index.remove(&k);
+        if self.fallback_index.remove(&k).is_some() {
+            self.forget_fallback_ref(&k)?;
+        }
 
         if let Some((evicted_key, evicted_value)) = self.memory.put(k, value) {
             self.persist_to_fallback(evicted_key, evicted_value)?;
@@ -267,6 +290,7 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
 
             // Remove from fallback index now that it lives in memory
             self.fallback_index.remove(key);
+            self.forget_fallback_ref(key)?;
             self.update_counts();
 
             return Ok(Some(val));
@@ -281,9 +305,15 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
     }
 
     /// Removes an item from both memory and fallback tiers.
+    ///
+    /// Removing the persisted reference is best-effort; a failure there leaves a stale
+    /// reference that is replaced the next time the key is stored.
     pub fn remove(&mut self, key: &str) -> bool {
         let removed_mem = self.memory.remove(&key.to_string()).is_some();
         let removed_fb = self.fallback_index.remove(key).is_some();
+        if removed_fb {
+            let _ = self.forget_fallback_ref(key);
+        }
         self.update_counts();
         removed_mem || removed_fb
     }
@@ -298,10 +328,34 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
         self.memory.capacity()
     }
 
+    /// Writes every in-memory item to the fallback tier without evicting it, so the whole
+    /// store survives a restart. Returns the number of items written; 0 without a fallback.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn flush(&mut self) -> Result<usize, CacheError> {
+        let Some(cas) = &self.fallback_cas else {
+            return Ok(0);
+        };
+        let mut written = 0;
+        for (key, value) in self.memory.iter() {
+            let hash = cas.put_named_json(&format!("{FALLBACK_REF_PREFIX}{key}"), value)?;
+            self.fallback_index.insert(key.clone(), hash);
+            written += 1;
+        }
+        self.update_counts();
+        Ok(written)
+    }
+
     fn persist_to_fallback(&mut self, key: String, value: V) -> Result<(), CacheError> {
         if let Some(cas) = &self.fallback_cas {
-            let hash = cas.put_json(&value)?;
+            let hash = cas.put_named_json(&format!("{FALLBACK_REF_PREFIX}{key}"), &value)?;
             self.fallback_index.insert(key, hash);
+        }
+        Ok(())
+    }
+
+    fn forget_fallback_ref(&self, key: &str) -> Result<(), CacheError> {
+        if let Some(cas) = &self.fallback_cas {
+            cas.remove_named(&format!("{FALLBACK_REF_PREFIX}{key}"))?;
         }
         Ok(())
     }
