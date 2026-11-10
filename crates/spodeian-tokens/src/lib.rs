@@ -212,7 +212,9 @@ impl ThemePalette {
                 text_secondary: ColorRgba::rgb(90, 95, 105),
                 accent: ColorRgba::rgb(0, 100, 225),
                 error: ColorRgba::rgb(215, 40, 40),
-                success: ColorRgba::rgb(30, 160, 70),
+                // Darkened from (30, 160, 70), which was 3.2:1 on the background
+                // and failed WCAG AA for text.
+                success: ColorRgba::rgb(24, 128, 56),
             },
             ThemeMode::HighContrastDark => Self {
                 background: ColorRgba::rgb(0, 0, 0),
@@ -235,6 +237,192 @@ impl ThemePalette {
                 success: ColorRgba::rgb(0, 120, 0),
             },
         }
+    }
+}
+
+impl ColorRgba {
+    /// Formats the colour as a CSS value: `rgb(r, g, b)`, or `rgba(r, g, b, a)` when
+    /// translucent.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use spodeian_tokens::ColorRgba;
+    ///
+    /// assert_eq!(ColorRgba::rgb(18, 18, 18).to_css(), "rgb(18, 18, 18)");
+    /// assert_eq!(ColorRgba::rgba(0, 0, 0, 128).to_css(), "rgba(0, 0, 0, 0.502)");
+    /// ```
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn to_css(self) -> String {
+        if self.a == 255 {
+            format!("rgb({}, {}, {})", self.r, self.g, self.b)
+        } else {
+            let alpha = format!("{:.3}", f64::from(self.a) / 255.0);
+            let alpha = alpha.trim_end_matches('0').trim_end_matches('.');
+            format!("rgba({}, {}, {}, {alpha})", self.r, self.g, self.b)
+        }
+    }
+}
+
+impl ThemePalette {
+    /// Palette roles paired with the CSS custom property suffix each one is emitted as.
+    fn css_roles(&self) -> [(&'static str, ColorRgba); 8] {
+        [
+            ("background", self.background),
+            ("surface", self.surface),
+            ("border", self.border),
+            ("text-primary", self.text_primary),
+            ("text-secondary", self.text_secondary),
+            ("accent", self.accent),
+            ("error", self.error),
+            ("success", self.success),
+        ]
+    }
+
+    /// Emits the palette as CSS custom property declarations, one per line, e.g.
+    /// `--{prefix}text-primary: rgb(240, 240, 240);`.
+    ///
+    /// `border` is a decorative divider colour and does not meet the 3:1 non-text contrast
+    /// ratio in every palette; do not use it as the only outline of an interactive control.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn css_custom_properties(&self, prefix: &str) -> String {
+        self.css_roles()
+            .iter()
+            .map(|(name, color)| format!("--{prefix}{name}: {};\n", color.to_css()))
+            .collect()
+    }
+}
+
+/// Builds a stylesheet defining every theme's palette as CSS custom properties.
+///
+/// Each theme is selected by `[data-theme="<ThemeMode::as_str()>"]` on any ancestor; the
+/// default theme (`ThemeMode::Dark`) also applies to `:root` when no attribute is set. Each
+/// block sets `color-scheme` so native controls match.
+///
+/// # Examples
+///
+/// ```rust
+/// let css = spodeian_tokens::theme_stylesheet("color-");
+/// assert!(css.contains("[data-theme=\"light\"]"));
+/// assert!(css.contains("--color-text-primary:"));
+/// ```
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+pub fn theme_stylesheet(prefix: &str) -> String {
+    let modes = [
+        ThemeMode::Dark,
+        ThemeMode::Light,
+        ThemeMode::HighContrastDark,
+        ThemeMode::HighContrastLight,
+    ];
+    let mut css = String::new();
+    for mode in modes {
+        let selector = format!("[data-theme=\"{}\"]", mode.as_str());
+        if mode == ThemeMode::default() {
+            css.push_str(&format!(":root, {selector} {{\n"));
+        } else {
+            css.push_str(&format!("{selector} {{\n"));
+        }
+        let scheme = if mode.is_dark() { "dark" } else { "light" };
+        css.push_str(&format!("  color-scheme: {scheme};\n"));
+        for line in ThemePalette::for_mode(mode)
+            .css_custom_properties(prefix)
+            .lines()
+        {
+            css.push_str("  ");
+            css.push_str(line);
+            css.push('\n');
+        }
+        css.push_str("}\n");
+    }
+    css
+}
+
+/// Whether interface motion should play in full or be reduced.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_tokens::MotionPreference;
+///
+/// assert_eq!(MotionPreference::Reduced.css_custom_properties("ui-"), "--ui-motion-scale: 0;\n");
+/// ```
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum MotionPreference {
+    #[default]
+    Full,
+    Reduced,
+}
+
+impl MotionPreference {
+    /// Emits `--{prefix}motion-scale`: 1 for full motion, 0 for reduced. Multiply animation
+    /// and transition durations by it.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn css_custom_properties(self, prefix: &str) -> String {
+        let scale = match self {
+            Self::Full => 1,
+            Self::Reduced => 0,
+        };
+        format!("--{prefix}motion-scale: {scale};\n")
+    }
+
+    /// A media query that reduces motion whenever the operating system asks for it,
+    /// regardless of any stored preference.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn system_preference_css(prefix: &str) -> String {
+        format!(
+            "@media (prefers-reduced-motion: reduce) {{\n  :root {{ --{prefix}motion-scale: 0; }}\n}}\n"
+        )
+    }
+}
+
+/// Interface font scale multiplier, clamped to `FontScale::MIN..=FontScale::MAX`.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_tokens::FontScale;
+///
+/// assert_eq!(FontScale::new(1.25).value(), 1.25);
+/// assert_eq!(FontScale::new(9.0).value(), FontScale::MAX);
+/// assert_eq!(FontScale::new(f32::NAN).value(), 1.0);
+/// ```
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct FontScale(f32);
+
+impl FontScale {
+    /// Smallest permitted multiplier.
+    pub const MIN: f32 = 0.75;
+    /// Largest permitted multiplier.
+    pub const MAX: f32 = 2.0;
+
+    /// Creates a scale, clamping out-of-range values and treating non-finite values as 1.0.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn new(multiplier: f32) -> Self {
+        if multiplier.is_finite() {
+            Self(multiplier.clamp(Self::MIN, Self::MAX))
+        } else {
+            Self(1.0)
+        }
+    }
+
+    /// The clamped multiplier.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn value(self) -> f32 {
+        self.0
+    }
+
+    /// Emits `--{prefix}font-scale`.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn css_custom_properties(self, prefix: &str) -> String {
+        format!("--{prefix}font-scale: {};\n", self.0)
+    }
+}
+
+impl Default for FontScale {
+    fn default() -> Self {
+        Self(1.0)
     }
 }
 
@@ -397,6 +585,32 @@ impl Default for AccessibilityPreferences {
             large_touch_targets: false,
             font_scale_multiplier: 1.0,
         }
+    }
+}
+
+impl AccessibilityPreferences {
+    /// The motion preference these settings imply.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn motion(&self) -> MotionPreference {
+        if self.reduced_motion {
+            MotionPreference::Reduced
+        } else {
+            MotionPreference::Full
+        }
+    }
+
+    /// The font scale these settings imply, clamped to the permitted range.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn font_scale(&self) -> FontScale {
+        FontScale::new(self.font_scale_multiplier)
+    }
+
+    /// Emits the motion and font-scale custom properties for these settings.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn css_custom_properties(&self, prefix: &str) -> String {
+        let mut css = self.motion().css_custom_properties(prefix);
+        css.push_str(&self.font_scale().css_custom_properties(prefix));
+        css
     }
 }
 
