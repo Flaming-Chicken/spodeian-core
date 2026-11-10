@@ -51,7 +51,7 @@ jobs:
           WASM_BINDGEN_TEST_TIMEOUT: "120"
         run: |
           export CHROMEDRIVER="$CHROMEWEBDRIVER/chromedriver"
-          cargo test --target wasm32-unknown-unknown --lib --tests -p spodeian-cache -p spodeian-telemetry
+          cargo test --target wasm32-unknown-unknown --lib --tests -p spodeian-cache -p spodeian-telemetry -p spodeian-web-utils
 
       - name: Check Android Compilation
         run: cargo check --workspace --target aarch64-linux-android
