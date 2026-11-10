@@ -10,7 +10,7 @@ description = "Universal serialization, CSV/TSV table parser/escaper, SafeTensor
 workspace = true
 
 [features]
-default = ["json", "csv", "bson", "safetensors", "audio-wav"]
+default = ["json", "csv", "bson", "audio-wav"]
 json = ["dep:serde_json"]
 csv = []
 bson = ["dep:bson", "dep:miniz_oxide"]
