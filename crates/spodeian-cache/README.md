@@ -1,7 +1,7 @@
 # `spodeian-cache`
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
-[![Status](https://img.shields.io/badge/stability-stable%20(v1.0)-success.svg)]()
+[![Status](https://img.shields.io/badge/stability-stable%20(v1.1)-success.svg)]()
 
 **Preferential multi-tier storage routing and bounded in-memory caching for web, desktop, and mobile.**
 
@@ -12,8 +12,11 @@
 `spodeian-cache` provides preferential routing and tiered memory caching to prevent out-of-memory (OOM) conditions during long-running sessions, high-frequency factor calculation, and real-time audio synthesis:
 
 - **In-Memory Tier (`BoundedMemoryCache`)**: Sub-microsecond RAM cache with amortized $O(1)$ LRU eviction and access generation counters. Ideal for 60–120 FPS UI loops and hot working sets.
-- **Persistent Fallback Tier (`TieredMemoryStore`)**: Automatic spillover to IndexedDB (on Web) or cryptographic Content-Addressed Storage (CAS) on desktop/server, ensuring zero data loss when RAM limits are reached.
-- **Preferential Storage Router**: Routes immutable assets (`.safetensors`, `.parquet`, `.wasm`) to Cache API/CAS, structured records to IndexedDB, and settings to LocalStorage.
+- **Synchronous Tiered Store (`TieredMemoryStore`)**: Spills evicted items to cryptographic Content-Addressed Storage (CAS) on disk. Its fallback index persists across restarts; `flush()` saves the in-memory tier too.
+- **Asynchronous Tiered Store (`AsyncTieredStore`)**: Write-through: every `put` is durable in IndexedDB (web) or CAS (desktop) before it returns, with a bounded in-memory working set in front.
+- **Preferential Storage Router**: `PreferentialRouter` decides the tier; `PreferentialStore` carries it out: immutable or large binaries to the Cache API, structured records to IndexedDB, small non-JSON values to LocalStorage, and named CAS references on desktop.
+- **Browser Backends (`web`, wasm32 only)**: `IndexedDbStore`, `CacheApiStore`, `LocalStorageStore`, and `StorageManager` helpers (`request_persistent_storage`, `is_storage_persisted`, `storage_estimate`).
+- **Named References**: `ContentAddressedStorage::put_named` and `get_named` find data by a stable key after a restart.
 
 ---
 
@@ -32,6 +35,22 @@ cache.put("factor_momentum_1d", vec![0.12, -0.05, 0.33]);
 if let Some(factors) = cache.get(&"factor_momentum_1d") {
     println!("Loaded {} factors", factors.len());
 }
+```
+
+---
+
+### Durable app state on any platform
+
+```rust,ignore
+use spodeian_cache::PreferentialStore;
+
+#[cfg(target_arch = "wasm32")]
+let store = PreferentialStore::open_web("my-app").await?;
+#[cfg(not(target_arch = "wasm32"))]
+let store = PreferentialStore::open_native(app_data_dir)?;
+
+let tier = store.save_json("state", &state).await?; // IndexedDb on the web, NativeCas on desktop
+let restored: Option<AppState> = store.load_json("state").await?;
 ```
 
 ---
