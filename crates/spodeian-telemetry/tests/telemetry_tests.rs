@@ -80,3 +80,30 @@ fn test_init_telemetry_with_buffer() {
     let snapshot = buffer.snapshot();
     assert!(!snapshot.is_empty());
 }
+
+#[test]
+fn test_metrics_snapshot_counts_events_by_level() {
+    let _ = init_telemetry_with_buffer("metrics_test", "trace");
+    let before = spodeian_telemetry::metrics_snapshot();
+
+    tracing::warn!("metrics test warning");
+    tracing::error!("metrics test error");
+
+    let after = spodeian_telemetry::metrics_snapshot();
+    assert!(after.warnings > before.warnings);
+    assert!(after.errors > before.errors);
+    assert_eq!(
+        after.total_events(),
+        after.errors + after.warnings + after.infos + after.debugs + after.traces
+    );
+    assert!(after.buffered_entries >= 1);
+    assert!(after.buffered_entries <= after.buffer_capacity);
+    assert_eq!(after.buffer_capacity, 2000);
+}
+
+#[test]
+fn test_ring_buffer_reports_capacity() {
+    assert_eq!(LogRingBuffer::new(5).capacity(), 5);
+    // Zero is clamped to one so the buffer can always hold the latest entry.
+    assert_eq!(LogRingBuffer::new(0).capacity(), 1);
+}

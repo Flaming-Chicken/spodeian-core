@@ -8,6 +8,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, OnceLock, RwLock};
 
 static GLOBAL_BUFFER: OnceLock<Arc<LogRingBuffer>> = OnceLock::new();
@@ -105,6 +106,12 @@ impl LogRingBuffer {
         }
     }
 
+    /// Returns the maximum number of entries the buffer retains.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn capacity(&self) -> usize {
+        self.capacity
+    }
+
     /// Returns the number of entries currently stored.
     #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn len(&self) -> usize {
@@ -132,6 +139,91 @@ pub fn global_ring_buffer() -> Arc<LogRingBuffer> {
     GLOBAL_BUFFER
         .get_or_init(|| Arc::new(LogRingBuffer::new(2000)))
         .clone()
+}
+
+static START_MILLIS: OnceLock<u64> = OnceLock::new();
+
+/// Event counters indexed by severity: error, warn, info, debug, trace.
+static LEVEL_COUNTS: [AtomicU64; 5] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+
+fn level_index(level: &tracing::Level) -> usize {
+    match *level {
+        tracing::Level::ERROR => 0,
+        tracing::Level::WARN => 1,
+        tracing::Level::INFO => 2,
+        tracing::Level::DEBUG => 3,
+        tracing::Level::TRACE => 4,
+    }
+}
+
+/// Point-in-time summary of telemetry activity, suitable for diagnostic dashboards.
+///
+/// Counts cover every event recorded since telemetry was initialised, including
+/// events that have since been evicted from the ring buffer.
+///
+/// # Examples
+///
+/// ```rust
+/// let metrics = spodeian_telemetry::metrics_snapshot();
+/// assert_eq!(
+///     metrics.total_events(),
+///     metrics.errors + metrics.warnings + metrics.infos + metrics.debugs + metrics.traces
+/// );
+/// ```
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TelemetryMetrics {
+    /// Milliseconds since telemetry was initialised; 0 if it never was.
+    pub uptime_millis: u64,
+    /// Events recorded at ERROR level.
+    pub errors: u64,
+    /// Events recorded at WARN level.
+    pub warnings: u64,
+    /// Events recorded at INFO level.
+    pub infos: u64,
+    /// Events recorded at DEBUG level.
+    pub debugs: u64,
+    /// Events recorded at TRACE level.
+    pub traces: u64,
+    /// Entries currently held in the global ring buffer.
+    pub buffered_entries: usize,
+    /// Maximum entries the global ring buffer holds.
+    pub buffer_capacity: usize,
+}
+
+impl TelemetryMetrics {
+    /// Total events recorded across all levels.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn total_events(&self) -> u64 {
+        self.errors + self.warnings + self.infos + self.debugs + self.traces
+    }
+}
+
+/// Returns a snapshot of event counts, uptime and global ring buffer usage.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+pub fn metrics_snapshot() -> TelemetryMetrics {
+    let count = |i: usize| LEVEL_COUNTS[i].load(Ordering::Relaxed);
+    let buffer = global_ring_buffer();
+    TelemetryMetrics {
+        uptime_millis: START_MILLIS
+            .get()
+            .map(|start| current_time_millis().saturating_sub(*start))
+            .unwrap_or(0),
+        errors: count(0),
+        warnings: count(1),
+        infos: count(2),
+        debugs: count(3),
+        traces: count(4),
+        buffered_entries: buffer.len(),
+        buffer_capacity: buffer.capacity(),
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -192,6 +284,8 @@ impl<S: tracing::Subscriber> tracing_subscriber::Layer<S> for RingBufferLayer {
             fields: Vec::new(),
         };
         event.record(&mut visitor);
+
+        LEVEL_COUNTS[level_index(event.metadata().level())].fetch_add(1, Ordering::Relaxed);
 
         let entry = LogEntry {
             timestamp_millis: current_time_millis(),
@@ -256,6 +350,7 @@ pub fn init_telemetry_with_buffer(
     default_filter: &str,
 ) -> Arc<LogRingBuffer> {
     let _ = default_filter;
+    START_MILLIS.get_or_init(current_time_millis);
     let buffer = global_ring_buffer();
     install_panic_hook(app_name);
 
@@ -278,7 +373,7 @@ pub fn init_telemetry_with_buffer(
 
     #[cfg(target_arch = "wasm32")]
     {
-        use tracing_subscriber::{EnvFilter, layer::SubscriberExt, registry};
+        use tracing_subscriber::{EnvFilter, prelude::*, registry};
         let filter =
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(default_filter));
 
