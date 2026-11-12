@@ -1,10 +1,12 @@
 [package]
 name = "spodeian-ui"
-version.workspace = true
+version = "1.0.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Universal egui shell components: responsive layout ScreenConstraints, WCAG AAA theme engine, and accessibility presets"
+repository.workspace = true
+readme = "README.md"
 
 [dependencies]
 egui = { workspace = true }

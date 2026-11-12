@@ -1,7 +1,7 @@
 # `spodeian-ml-utils`
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
-[![Status](https://img.shields.io/badge/stability-beta%20(v0.1)-yellow.svg)]()
+[![Status](https://img.shields.io/badge/stability-beta%20(v0.2)-yellow.svg)]()
 
 **Universal Candle inference utils, online streaming statistics, hardware compute routing, numerical stability, ODE solvers, and L-BFGS optimizer.**
 

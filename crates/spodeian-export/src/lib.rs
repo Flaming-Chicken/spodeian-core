@@ -14,6 +14,7 @@ use thiserror::Error;
 
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Error, Debug)]
+#[non_exhaustive]
 pub enum ExportError {
     #[cfg(feature = "json")]
     #[error("JSON serialization error: {0}")]

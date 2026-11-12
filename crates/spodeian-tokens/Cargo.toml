@@ -1,11 +1,12 @@
 [package]
 name = "spodeian-tokens"
-version.workspace = true
+version = "1.1.0"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Ecosystem design tokens, responsive layout constraints, high-contrast themes, and KaTeX rendering definitions"
+readme = "README.md"
 
 [lints]
 workspace = true

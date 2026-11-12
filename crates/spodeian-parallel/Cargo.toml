@@ -1,10 +1,12 @@
 [package]
 name = "spodeian-parallel"
-version.workspace = true
+version = "1.0.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Zero-overhead parallel iteration facade with transparent sequential fallback on WebAssembly and single-threaded targets"
+repository.workspace = true
+readme = "README.md"
 
 [lints]
 workspace = true

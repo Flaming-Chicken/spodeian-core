@@ -1,10 +1,12 @@
 [package]
 name = "spodeian-web-utils"
-version.workspace = true
+version = "1.1.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Universal web DOM utilities: file downloads, binary blobs, and clipboard integration across WASM and native"
+repository.workspace = true
+readme = "README.md"
 
 [dependencies]
 tracing = { workspace = true }
