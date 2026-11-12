@@ -1,10 +1,12 @@
 [package]
 name = "spodeian-telemetry"
-version.workspace = true
+version = "1.1.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Universal, zero-overhead tracing and panic telemetry initializer across native and WASM runtimes"
+repository.workspace = true
+readme = "README.md"
 
 [features]
 default = []

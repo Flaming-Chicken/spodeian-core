@@ -1,7 +1,7 @@
 # `spodeian-export`
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
-[![Status](https://img.shields.io/badge/stability-stable%20(v1.0)-success.svg)]()
+[![Status](https://img.shields.io/badge/stability-stable%20(v2.0)-success.svg)]()
 
 **Universal serialization, zero-copy CSV streaming, compressed BSON, SafeTensors, and WAV audio.**
 

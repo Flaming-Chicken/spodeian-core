@@ -1,7 +1,7 @@
 # `spodeian-py-bridge`
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
-[![Status](https://img.shields.io/badge/stability-beta%20(v0.1)-yellow.svg)]()
+[![Status](https://img.shields.io/badge/stability-beta%20(v0.2)-yellow.svg)]()
 
 **High-throughput zero-copy Python bridge via PyO3, Arrow arrays, and rolling indicators.**
 

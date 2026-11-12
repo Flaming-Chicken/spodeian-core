@@ -5,6 +5,8 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Spodeian Core · Unified ecosystem umbrella facade re-exporting all Spodeian micro-crates"
+repository.workspace = true
+readme = "README.md"
 
 [lints]
 workspace = true

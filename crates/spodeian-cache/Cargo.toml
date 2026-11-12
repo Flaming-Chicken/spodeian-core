@@ -1,11 +1,12 @@
 [package]
 name = "spodeian-cache"
-version.workspace = true
+version = "1.1.0"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Preferential multi-tier caching engine: Cache API for binary models/tensors, IndexedDB for relational stores, and Content-Addressed Storage on native"
+readme = "README.md"
 
 [lints]
 workspace = true

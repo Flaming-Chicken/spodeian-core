@@ -1,11 +1,12 @@
 [package]
 name = "spodeian-ml-utils"
-version = "0.1.0"
+version = "0.2.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-readme.workspace = true
 description = "Spodeian ML Utils · SafeTensors streaming loader, dynamic multi-horizon/quantile heads, RLS online adaptation, and dual-speed TTA for Candle"
+repository.workspace = true
+readme = "README.md"
 
 [lints]
 workspace = true
