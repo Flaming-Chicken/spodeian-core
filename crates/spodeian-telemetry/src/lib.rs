@@ -8,6 +8,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, OnceLock, RwLock};
 
 static GLOBAL_BUFFER: OnceLock<Arc<LogRingBuffer>> = OnceLock::new();
@@ -29,6 +30,22 @@ pub struct LogEntry {
 }
 
 /// Thread-safe circular in-memory buffer storing recent log entries for diagnostic UI viewers.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_telemetry::{LogRingBuffer, LogEntry};
+///
+/// let buffer = LogRingBuffer::new(2);
+/// buffer.push(LogEntry {
+///     timestamp_millis: 1000,
+///     level: "INFO".to_string(),
+///     target: "app".to_string(),
+///     message: "Started".to_string(),
+///     fields: vec![],
+/// });
+/// assert_eq!(buffer.len(), 1);
+/// ```
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 #[derive(Debug)]
 pub struct LogRingBuffer {
@@ -66,6 +83,35 @@ impl LogRingBuffer {
             .unwrap_or_default()
     }
 
+    /// Returns a cloned snapshot of at most the `limit` most recent entries.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+    pub fn snapshot_recent(&self, limit: usize) -> Vec<LogEntry> {
+        self.entries
+            .read()
+            .map(|entries| {
+                let skip = entries.len().saturating_sub(limit);
+                entries.iter().skip(skip).cloned().collect()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Invokes a visitor closure on the `limit` most recent entries without intermediate allocations.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
+    pub fn for_each_recent<F: FnMut(&LogEntry)>(&self, limit: usize, mut visitor: F) {
+        if let Ok(entries) = self.entries.read() {
+            let skip = entries.len().saturating_sub(limit);
+            for entry in entries.iter().skip(skip) {
+                visitor(entry);
+            }
+        }
+    }
+
+    /// Returns the maximum number of entries the buffer retains.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn capacity(&self) -> usize {
+        self.capacity
+    }
+
     /// Returns the number of entries currently stored.
     #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
     pub fn len(&self) -> usize {
@@ -95,6 +141,91 @@ pub fn global_ring_buffer() -> Arc<LogRingBuffer> {
         .clone()
 }
 
+static START_MILLIS: OnceLock<u64> = OnceLock::new();
+
+/// Event counters indexed by severity: error, warn, info, debug, trace.
+static LEVEL_COUNTS: [AtomicU64; 5] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+
+fn level_index(level: &tracing::Level) -> usize {
+    match *level {
+        tracing::Level::ERROR => 0,
+        tracing::Level::WARN => 1,
+        tracing::Level::INFO => 2,
+        tracing::Level::DEBUG => 3,
+        tracing::Level::TRACE => 4,
+    }
+}
+
+/// Point-in-time summary of telemetry activity, suitable for diagnostic dashboards.
+///
+/// Counts cover every event recorded since telemetry was initialised, including
+/// events that have since been evicted from the ring buffer.
+///
+/// # Examples
+///
+/// ```rust
+/// let metrics = spodeian_telemetry::metrics_snapshot();
+/// assert_eq!(
+///     metrics.total_events(),
+///     metrics.errors + metrics.warnings + metrics.infos + metrics.debugs + metrics.traces
+/// );
+/// ```
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct TelemetryMetrics {
+    /// Milliseconds since telemetry was initialised; 0 if it never was.
+    pub uptime_millis: u64,
+    /// Events recorded at ERROR level.
+    pub errors: u64,
+    /// Events recorded at WARN level.
+    pub warnings: u64,
+    /// Events recorded at INFO level.
+    pub infos: u64,
+    /// Events recorded at DEBUG level.
+    pub debugs: u64,
+    /// Events recorded at TRACE level.
+    pub traces: u64,
+    /// Entries currently held in the global ring buffer.
+    pub buffered_entries: usize,
+    /// Maximum entries the global ring buffer holds.
+    pub buffer_capacity: usize,
+}
+
+impl TelemetryMetrics {
+    /// Total events recorded across all levels.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn total_events(&self) -> u64 {
+        self.errors + self.warnings + self.infos + self.debugs + self.traces
+    }
+}
+
+/// Returns a snapshot of event counts, uptime and global ring buffer usage.
+#[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+pub fn metrics_snapshot() -> TelemetryMetrics {
+    let count = |i: usize| LEVEL_COUNTS[i].load(Ordering::Relaxed);
+    let buffer = global_ring_buffer();
+    TelemetryMetrics {
+        uptime_millis: START_MILLIS
+            .get()
+            .map(|start| current_time_millis().saturating_sub(*start))
+            .unwrap_or(0),
+        errors: count(0),
+        warnings: count(1),
+        infos: count(2),
+        debugs: count(3),
+        traces: count(4),
+        buffered_entries: buffer.len(),
+        buffer_capacity: buffer.capacity(),
+    }
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 fn current_time_millis() -> u64 {
     std::time::SystemTime::now()
@@ -103,18 +234,20 @@ fn current_time_millis() -> u64 {
         .unwrap_or(0)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(target_arch = "wasm32")]
+fn current_time_millis() -> u64 {
+    js_sys::Date::now() as u64
+}
+
 struct RingBufferLayer {
     buffer: Arc<LogRingBuffer>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 struct FieldVisitor {
     message: String,
     fields: Vec<(String, String)>,
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 impl tracing::field::Visit for FieldVisitor {
     fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
         if field.name() == "message" {
@@ -140,7 +273,6 @@ impl tracing::field::Visit for FieldVisitor {
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 impl<S: tracing::Subscriber> tracing_subscriber::Layer<S> for RingBufferLayer {
     fn on_event(
         &self,
@@ -152,6 +284,8 @@ impl<S: tracing::Subscriber> tracing_subscriber::Layer<S> for RingBufferLayer {
             fields: Vec::new(),
         };
         event.record(&mut visitor);
+
+        LEVEL_COUNTS[level_index(event.metadata().level())].fetch_add(1, Ordering::Relaxed);
 
         let entry = LogEntry {
             timestamp_millis: current_time_millis(),
@@ -216,6 +350,7 @@ pub fn init_telemetry_with_buffer(
     default_filter: &str,
 ) -> Arc<LogRingBuffer> {
     let _ = default_filter;
+    START_MILLIS.get_or_init(current_time_millis);
     let buffer = global_ring_buffer();
     install_panic_hook(app_name);
 
@@ -238,10 +373,23 @@ pub fn init_telemetry_with_buffer(
 
     #[cfg(target_arch = "wasm32")]
     {
-        let _ = tracing_subscriber::fmt()
+        use tracing_subscriber::{EnvFilter, prelude::*, registry};
+        let filter =
+            EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(default_filter));
+
+        let ring_layer = RingBufferLayer {
+            buffer: buffer.clone(),
+        };
+
+        let console_layer = tracing_subscriber::fmt::layer()
             .with_writer(tracing_web::MakeConsoleWriter)
             .without_time()
-            .with_ansi(false)
+            .with_ansi(false);
+
+        let _ = registry()
+            .with(console_layer)
+            .with(ring_layer)
+            .with(filter)
             .try_init();
     }
 

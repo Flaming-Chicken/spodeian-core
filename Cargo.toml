@@ -1,6 +1,8 @@
 [workspace]
 resolver = "3"
 members = [
+    "crates/spodeian-parallel",
+    "crates/spodeian-core",
     "crates/spodeian-cache",
     "crates/spodeian-tokens",
     "crates/spodeian-telemetry",
@@ -10,10 +12,20 @@ members = [
     "crates/spodeian-lake",
     "crates/spodeian-py-bridge",
     "crates/spodeian-ml-utils",
+    "crates/sml-runtime",
+    "crates/sml-schema",
+    "crates/sml-kernel",
+    "crates/sml-lake",
+    "crates/sml-candle",
+    "crates/sml-tools",
+    "crates/sml-py-bridge",
 ]
 
 [workspace.package]
-version = "1.0.0"
+# Release version of the workspace as a whole: the `spodeian-core` umbrella crate
+# inherits it and each release is tagged `v<version>`. Every other crate sets its
+# own version in its manifest, bumped by semver for that crate's own changes.
+version = "2.0.0"
 authors = ["Spodeian Contributors <https://github.com/Flaming-Chicken/spodeian-core>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
@@ -22,15 +34,26 @@ description = "Spodeian Core · Cross-project shared ecosystem foundation: prefe
 repository = "https://github.com/Flaming-Chicken/spodeian-core"
 
 [workspace.dependencies]
-spodeian-cache = { path = "crates/spodeian-cache", version = "^1.0.0" }
-spodeian-tokens = { path = "crates/spodeian-tokens", version = "^1.0.0" }
-spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "^1.0.0" }
-spodeian-export = { path = "crates/spodeian-export", version = "^1.0.0" }
-spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "^1.0.0" }
-spodeian-ui = { path = "crates/spodeian-ui", version = "^1.0.0" }
-spodeian-lake = { path = "crates/spodeian-lake", version = "^0.1.0" }
-spodeian-ml-utils = { path = "crates/spodeian-ml-utils", version = "^0.1.0" }
-spodeian-py-bridge = { path = "crates/spodeian-py-bridge", version = "^0.1.0" }
+# Internal crates: keep each requirement equal to that crate's own version.
+spodeian-parallel = { path = "crates/spodeian-parallel", version = "1.0.0" }
+spodeian-core = { path = "crates/spodeian-core", version = "2.0.0" }
+spodeian-cache = { path = "crates/spodeian-cache", version = "1.1.0" }
+spodeian-tokens = { path = "crates/spodeian-tokens", version = "1.1.0" }
+spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "1.1.0" }
+spodeian-export = { path = "crates/spodeian-export", version = "2.0.0" }
+spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "1.1.0" }
+spodeian-ui = { path = "crates/spodeian-ui", version = "1.0.0" }
+spodeian-lake = { path = "crates/spodeian-lake", version = "0.1.1" }
+spodeian-ml-utils = { path = "crates/spodeian-ml-utils", version = "0.2.0" }
+spodeian-py-bridge = { path = "crates/spodeian-py-bridge", version = "0.2.0" }
+# Machine-learning systems crates (formerly spodeian-ml-rs)
+sml-runtime = { path = "crates/sml-runtime", version = "0.1.0" }
+sml-schema = { path = "crates/sml-schema", version = "0.1.0" }
+sml-kernel = { path = "crates/sml-kernel", version = "0.1.0" }
+sml-lake = { path = "crates/sml-lake", version = "0.1.0" }
+sml-candle = { path = "crates/sml-candle", version = "0.1.0" }
+sml-tools = { path = "crates/sml-tools", version = "0.1.0" }
+sml-py-bridge = { path = "crates/sml-py-bridge", version = "0.1.0" }
 
 # Machine Learning & Tensors
 candle-core = "0.11"
@@ -47,6 +70,10 @@ base64 = "0.22"
 bson = "2"
 miniz_oxide = "0.8"
 rayon = "1.10"
+rand = "0.9"
+smallvec = "1.16"
+byteorder = "1.5"
+ahash = "0.8"
 
 # Columnar Parquet & Arrow
 parquet = { version = "53", default-features = false, features = ["arrow", "flate2"] }
@@ -98,10 +125,23 @@ web-sys = { version = "0.3", features = [
     "Location",
     "Navigator",
     "Clipboard",
+    # Browser storage backends (spodeian-cache web module)
+    "Event",
+    "DomException",
+    "DomStringList",
+    "IdbTransactionMode",
+    "StorageManager",
+    "StorageEstimate",
 ] }
 
 # Benchmarking
 criterion = "0.5"
+wasm-bindgen-test = "0.3"
+pollster = "0.4"
+
+# WebGPU compute (sml-kernel)
+wgpu = "23"
+bytemuck = { version = "1.16", features = ["derive"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

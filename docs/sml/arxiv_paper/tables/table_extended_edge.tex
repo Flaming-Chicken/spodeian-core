@@ -1,0 +1,49 @@
+% Auto-generated from extended_edge_cases.json
+\begin{table*}[t]
+\centering
+\caption{Extended Edge-Testing Suite Across 8 Optimization and Dynamical Regimes.}
+\label{tab:extended_edge}
+\footnotesize
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+\textbf{Edge Case} & \textbf{Method} & \textbf{Initial} & \textbf{Final Metric} & \textbf{Min Metric} & \textbf{Steps / NFE} & \textbf{Time ($\mu$s)} & \textbf{Status} \\
+\midrule
+  \multirow{5}{*}{Ackley Multimodal (D=4)} & \textbf{Self-Optimizing Meta} & $7.6745$ & $2.5799$ & $2.5799$ & 150 & 22283 & Bounded \\
+   & ScheduleFree AdamW & $7.6745$ & $5.3819$ & $5.3819$ & 150 & 24168 & Bounded \\
+   & AdamW & $7.6745$ & $5.3819$ & $5.3819$ & 150 & 24341 & Bounded \\
+   & Lion & $7.6745$ & $4.8948$ & $4.8926$ & 150 & 23285 & Bounded \\
+   & Nesterov Accelerated SGD & $7.6745$ & $5.3819$ & $5.3819$ & 150 & 22189 & Bounded \\
+\midrule
+  \multirow{5}{*}{Levi No. 13 Periodic Ridges} & \textbf{Self-Optimizing Meta} & $8.2500$ & $0.9888$ & $0.8391$ & 150 & 37499 & Bounded \\
+   & ScheduleFree AdamW & $8.2500$ & $12.9$ & $5.0567$ & 150 & 40387 & Bounded \\
+   & AdamW & $8.2500$ & $3.7430$ & $3.7430$ & 150 & 39100 & Bounded \\
+   & Lion & $8.2500$ & $2.2500$ & $0.9755$ & 150 & 35638 & Bounded \\
+   & Nesterov Accelerated SGD & $8.2500$ & $4.2095$ & $0.4037$ & 150 & 35299 & Bounded \\
+\midrule
+  \multirow{5}{*}{Extreme Rosenbrock ($\kappa=10^{10}$)} & \textbf{Self-Optimizing Meta} & $19364.8$ & $4.0149$ & $4.0149$ & 150 & 17899 & Converged \\
+   & ScheduleFree AdamW & $19364.8$ & $4.1961$ & $4.1961$ & 150 & 20642 & Converged \\
+   & AdamW & $19364.8$ & $4.2608$ & $4.2590$ & 150 & 19692 & Converged \\
+   & Lion & $19364.8$ & $9.0879$ & $3.4698$ & 150 & 18559 & Converged \\
+   & Nesterov Accelerated SGD & $19364.8$ & $\texttt{NaN}$ & $19364.8$ & 150 & 18804 & Diverged (NaN) \\
+\midrule
+  \multirow{5}{*}{Degenerate Monkey Saddle ($D=10$)} & \textbf{Self-Optimizing Meta} & $0.0001$ & $-1.88 \times 10^{7}$ & $-1.88 \times 10^{7}$ & 150 & 81233 & Converged \\
+   & ScheduleFree AdamW & $0.0001$ & $-7.79 \times 10^{5}$ & $-7.79 \times 10^{5}$ & 150 & 90006 & Converged \\
+   & AdamW & $0.0001$ & $-18745.7$ & $-18745.7$ & 150 & 83029 & Converged \\
+   & Lion & $0.0001$ & $-191.9$ & $-191.9$ & 150 & 80946 & Converged \\
+   & Nesterov Accelerated SGD & $0.0001$ & $\texttt{NaN}$ & $-1.31 \times 10^{22}$ & 150 & 82895 & Diverged (NaN) \\
+\midrule
+  \multirow{2}{*}{Ultra-Stiff Robertson ($\kappa>10^9$)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.0000$ & $1.19 \times 10^{-7}$ & $1.19 \times 10^{-7}$ & 131 & 433 & Converged \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.0000$ & $1.01 \times 10^{-6}$ & $1.01 \times 10^{-6}$ & 22638 & 7178 & Converged \\
+\midrule
+  \multirow{2}{*}{H\'enon-Heiles ($E\approx 1/6$)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.1609$ & $4.47 \times 10^{-8}$ & $4.47 \times 10^{-8}$ & 807 & 3856 & Converged \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.1609$ & $7.45 \times 10^{-8}$ & $7.45 \times 10^{-8}$ & 1506 & 516 & Converged \\
+\midrule
+  \multirow{3}{*}{Chaotic Lorenz Strange Attractor} & \textbf{Self-Optimizing Meta (MoM + PID)} & $1.7320$ & $10.8$ & $10.8$ & 4942 & 18112 & Converged \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $1.7320$ & $35.4$ & $35.4$ & 2382 & 723 & Converged \\
+   & Fixed-Step RK4 (2000 Steps) & $1.7320$ & $31.9$ & $31.9$ & 8000 & 1957 & Converged \\
+\midrule
+  \multirow{2}{*}{Planar Double Pendulum} & \textbf{Self-Optimizing Meta (MoM + PID)} & $-11.2$ & $4.1192$ & $4.1192$ & 1349 & 6046 & Bounded \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $-11.2$ & $9.2353$ & $9.2353$ & 1350 & 583 & Bounded \\
+\bottomrule
+\end{tabular}
+\end{table*}

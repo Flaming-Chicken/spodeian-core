@@ -1,0 +1,37 @@
+experiment_name: "risky_business_ssl_v1"
+seed: 42
+
+model:
+  encoder_type: "mlp"
+  input_dim: 16
+  hidden_dim: 128
+  latent_dim: 64
+  num_layers: 3
+  num_heads: 4
+  dropout: 0.1
+  head_type: "mlp"
+
+ssl:
+  task: "masked_autoencoder"
+  mask_ratio: 0.25
+  mask_value: 0.0
+  temperature: 0.07
+
+training:
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  max_epochs: 20
+  grad_clip_norm: 1.0
+  warmup_epochs: 3
+
+checkpoint:
+  checkpoint_dir: "checkpoints/risky_business_ssl_v1"
+  save_every_n_epochs: 5
+  save_every_n_steps: null
+  resume_from: null
+
+data:
+  dataset_id: "financial_ticks_asx"
+  partition_paths: []
+  feedback_reporting: true

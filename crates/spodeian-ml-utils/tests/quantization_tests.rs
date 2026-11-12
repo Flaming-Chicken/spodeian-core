@@ -111,3 +111,41 @@ fn test_bnn_matmul() {
     // Expected: (+1.0)*1.0 + (-1.0)*1.0 = 0.0
     assert!((out[0] - 0.0).abs() < 1e-5);
 }
+
+#[test]
+fn test_concrete_quantized_kernels() {
+    use spodeian_ml_utils::{
+        BnnLinearKernel, Int8LinearKernel, Nf4LinearKernel, QuantizedFormat, QuantizedKernel,
+        Ternary158LinearKernel,
+    };
+
+    // 1. Int8LinearKernel
+    let int8_k = Int8LinearKernel::new(4, 2, vec![127, 0, -127, 0, 0, 127, 0, -127], 1.0);
+    assert_eq!(int8_k.format(), QuantizedFormat::Int8);
+    let mut out = vec![0.0f32; 2];
+    int8_k.matmul(&[1.0, 1.0, 1.0, 1.0], &mut out);
+    assert!((out[0] - 0.0).abs() < 0.01);
+    let mut deq = vec![0.0f32; 8];
+    int8_k.dequantize(&mut deq);
+    assert!((deq[0] - 1.0).abs() < 0.01);
+
+    // 2. Nf4LinearKernel
+    let nf4_k = Nf4LinearKernel::new(2, 1, vec![0x70], 1.0); // 0th = 0, 1st = 7 (0.0)
+    assert_eq!(nf4_k.format(), QuantizedFormat::Nf4);
+    let mut nf4_out = vec![0.0f32; 1];
+    nf4_k.matmul(&[1.0, 1.0], &mut nf4_out);
+
+    // 3. Ternary158LinearKernel
+    let ternary_k = Ternary158LinearKernel::new(4, 1, vec![0b00110001], 1.0);
+    assert_eq!(ternary_k.format(), QuantizedFormat::Ternary158);
+    let mut tern_out = vec![0.0f32; 1];
+    ternary_k.matmul(&[1.0, 0.0, 1.0, 0.0], &mut tern_out);
+    assert!((tern_out[0] - 0.0).abs() < 1e-5);
+
+    // 4. BnnLinearKernel
+    let bnn_k = BnnLinearKernel::new(2, 1, vec![0b00000001], 1.0);
+    assert_eq!(bnn_k.format(), QuantizedFormat::Bnn1Bit);
+    let mut bnn_out = vec![0.0f32; 1];
+    bnn_k.matmul(&[1.0, 1.0], &mut bnn_out);
+    assert!((bnn_out[0] - 0.0).abs() < 1e-5);
+}

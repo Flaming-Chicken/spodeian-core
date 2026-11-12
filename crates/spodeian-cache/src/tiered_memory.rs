@@ -38,11 +38,28 @@ pub struct TieredMemoryMetrics {
 /// Bounded in-memory cache utilizing an LRU eviction strategy.
 ///
 /// Designed to keep active working sets in RAM without unbounded memory growth.
+///
+/// # Examples
+///
+/// ```rust
+/// use spodeian_cache::BoundedMemoryCache;
+///
+/// let mut cache = BoundedMemoryCache::new(2);
+/// cache.put("a", 1);
+/// cache.put("b", 2);
+/// assert_eq!(cache.get(&"a"), Some(&1));
+///
+/// // Pushing "c" exceeds capacity, evicting the least recently used ("b")
+/// let evicted = cache.put("c", 3);
+/// assert_eq!(evicted, Some(("b", 2)));
+/// assert_eq!(cache.get(&"b"), None);
+/// ```
 #[derive(Debug, Clone)]
 pub struct BoundedMemoryCache<K, V> {
     capacity: usize,
-    entries: HashMap<K, V>,
-    order: VecDeque<K>,
+    entries: HashMap<K, (V, u64)>,
+    order: VecDeque<(K, u64)>,
+    access_counter: u64,
 }
 
 impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
@@ -52,6 +69,7 @@ impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
             capacity: capacity.max(1),
             entries: HashMap::with_capacity(capacity.min(1024)),
             order: VecDeque::with_capacity(capacity.min(1024)),
+            access_counter: 0,
         }
     }
 
@@ -75,11 +93,14 @@ impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
         self.entries.contains_key(key)
     }
 
-    /// Retrieves an item from memory, promoting it to the most-recently-used position.
+    /// Retrieves an item from memory, promoting it to the most-recently-used position in O(1) time.
     pub fn get(&mut self, key: &K) -> Option<&V> {
-        if self.entries.contains_key(key) {
-            self.promote(key);
-            self.entries.get(key)
+        self.access_counter = self.access_counter.wrapping_add(1);
+        let current_access = self.access_counter;
+        if let Some(entry) = self.entries.get_mut(key) {
+            entry.1 = current_access;
+            self.order.push_back((key.clone(), current_access));
+            Some(&entry.0)
         } else {
             None
         }
@@ -87,78 +108,97 @@ impl<K: Hash + Eq + Clone, V> BoundedMemoryCache<K, V> {
 
     /// Retrieves an item from memory immutably without altering LRU order.
     pub fn peek(&self, key: &K) -> Option<&V> {
-        self.entries.get(key)
+        self.entries.get(key).map(|(v, _)| v)
     }
 
-    /// Retrieves a mutable reference to an item, promoting it to the MRU position.
+    /// Retrieves a mutable reference to an item, promoting it to the MRU position in O(1) time.
     pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
-        if self.entries.contains_key(key) {
-            self.promote(key);
-            self.entries.get_mut(key)
+        self.access_counter = self.access_counter.wrapping_add(1);
+        let current_access = self.access_counter;
+        if let Some(entry) = self.entries.get_mut(key) {
+            entry.1 = current_access;
+            self.order.push_back((key.clone(), current_access));
+            Some(&mut entry.0)
         } else {
             None
         }
     }
 
-    /// Inserts a key-value pair into the in-memory cache.
+    /// Inserts a key-value pair into the in-memory cache in O(1) time.
     ///
     /// If inserting causes the cache to exceed its capacity, the least-recently-used (LRU)
     /// item is evicted and returned as `Some((evicted_key, evicted_value))`.
     pub fn put(&mut self, key: K, value: V) -> Option<(K, V)> {
+        self.access_counter = self.access_counter.wrapping_add(1);
+        let current_access = self.access_counter;
         let mut evicted = None;
 
-        if self.entries.contains_key(&key) {
-            self.promote(&key);
-            self.entries.insert(key, value);
+        if let Some(entry) = self.entries.get_mut(&key) {
+            entry.0 = value;
+            entry.1 = current_access;
+            self.order.push_back((key, current_access));
         } else {
-            if self.entries.len() >= self.capacity
-                && let Some(lru_key) = self.order.pop_front()
-                && let Some(lru_val) = self.entries.remove(&lru_key)
-            {
-                evicted = Some((lru_key, lru_val));
+            while self.entries.len() >= self.capacity {
+                if let Some((candidate_key, candidate_access)) = self.order.pop_front() {
+                    if let Some((_, entry_access)) = self.entries.get(&candidate_key)
+                        && *entry_access == candidate_access
+                        && let Some((lru_val, _)) = self.entries.remove(&candidate_key)
+                    {
+                        evicted = Some((candidate_key, lru_val));
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
-            self.order.push_back(key.clone());
-            self.entries.insert(key, value);
+
+            self.order.push_back((key.clone(), current_access));
+            self.entries.insert(key, (value, current_access));
+        }
+
+        if self.order.len() > self.capacity * 4 {
+            self.compact_order();
         }
 
         evicted
     }
 
-    /// Removes an item from the in-memory cache.
+    /// Removes an item from the in-memory cache in O(1) time.
     pub fn remove(&mut self, key: &K) -> Option<V> {
-        if let Some(val) = self.entries.remove(key) {
-            if let Some(idx) = self.order.iter().position(|k| k == key) {
-                self.order.remove(idx);
-            }
-            Some(val)
-        } else {
-            None
-        }
+        self.entries.remove(key).map(|(val, _)| val)
     }
 
     /// Clears all items from the in-memory cache.
     pub fn clear(&mut self) {
         self.entries.clear();
         self.order.clear();
+        self.access_counter = 0;
     }
 
     /// Iterates over all current in-memory entries.
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
-        self.entries.iter()
+        self.entries.iter().map(|(k, (v, _))| (k, v))
     }
 
-    fn promote(&mut self, key: &K) {
-        if let Some(idx) = self.order.iter().position(|k| k == key) {
-            self.order.remove(idx);
-            self.order.push_back(key.clone());
-        }
+    fn compact_order(&mut self) {
+        let entries = &self.entries;
+        self.order
+            .retain(|(k, acc)| entries.get(k).map(|(_, a)| *a == *acc).unwrap_or(false));
     }
 }
+
+/// Name prefix for the references a [`TieredMemoryStore`] keeps in its fallback directory.
+const FALLBACK_REF_PREFIX: &str = "spodeian-tiered-memory/";
 
 /// Tiered memory store coordinating bounded in-memory caching with a persistent fallback tier.
 ///
 /// Ensures high-frequency operations occur at in-memory speed, while offloading cold items
-/// to disk or IndexedDB so memory does not overfill.
+/// to a content-addressed directory on disk so memory does not overfill. For the browser,
+/// where storage is asynchronous, see `AsyncTieredStore`.
+///
+/// Since v1.1 the fallback index is itself persisted as named references, so items that
+/// spilled to disk are found again when a store is reopened on the same directory. Items
+/// still in memory are not persisted until they spill or [`TieredMemoryStore::flush`] runs.
 #[derive(Debug)]
 pub struct TieredMemoryStore<V> {
     memory: BoundedMemoryCache<String, V>,
@@ -175,16 +215,30 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
             None => None,
         };
 
-        Ok(Self {
+        // Rebuild the fallback index from references left by a previous session.
+        let mut fallback_index = HashMap::new();
+        if let Some(cas) = &fallback_cas {
+            for name in cas.list_names()? {
+                if let Some(key) = name.strip_prefix(FALLBACK_REF_PREFIX)
+                    && let Some(hash) = cas.resolve_name(&name)
+                {
+                    fallback_index.insert(key.to_string(), hash);
+                }
+            }
+        }
+
+        let mut store = Self {
             memory: BoundedMemoryCache::new(capacity),
             fallback_cas,
-            fallback_index: HashMap::new(),
+            fallback_index,
             metrics: TieredMemoryMetrics {
                 memory_items_count: 0,
                 fallback_items_count: 0,
                 ..Default::default()
             },
-        })
+        };
+        store.update_counts();
+        Ok(store)
     }
 
     /// Inserts an item into memory. If the in-memory capacity is reached, the oldest item is
@@ -193,7 +247,9 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
         let k = key.into();
 
         // If the key was previously in fallback, remove its stale fallback entry
-        self.fallback_index.remove(&k);
+        if self.fallback_index.remove(&k).is_some() {
+            self.forget_fallback_ref(&k)?;
+        }
 
         if let Some((evicted_key, evicted_value)) = self.memory.put(k, value) {
             self.persist_to_fallback(evicted_key, evicted_value)?;
@@ -233,6 +289,7 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
 
             // Remove from fallback index now that it lives in memory
             self.fallback_index.remove(key);
+            self.forget_fallback_ref(key)?;
             self.update_counts();
 
             return Ok(Some(val));
@@ -247,9 +304,15 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
     }
 
     /// Removes an item from both memory and fallback tiers.
+    ///
+    /// Removing the persisted reference is best-effort; a failure there leaves a stale
+    /// reference that is replaced the next time the key is stored.
     pub fn remove(&mut self, key: &str) -> bool {
         let removed_mem = self.memory.remove(&key.to_string()).is_some();
         let removed_fb = self.fallback_index.remove(key).is_some();
+        if removed_fb {
+            let _ = self.forget_fallback_ref(key);
+        }
         self.update_counts();
         removed_mem || removed_fb
     }
@@ -264,10 +327,34 @@ impl<V: Serialize + DeserializeOwned + Clone> TieredMemoryStore<V> {
         self.memory.capacity()
     }
 
+    /// Writes every in-memory item to the fallback tier without evicting it, so the whole
+    /// store survives a restart. Returns the number of items written; 0 without a fallback.
+    #[doc = "**Stability: Stable** — semver-guaranteed since v1.1"]
+    pub fn flush(&mut self) -> Result<usize, CacheError> {
+        let Some(cas) = &self.fallback_cas else {
+            return Ok(0);
+        };
+        let mut written = 0;
+        for (key, value) in self.memory.iter() {
+            let hash = cas.put_named_json(&format!("{FALLBACK_REF_PREFIX}{key}"), value)?;
+            self.fallback_index.insert(key.clone(), hash);
+            written += 1;
+        }
+        self.update_counts();
+        Ok(written)
+    }
+
     fn persist_to_fallback(&mut self, key: String, value: V) -> Result<(), CacheError> {
         if let Some(cas) = &self.fallback_cas {
-            let hash = cas.put_json(&value)?;
+            let hash = cas.put_named_json(&format!("{FALLBACK_REF_PREFIX}{key}"), &value)?;
             self.fallback_index.insert(key, hash);
+        }
+        Ok(())
+    }
+
+    fn forget_fallback_ref(&self, key: &str) -> Result<(), CacheError> {
+        if let Some(cas) = &self.fallback_cas {
+            cas.remove_named(&format!("{FALLBACK_REF_PREFIX}{key}"))?;
         }
         Ok(())
     }

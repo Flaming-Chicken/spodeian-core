@@ -1,0 +1,19 @@
+[package]
+name = "spodeian-parallel"
+version = "1.0.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Zero-overhead parallel iteration facade with transparent sequential fallback on WebAssembly and single-threaded targets"
+repository.workspace = true
+readme = "README.md"
+
+[lints]
+workspace = true
+
+[features]
+default = ["parallel"]
+parallel = ["dep:rayon"]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rayon = { workspace = true, optional = true }

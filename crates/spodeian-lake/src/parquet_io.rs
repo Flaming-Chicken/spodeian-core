@@ -2,7 +2,7 @@
 //!
 //! **Stability: Experimental** — API subject to change
 
-use arrow_array::{ArrayRef, Float64Array, Int64Array, RecordBatch, StringArray};
+use arrow_array::{Array, ArrayRef, Float64Array, Int64Array, RecordBatch, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use parquet::arrow::ArrowWriter;
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
@@ -212,7 +212,11 @@ impl TabularDataset {
                                 "Failed to downcast float column: {col_name}"
                             ))
                         })?;
-                    let values: Vec<f64> = (0..num_rows).map(|r| float_arr.value(r)).collect();
+                    let values: Vec<f64> = if float_arr.null_count() == 0 {
+                        float_arr.values().to_vec()
+                    } else {
+                        (0..num_rows).map(|r| float_arr.value(r)).collect()
+                    };
                     dataset.float_columns.insert(col_name, values);
                 }
                 DataType::Int64 => {
@@ -221,7 +225,11 @@ impl TabularDataset {
                             "Failed to downcast int column: {col_name}"
                         ))
                     })?;
-                    let values: Vec<i64> = (0..num_rows).map(|r| int_arr.value(r)).collect();
+                    let values: Vec<i64> = if int_arr.null_count() == 0 {
+                        int_arr.values().to_vec()
+                    } else {
+                        (0..num_rows).map(|r| int_arr.value(r)).collect()
+                    };
                     dataset.int_columns.insert(col_name, values);
                 }
                 DataType::Utf8 => {
@@ -267,26 +275,28 @@ impl TabularDataset {
     /// Deserializes standard Apache Parquet from `bytes::Bytes`.
     pub fn read_from_parquet_bytes(bytes: bytes::Bytes) -> Result<Self, ParquetError> {
         let builder = ParquetRecordBatchReaderBuilder::try_new(bytes)?;
-        let mut arrow_reader = builder.build()?;
+        let arrow_reader = builder.build()?;
 
-        if let Some(first_batch) = arrow_reader.next() {
-            let batch = first_batch?;
-            Self::from_record_batch(&batch)
-        } else {
-            Ok(Self::new())
+        let mut dataset = Self::new();
+        for batch_res in arrow_reader {
+            let batch = batch_res?;
+            let part = Self::from_record_batch(&batch)?;
+            dataset.extend_from(&part)?;
         }
+        Ok(dataset)
     }
 
     /// Deserializes standard Apache Parquet directly from a `std::fs::File`.
     pub fn read_from_parquet_file(file: std::fs::File) -> Result<Self, ParquetError> {
         let builder = ParquetRecordBatchReaderBuilder::try_new(file)?;
-        let mut arrow_reader = builder.build()?;
+        let arrow_reader = builder.build()?;
 
-        if let Some(first_batch) = arrow_reader.next() {
-            let batch = first_batch?;
-            Self::from_record_batch(&batch)
-        } else {
-            Ok(Self::new())
+        let mut dataset = Self::new();
+        for batch_res in arrow_reader {
+            let batch = batch_res?;
+            let part = Self::from_record_batch(&batch)?;
+            dataset.extend_from(&part)?;
         }
+        Ok(dataset)
     }
 }

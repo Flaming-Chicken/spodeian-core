@@ -1,0 +1,16 @@
+[package]
+name = "sml-tools"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Spodeian ML toolchain: module sync, cross-language parity verifier, weight auditor, and scaffolding"
+readme = "README.md"
+
+[[bin]]
+name = "sml"
+path = "src/main.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

@@ -106,3 +106,118 @@ fn test_cli_accessibility_helpers() {
     assert!(!cli_standard.plain);
     assert!(!cli_standard.json);
 }
+
+const ALL_MODES: [spodeian_tokens::ThemeMode; 4] = [
+    spodeian_tokens::ThemeMode::Dark,
+    spodeian_tokens::ThemeMode::Light,
+    spodeian_tokens::ThemeMode::HighContrastDark,
+    spodeian_tokens::ThemeMode::HighContrastLight,
+];
+
+#[test]
+fn test_every_palette_text_and_status_colours_meet_wcag_aa() {
+    use spodeian_tokens::{ColorRgba, ThemePalette};
+
+    for mode in ALL_MODES {
+        let p = ThemePalette::for_mode(mode);
+        for (role, fg) in [
+            ("text_primary", p.text_primary),
+            ("text_secondary", p.text_secondary),
+            ("accent", p.accent),
+            ("error", p.error),
+            ("success", p.success),
+        ] {
+            for (surface, bg) in [("background", p.background), ("surface", p.surface)] {
+                let ratio = ColorRgba::contrast_ratio(fg, bg);
+                assert!(
+                    ratio >= 4.5,
+                    "{mode:?}: {role} on {surface} is {ratio:.2}:1, below WCAG AA 4.5:1"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn test_high_contrast_palettes_meet_wcag_aaa_for_text() {
+    use spodeian_tokens::{ColorRgba, ThemeMode, ThemePalette};
+
+    for mode in [ThemeMode::HighContrastDark, ThemeMode::HighContrastLight] {
+        let p = ThemePalette::for_mode(mode);
+        assert!(ColorRgba::is_wcag_aaa(p.text_primary, p.background));
+        assert!(ColorRgba::is_wcag_aaa(p.text_secondary, p.background));
+    }
+}
+
+#[test]
+fn test_color_to_css() {
+    use spodeian_tokens::ColorRgba;
+
+    assert_eq!(ColorRgba::rgb(0, 100, 225).to_css(), "rgb(0, 100, 225)");
+    assert_eq!(ColorRgba::rgba(1, 2, 3, 0).to_css(), "rgba(1, 2, 3, 0)");
+    assert_eq!(ColorRgba::rgba(1, 2, 3, 51).to_css(), "rgba(1, 2, 3, 0.2)");
+}
+
+#[test]
+fn test_palette_css_custom_properties_cover_every_role() {
+    use spodeian_tokens::{ThemeMode, ThemePalette};
+
+    let css = ThemePalette::for_mode(ThemeMode::Dark).css_custom_properties("c-");
+    for name in [
+        "background",
+        "surface",
+        "border",
+        "text-primary",
+        "text-secondary",
+        "accent",
+        "error",
+        "success",
+    ] {
+        assert!(css.contains(&format!("--c-{name}: rgb(")), "missing {name}");
+    }
+    assert_eq!(css.lines().count(), 8);
+    assert!(css.contains("--c-background: rgb(18, 18, 18);"));
+}
+
+#[test]
+fn test_theme_stylesheet_has_a_block_per_mode() {
+    use spodeian_tokens::{ThemePalette, theme_stylesheet};
+
+    let css = theme_stylesheet("");
+    assert!(css.starts_with(":root, [data-theme=\"dark\"] {"));
+    for mode in ALL_MODES {
+        let selector = format!("[data-theme=\"{}\"]", mode.as_str());
+        assert_eq!(css.matches(&selector).count(), 1, "{selector}");
+        let text = ThemePalette::for_mode(mode).text_primary.to_css();
+        assert!(css.contains(&format!("--text-primary: {text};")));
+    }
+    assert_eq!(css.matches("color-scheme: dark;").count(), 2);
+    assert_eq!(css.matches("color-scheme: light;").count(), 2);
+    assert_eq!(css.matches('{').count(), css.matches('}').count());
+}
+
+#[test]
+fn test_motion_and_font_scale_css() {
+    use spodeian_tokens::{AccessibilityPreferences, FontScale, MotionPreference};
+
+    assert_eq!(MotionPreference::default(), MotionPreference::Full);
+    assert_eq!(
+        MotionPreference::Full.css_custom_properties(""),
+        "--motion-scale: 1;\n"
+    );
+    assert!(MotionPreference::system_preference_css("").contains("prefers-reduced-motion: reduce"));
+
+    assert_eq!(FontScale::new(0.1).value(), FontScale::MIN);
+    assert_eq!(FontScale::default().value(), 1.0);
+
+    let prefs = AccessibilityPreferences {
+        reduced_motion: true,
+        font_scale_multiplier: 1.5,
+        ..Default::default()
+    };
+    assert_eq!(prefs.motion(), MotionPreference::Reduced);
+    assert_eq!(
+        prefs.css_custom_properties("a-"),
+        "--a-motion-scale: 0;\n--a-font-scale: 1.5;\n"
+    );
+}

@@ -1,0 +1,22 @@
+% Auto-generated Statistical Validity & Frozen Hold-Out Table
+\begin{table*}[t]
+\centering
+\caption{Multi-Seed Statistical Validity (5 Distinct Random Seeds, 95\% CIs) and Frozen Hold-Out Evaluation.}
+\label{tab:statistical_validity}
+\footnotesize
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+\textbf{Regime / Hold-Out Benchmark} & \textbf{Optimizer} & \textbf{Mean Final Loss} & \textbf{Std Dev} & \textbf{95\% Conf.\ Interval} & \textbf{Status} \\
+\midrule
+  Cauchy Gradient Noise & \textbf{Self-Optimizing Meta} & 1.2173 & 1.3831 & $[0.3854, 2.4492]$ & Multi-Seed (5) \\
+  Cauchy Gradient Noise & ScheduleFree AdamW & 2.2487 & 0.6741 & $[1.7644, 2.8152]$ & Multi-Seed (5) \\
+  Cauchy Gradient Noise & AdamW & 13.5642 & 0.4535 & $[13.2145, 13.9140]$ & Multi-Seed (5) \\
+  Cauchy Gradient Noise & Lion & 13.6205 & 0.3436 & $[13.3487, 13.8922]$ & Multi-Seed (5) \\
+  Cauchy Gradient Noise & SGD Momentum & 682.1676 & 470.0015 & $[389.7616, 1101.3253]$ & Multi-Seed (5) \\
+\midrule
+  Rastrigin 4D (Rugged Multimodal) & \textbf{Self-Optimizing Meta} & 14.9243 & --- & --- & Sub-optimal / Local Well (f* = 0.0) \\
+  Styblinski-Tang 2D (Asymmetric Double-Well) & \textbf{Self-Optimizing Meta} & -50.0589 & --- & --- & Sub-optimal / Secondary Well (f* = -78.332) \\
+  Extended Rosenbrock 10D & \textbf{Self-Optimizing Meta} & 7.5448 & --- & --- & Valley Traversal (f* = 0.0) \\
+\bottomrule
+\end{tabular}
+\end{table*}
