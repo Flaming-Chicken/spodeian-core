@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.pt
+*.safetensors
+.venv/
+build/
+dist/
+*.egg-info/
+datasets/
+.pytest_cache/
+studio_session.json
