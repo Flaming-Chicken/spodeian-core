@@ -1,0 +1,48 @@
+% Auto-generated from pathological_analytical_frontier.json
+\begin{table*}[t]
+\centering
+\caption{Pathological \& Analytical Frontier Benchmark Suite (Ground-Truth Telemetry).}
+\label{tab:pathological_frontier}
+\footnotesize
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+\textbf{Frontier Case} & \textbf{Method} & \textbf{Initial} & \textbf{Final Metric} & \textbf{Min Metric} & \textbf{Steps / NFE} & \textbf{Time ($\mu$s)} & \textbf{Converged} \\
+\midrule
+  \multirow{5}{*}{Bukin N.6 Cusp} & \textbf{Self-Optimizing Meta} & $66.4$ & $1.7843$ & $1.0982$ & 150 & 27239 & \textbf{Yes} \\
+   & ScheduleFree AdamW & $66.4$ & $22.1$ & $3.0210$ & 150 & 29567 & No \\
+   & AdamW & $66.4$ & $26.5$ & $2.6752$ & 150 & 28570 & No \\
+   & Lion & $66.4$ & $12.0$ & $7.1624$ & 150 & 28301 & No \\
+   & Nesterov Accelerated SGD & $66.4$ & $240.8$ & $18.5$ & 150 & 27503 & No \\
+\midrule
+  \multirow{5}{*}{Powell Quartic (Rank 2)} & \textbf{Self-Optimizing Meta} & $215.0$ & $0.0007$ & $0.0007$ & 150 & 54347 & \textbf{Yes} \\
+   & ScheduleFree AdamW & $215.0$ & $0.2776$ & $0.2776$ & 150 & 45100 & No \\
+   & AdamW & $215.0$ & $4.3838$ & $4.3838$ & 150 & 36660 & No \\
+   & Lion & $215.0$ & $3.7933$ & $3.7933$ & 150 & 46119 & No \\
+   & Nesterov Accelerated SGD & $215.0$ & $\texttt{NaN}$ & $215.0$ & 150 & 45375 & No \\
+\midrule
+  \multirow{5}{*}{Parameter Swamping Horizon} & \textbf{Self-Optimizing Meta} & $4.0000$ & $1.7727$ & $1.7727$ & 150 & 9128 & \textbf{Yes} \\
+   & ScheduleFree AdamW & $4.0000$ & $3.6115$ & $3.6115$ & 150 & 12093 & Yes \\
+   & AdamW & $4.0000$ & $3.8549$ & $3.8549$ & 150 & 11428 & Yes \\
+   & Lion & $4.0000$ & $3.8549$ & $3.8549$ & 150 & 9975 & Yes \\
+   & Nesterov Accelerated SGD & $4.0000$ & $3.0021$ & $3.0021$ & 150 & 9355 & Yes \\
+\midrule
+  \multirow{5}{*}{Hilbert Matrix ($\kappa \sim 1.5\times 10^7$)} & \textbf{Self-Optimizing Meta} & $6.1359$ & $7.49 \times 10^{-8}$ & $7.08 \times 10^{-10}$ & 150 & 16082 & \textbf{Yes} \\
+   & ScheduleFree AdamW & $6.1359$ & $6.12 \times 10^{-8}$ & $4.80 \times 10^{-11}$ & 150 & 19166 & Yes \\
+   & AdamW & $6.1359$ & $4.60 \times 10^{-8}$ & $2.16 \times 10^{-8}$ & 150 & 18925 & Yes \\
+   & Lion & $6.1359$ & $1.5340$ & $2.58 \times 10^{-12}$ & 150 & 17270 & No \\
+   & Nesterov Accelerated SGD & $6.1359$ & $1.23 \times 10^{-5}$ & $1.23 \times 10^{-5}$ & 150 & 16491 & Yes \\
+\midrule
+  \multirow{2}{*}{Prothero-Robinson ($\lambda=-10^3$)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $1.0000$ & $0.0003$ & $0.0003$ & 5903 & 6516 & \textbf{Yes} \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $1.0000$ & $5.43 \times 10^{-5}$ & $5.43 \times 10^{-5}$ & 18984 & 5570 & Yes \\
+\midrule
+  \multirow{2}{*}{Prandtl Layer ($\epsilon=10^{-3}$)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.0000$ & $5.51 \times 10^{-5}$ & $5.51 \times 10^{-5}$ & 4489 & 10824 & \textbf{Yes} \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.0000$ & $2.02 \times 10^{-5}$ & $2.02 \times 10^{-5}$ & 9546 & 4876 & Yes \\
+\midrule
+  \multirow{2}{*}{Airy Turning Point ($\ddot{y}=ty$)} & \textbf{Self-Optimizing Meta (MoM + PID)} & $0.3550$ & $-0.0031$ & $0.0032$ & 380 & 1681 & \textbf{Yes} \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $0.3550$ & $0.0001$ & $9.31 \times 10^{-6}$ & 612 & 327 & Yes \\
+\midrule
+  \multirow{2}{*}{Inverted Pendulum Separatrix} & \textbf{Self-Optimizing Meta (MoM + PID)} & $1.0000$ & $4.77 \times 10^{-7}$ & $4.77 \times 10^{-7}$ & 479 & 2348 & \textbf{Yes} \\
+   & Standard Adaptive RK45 (Dormand-Prince) & $1.0000$ & $5.96 \times 10^{-8}$ & $5.96 \times 10^{-8}$ & 732 & 488 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,6 @@
+# LuaLaTeX + Biber build configuration for arXiv / Overleaf / TeX Live
+$pdf_mode = 4;
+$lualatex = 'lualatex -interaction=nonstopmode -halt-on-error -file-line-error -synctex=1 %O %S';
+$biber = 'biber %O %S';
+$bibtex_use = 2;
+$clean_ext = 'bbl bcf blg run.xml synctex.gz nav snm vrb fls fdb_latexmk';
