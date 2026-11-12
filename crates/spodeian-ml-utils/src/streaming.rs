@@ -204,6 +204,12 @@ impl OnlineSlidingStats {
         self.window.len()
     }
 
+    /// Whether the window holds no samples.
+    #[inline(always)]
+    pub fn is_empty(&self) -> bool {
+        self.window.is_empty()
+    }
+
     /// Window capacity.
     #[inline(always)]
     pub fn capacity(&self) -> usize {
@@ -219,11 +225,7 @@ impl OnlineSlidingStats {
     /// Returns the arithmetic mean of the current window in $O(1)$ time.
     pub fn mean(&self) -> f64 {
         let n = self.window.len();
-        if n == 0 {
-            0.0
-        } else {
-            self.sum / (n as f64)
-        }
+        if n == 0 { 0.0 } else { self.sum / (n as f64) }
     }
 
     /// Returns sample variance ($s^2 = \frac{1}{n-1} \sum (x_i - \bar{x})^2$) in $O(1)$ time.
@@ -481,7 +483,7 @@ mod tests {
     fn test_online_sliding_stats_numerical_parity() {
         let window_size = 4;
         let mut stats = OnlineSlidingStats::new(window_size);
-        let stream = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0];
+        let stream = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0];
 
         for (i, &val) in stream.iter().enumerate() {
             stats.push(val);
@@ -492,13 +494,23 @@ mod tests {
             let n = slice.len() as f64;
             let expected_mean = slice.iter().sum::<f64>() / n;
             let expected_var = if n > 1.0 {
-                slice.iter().map(|&x| (x - expected_mean).powi(2)).sum::<f64>() / (n - 1.0)
+                slice
+                    .iter()
+                    .map(|&x| (x - expected_mean).powi(2))
+                    .sum::<f64>()
+                    / (n - 1.0)
             } else {
                 0.0
             };
 
-            assert!((stats.mean() - expected_mean).abs() < 1e-9, "Mean drift at {i}");
-            assert!((stats.variance() - expected_var).abs() < 1e-7, "Var drift at {i}");
+            assert!(
+                (stats.mean() - expected_mean).abs() < 1e-9,
+                "Mean drift at {i}"
+            );
+            assert!(
+                (stats.variance() - expected_var).abs() < 1e-7,
+                "Var drift at {i}"
+            );
         }
     }
 

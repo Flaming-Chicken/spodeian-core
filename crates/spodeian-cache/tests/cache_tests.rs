@@ -143,3 +143,127 @@ fn test_tiered_memory_store_fallback_and_memory_protection() {
 
     let _ = std::fs::remove_dir_all(&temp_dir);
 }
+
+fn fresh_dir(name: &str) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("spodeian_test_{name}_{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    dir
+}
+
+#[test]
+fn test_cas_named_refs_survive_reopen() {
+    use spodeian_cache::{CacheError, ContentAddressedStorage};
+
+    let dir = fresh_dir("named_refs");
+    {
+        let cas = ContentAddressedStorage::new(&dir).expect("create cas");
+        cas.put_named("app/state", b"version one").expect("put v1");
+        cas.put_named("app/state", b"version two")
+            .expect("overwrite");
+        cas.put_named_json("app/prefs", &vec![1, 2, 3])
+            .expect("put json");
+    }
+
+    let cas = ContentAddressedStorage::new(&dir).expect("reopen cas");
+    assert_eq!(cas.get_named("app/state").expect("get"), b"version two");
+    assert_eq!(
+        cas.get_named_json::<Vec<i32>>("app/prefs")
+            .expect("get json"),
+        vec![1, 2, 3]
+    );
+
+    let mut names = cas.list_names().expect("list");
+    names.sort();
+    assert_eq!(
+        names,
+        vec!["app/prefs".to_string(), "app/state".to_string()]
+    );
+
+    assert!(cas.remove_named("app/state").expect("remove"));
+    assert!(!cas.remove_named("app/state").expect("remove again"));
+    assert!(matches!(
+        cas.get_named("app/state"),
+        Err(CacheError::NotFound(_))
+    ));
+    assert!(cas.resolve_name("never-stored").is_none());
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn test_cas_list_names_on_empty_store() {
+    use spodeian_cache::ContentAddressedStorage;
+
+    let dir = fresh_dir("empty_names");
+    let cas = ContentAddressedStorage::new(&dir).expect("create cas");
+    assert!(cas.list_names().expect("list").is_empty());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn test_tiered_memory_store_spilled_items_survive_reopen() {
+    use spodeian_cache::TieredMemoryStore;
+
+    let dir = fresh_dir("tiered_reopen");
+    {
+        let mut store = TieredMemoryStore::<String>::new(1, Some(&dir)).expect("create");
+        store.put("a", "alpha".to_string()).expect("put a");
+        store.put("b", "beta".to_string()).expect("put b; spills a");
+        assert_eq!(store.metrics().fallback_items_count, 1);
+    }
+
+    let mut store = TieredMemoryStore::<String>::new(1, Some(&dir)).expect("reopen");
+    assert_eq!(store.metrics().fallback_items_count, 1);
+    assert!(store.contains("a"));
+    assert_eq!(store.get("a").expect("get a"), Some("alpha".to_string()));
+    // "b" was only in memory and was never flushed, so it did not survive.
+    assert_eq!(store.get("b").expect("get b"), None);
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn test_tiered_memory_store_flush_persists_memory_tier() {
+    use spodeian_cache::TieredMemoryStore;
+
+    let dir = fresh_dir("tiered_flush");
+    {
+        let mut store = TieredMemoryStore::<String>::new(4, Some(&dir)).expect("create");
+        store.put("x", "ex".to_string()).expect("put x");
+        store.put("y", "why".to_string()).expect("put y");
+        assert_eq!(store.flush().expect("flush"), 2);
+        // Removing a key also removes its persisted reference.
+        assert!(store.remove("y"));
+    }
+
+    let mut store = TieredMemoryStore::<String>::new(4, Some(&dir)).expect("reopen");
+    assert_eq!(store.get("x").expect("get x"), Some("ex".to_string()));
+    assert_eq!(store.get("y").expect("get y"), None);
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn test_tiered_memory_store_overwrite_replaces_spilled_value() {
+    use spodeian_cache::TieredMemoryStore;
+
+    let dir = fresh_dir("tiered_overwrite");
+    {
+        let mut store = TieredMemoryStore::<String>::new(1, Some(&dir)).expect("create");
+        store.put("k", "old".to_string()).expect("put old");
+        store.put("other", "o".to_string()).expect("spill k");
+        store
+            .put("k", "new".to_string())
+            .expect("overwrite k; spills other");
+        store.flush().expect("flush");
+    }
+
+    let mut store = TieredMemoryStore::<String>::new(1, Some(&dir)).expect("reopen");
+    assert_eq!(store.get("k").expect("get k"), Some("new".to_string()));
+    assert_eq!(
+        store.get("other").expect("get other"),
+        Some("o".to_string())
+    );
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

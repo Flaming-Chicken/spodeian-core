@@ -241,12 +241,30 @@ mod tests {
 
     #[test]
     fn test_device_string_parsing() {
-        assert_eq!(ComputeRouter::parse_device("cpu").unwrap(), ComputeDevice::Cpu);
-        assert_eq!(ComputeRouter::parse_device("cuda").unwrap(), ComputeDevice::Cuda(0));
-        assert_eq!(ComputeRouter::parse_device("cuda:2").unwrap(), ComputeDevice::Cuda(2));
-        assert_eq!(ComputeRouter::parse_device("metal").unwrap(), ComputeDevice::Metal);
-        assert_eq!(ComputeRouter::parse_device("mps").unwrap(), ComputeDevice::Metal);
-        assert_eq!(ComputeRouter::parse_device("webgpu").unwrap(), ComputeDevice::WebGpu);
+        assert_eq!(
+            ComputeRouter::parse_device("cpu").unwrap(),
+            ComputeDevice::Cpu
+        );
+        assert_eq!(
+            ComputeRouter::parse_device("cuda").unwrap(),
+            ComputeDevice::Cuda(0)
+        );
+        assert_eq!(
+            ComputeRouter::parse_device("cuda:2").unwrap(),
+            ComputeDevice::Cuda(2)
+        );
+        assert_eq!(
+            ComputeRouter::parse_device("metal").unwrap(),
+            ComputeDevice::Metal
+        );
+        assert_eq!(
+            ComputeRouter::parse_device("mps").unwrap(),
+            ComputeDevice::Metal
+        );
+        assert_eq!(
+            ComputeRouter::parse_device("webgpu").unwrap(),
+            ComputeDevice::WebGpu
+        );
         assert!(ComputeRouter::parse_device("quantum").is_err());
     }
 

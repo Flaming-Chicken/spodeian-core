@@ -247,11 +247,8 @@ mod tests {
 
     #[test]
     fn test_par_chunks() {
-        let data = vec![1.0f32, 2.0, 3.0, 4.0, 5.0, 6.0];
-        let sums: Vec<f32> = data
-            .par_chunks(2)
-            .map(|chunk| chunk.iter().sum())
-            .collect();
+        let data = [1.0f32, 2.0, 3.0, 4.0, 5.0, 6.0];
+        let sums: Vec<f32> = data.par_chunks(2).map(|chunk| chunk.iter().sum()).collect();
         assert_eq!(sums, vec![3.0, 7.0, 11.0]);
     }
 

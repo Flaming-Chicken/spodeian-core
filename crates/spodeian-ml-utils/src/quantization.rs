@@ -639,7 +639,12 @@ pub struct Int8LinearKernel {
 impl Int8LinearKernel {
     pub fn new(in_features: usize, out_features: usize, weights: Vec<i8>, scale: f32) -> Self {
         assert_eq!(weights.len(), in_features * out_features);
-        Self { in_features, out_features, weights, scale }
+        Self {
+            in_features,
+            out_features,
+            weights,
+            scale,
+        }
     }
 }
 
@@ -679,10 +684,20 @@ pub struct Nf4LinearKernel {
 }
 
 impl Nf4LinearKernel {
-    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, scale: f32) -> Self {
+    pub fn new(
+        in_features: usize,
+        out_features: usize,
+        packed_weights: Vec<u8>,
+        scale: f32,
+    ) -> Self {
         let expected_bytes = out_features * in_features.div_ceil(2);
         assert_eq!(packed_weights.len(), expected_bytes);
-        Self { in_features, out_features, packed_weights, scale }
+        Self {
+            in_features,
+            out_features,
+            packed_weights,
+            scale,
+        }
     }
 }
 
@@ -733,10 +748,20 @@ pub struct Ternary158LinearKernel {
 }
 
 impl Ternary158LinearKernel {
-    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, gamma: f32) -> Self {
+    pub fn new(
+        in_features: usize,
+        out_features: usize,
+        packed_weights: Vec<u8>,
+        gamma: f32,
+    ) -> Self {
         let expected_bytes = out_features * in_features.div_ceil(4);
         assert_eq!(packed_weights.len(), expected_bytes);
-        Self { in_features, out_features, packed_weights, gamma }
+        Self {
+            in_features,
+            out_features,
+            packed_weights,
+            gamma,
+        }
     }
 }
 
@@ -792,10 +817,20 @@ pub struct BnnLinearKernel {
 }
 
 impl BnnLinearKernel {
-    pub fn new(in_features: usize, out_features: usize, packed_weights: Vec<u8>, scale: f32) -> Self {
+    pub fn new(
+        in_features: usize,
+        out_features: usize,
+        packed_weights: Vec<u8>,
+        scale: f32,
+    ) -> Self {
         let expected_bytes = out_features * in_features.div_ceil(8);
         assert_eq!(packed_weights.len(), expected_bytes);
-        Self { in_features, out_features, packed_weights, scale }
+        Self {
+            in_features,
+            out_features,
+            packed_weights,
+            scale,
+        }
     }
 }
 

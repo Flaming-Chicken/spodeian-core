@@ -1,7 +1,7 @@
 # `spodeian-telemetry`
 
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
-[![Status](https://img.shields.io/badge/stability-stable%20(v1.0)-success.svg)]()
+[![Status](https://img.shields.io/badge/stability-stable%20(v1.1)-success.svg)]()
 
 **Universal zero-overhead tracing, in-memory diagnostic ring buffer, and crash report panic hooks.**
 
@@ -14,7 +14,8 @@
 - **Structured Tracing**: Native support for `tracing`, `tracing-subscriber`, and `tracing-web`.
 - **In-Memory Ring Buffer (`LogRingBuffer`)**: Zero-allocation thread-safe log sink with zero-copy visitors (`for_each_recent`) designed for 60 FPS egui diagnostic consoles.
 - **Panic Diagnostic Hooks**: Intercepts panics, captures backtraces and memory statistics, and logs structured diagnostic reports before crash.
-- **Web Console Forwarding**: On WASM, automatically directs logs to browser developer tools with color-coded severity.
+- **Web Console Forwarding**: On WASM, automatically directs logs to browser developer tools with color-coded severity, and captures them in the ring buffer as on desktop.
+- **Metrics Snapshot (`metrics_snapshot`)**: Uptime and event counts by level since initialisation, plus ring buffer usage, for diagnostic dashboards.
 
 ---
 

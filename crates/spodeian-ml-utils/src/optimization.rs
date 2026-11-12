@@ -254,8 +254,16 @@ impl LbfgsOptimizer {
             }
 
             // Displacement and gradient difference
-            let s: Vec<f64> = new_x.iter().zip(x.iter()).map(|(&nx, &ox)| nx - ox).collect();
-            let y: Vec<f64> = new_grad.iter().zip(grad.iter()).map(|(&ng, &og)| ng - og).collect();
+            let s: Vec<f64> = new_x
+                .iter()
+                .zip(x.iter())
+                .map(|(&nx, &ox)| nx - ox)
+                .collect();
+            let y: Vec<f64> = new_grad
+                .iter()
+                .zip(grad.iter())
+                .map(|(&ng, &og)| ng - og)
+                .collect();
             tracker.update(s, y);
 
             x = new_x;

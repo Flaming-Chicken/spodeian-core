@@ -1,3 +1,5 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 use spodeian_web_utils::{copy_to_clipboard, trigger_binary_download, trigger_text_download};
 
 #[test]
@@ -20,4 +22,35 @@ fn test_web_utils_native_fallback() {
     let _ = std::fs::remove_file(&bin_file);
 
     copy_to_clipboard("test clipboard text");
+}
+
+#[test]
+fn test_try_downloads_report_success_and_failure() {
+    use spodeian_web_utils::{
+        WebUtilsError, try_trigger_binary_download, try_trigger_text_download,
+    };
+
+    let file = std::env::temp_dir().join(format!("spodeian_try_{}.txt", std::process::id()));
+    let path = file.to_string_lossy().to_string();
+    assert_eq!(try_trigger_text_download(&path, "ok", "text/plain"), Ok(()));
+    assert_eq!(std::fs::read_to_string(&file).unwrap(), "ok");
+    let _ = std::fs::remove_file(&file);
+
+    let missing_dir = std::env::temp_dir()
+        .join("spodeian_no_such_dir")
+        .join("x.bin")
+        .to_string_lossy()
+        .to_string();
+    assert!(matches!(
+        try_trigger_binary_download(&missing_dir, &[1], "application/octet-stream"),
+        Err(WebUtilsError::Failed(_))
+    ));
+}
+
+#[test]
+fn test_native_clipboard_reports_unavailable() {
+    use spodeian_web_utils::{WebUtilsError, write_clipboard_text};
+
+    let result = pollster::block_on(write_clipboard_text("text"));
+    assert!(matches!(result, Err(WebUtilsError::Unavailable(_))));
 }

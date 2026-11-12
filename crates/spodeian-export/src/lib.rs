@@ -275,8 +275,8 @@ pub fn import_tensors_from_safetensors(
 ) -> Result<Vec<(String, Vec<usize>, Vec<f32>)>, ExportError> {
     use safetensors::SafeTensors;
 
-    let st = SafeTensors::deserialize(bytes)
-        .map_err(|e| ExportError::SafeTensors(format!("{e}")))?;
+    let st =
+        SafeTensors::deserialize(bytes).map_err(|e| ExportError::SafeTensors(format!("{e}")))?;
 
     let mut result = Vec::new();
     for (name, view) in st.tensors() {
@@ -398,7 +398,11 @@ mod tests {
     fn test_csv_table_roundtrip() {
         let headers = vec!["symbol", "price", "notes"];
         let rows = vec![
-            vec!["AAPL".to_string(), "150.25".to_string(), "Standard".to_string()],
+            vec![
+                "AAPL".to_string(),
+                "150.25".to_string(),
+                "Standard".to_string(),
+            ],
             vec![
                 "GOOG".to_string(),
                 "2800.50".to_string(),

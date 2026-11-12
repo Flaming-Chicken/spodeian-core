@@ -15,7 +15,7 @@ members = [
 ]
 
 [workspace.package]
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Spodeian Contributors <https://github.com/Flaming-Chicken/spodeian-core>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
@@ -102,10 +102,19 @@ web-sys = { version = "0.3", features = [
     "Location",
     "Navigator",
     "Clipboard",
+    # Browser storage backends (spodeian-cache web module)
+    "Event",
+    "DomException",
+    "DomStringList",
+    "IdbTransactionMode",
+    "StorageManager",
+    "StorageEstimate",
 ] }
 
 # Benchmarking
 criterion = "0.5"
+wasm-bindgen-test = "0.3"
+pollster = "0.4"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
