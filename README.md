@@ -1,6 +1,6 @@
 # Spodeian Core
 
-[![CI](https://github.com/Flaming-Chicken/spodeian-core/actions/workflows/ci.yml/badge.svg)](https://github.com/Flaming-Chicken/spodeian-core/actions)
+[![CI](https://github.com/Spodeian/spodeian-core/actions/workflows/ci.yml/badge.svg)](https://github.com/Spodeian/spodeian-core/actions)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 
 **Cross-Project Shared Ecosystem Foundation: Preferential Multi-Tier Caching, WCAG 2.1 AAA Design Tokens, Telemetry, Data Lake, Numerical Stability, and PyO3 Native Interop**

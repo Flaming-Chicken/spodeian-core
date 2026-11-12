@@ -26,17 +26,17 @@ members = [
 # inherits it and each release is tagged `v<version>`. Every other crate sets its
 # own version in its manifest, bumped by semver for that crate's own changes.
 version = "2.0.0"
-authors = ["Spodeian Contributors <https://github.com/Flaming-Chicken/spodeian-core>"]
+authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 description = "Spodeian Core · Cross-project shared ecosystem foundation: preferential multi-tier storage, design tokens, telemetry, export, web utilities, unified egui UI, local data lake, and PyO3 desktop bridge"
-repository = "https://github.com/Flaming-Chicken/spodeian-core"
+repository = "https://github.com/Spodeian/spodeian-core"
 
 [workspace.dependencies]
 # Internal crates: keep each requirement equal to that crate's own version.
 spodeian-parallel = { path = "crates/spodeian-parallel", version = "1.0.0" }
-spodeian-core = { path = "crates/spodeian-core", version = "2.0.0" }
+spodeian-core = { path = "crates/spodeian-core", version = "^2.0.0" }
 spodeian-cache = { path = "crates/spodeian-cache", version = "1.1.0" }
 spodeian-tokens = { path = "crates/spodeian-tokens", version = "1.1.0" }
 spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "1.1.0" }
