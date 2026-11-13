@@ -19,7 +19,6 @@ wgpu = ["dep:wgpu", "dep:pollster"]
 
 [dev-dependencies]
 candle-core = { workspace = true }
-ai-kernel = { package = "sml-kernel", path = "." }
 
 # The kernels/ track mirrors the WGSL and CUDA originals: explicit index loops,
 # spelled-out index terms such as `0 * stride`, full-precision constants, and

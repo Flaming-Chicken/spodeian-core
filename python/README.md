@@ -1,7 +1,7 @@
 # 🧠 Spodeian ML
 
 [![CI](https://github.com/Spodeian/spodeian-core/actions/workflows/ci.yml/badge.svg)](https://github.com/Spodeian/spodeian-core/actions)
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE.md)
 [![Python: 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776AB.svg?logo=python)](https://python.org)
 [![PyTorch: 2.14+](https://img.shields.io/badge/PyTorch-2.14%2B-EE4C2C.svg?logo=pytorch)](https://pytorch.org)
 
@@ -51,3 +51,12 @@ uv run spodeian-ml benchmark --precision all
 # Launch interactive TUI
 uv run spodeian-ml
 ```
+
+---
+
+## License
+
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). You may use,
+change and share this software for any noncommercial purpose. For a
+commercial license, contact [Spodeian](https://github.com/Spodeian). Earlier
+releases keep the license they were published under.

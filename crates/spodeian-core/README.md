@@ -1,6 +1,6 @@
 # `spodeian-core` (Facade Crate)
 
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](../../LICENSE.md)
 [![Status](https://img.shields.io/badge/stability-stable%20(v2.0)-success.svg)]()
 
 **Umbrella facade re-exporting all Spodeian micro-crates under a unified namespace.**

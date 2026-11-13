@@ -1,6 +1,6 @@
 # `spodeian-web-utils`
 
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](../../LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](../../LICENSE.md)
 [![Status](https://img.shields.io/badge/stability-stable%20(v1.1)-success.svg)]()
 
 **WebAssembly DOM helpers, clipboard manipulation, and client-side blob download triggers.**
