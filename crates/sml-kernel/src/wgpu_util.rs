@@ -5,7 +5,9 @@ use crate::context::WgpuContext;
 #[cfg(feature = "wgpu")]
 use std::collections::HashMap;
 #[cfg(feature = "wgpu")]
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::Arc;
+#[cfg(all(feature = "wgpu", not(target_arch = "wasm32")))]
+use std::sync::{Mutex, OnceLock};
 #[cfg(feature = "wgpu")]
 use wgpu::util::DeviceExt;
 
@@ -19,7 +21,28 @@ struct CachedPipeline {
 }
 
 #[cfg(feature = "wgpu")]
-static PIPELINE_CACHE: OnceLock<Mutex<HashMap<PipelineCacheKey, CachedPipeline>>> = OnceLock::new();
+type PipelineCache = HashMap<PipelineCacheKey, CachedPipeline>;
+
+#[cfg(all(feature = "wgpu", not(target_arch = "wasm32")))]
+static PIPELINE_CACHE: OnceLock<Mutex<PipelineCache>> = OnceLock::new();
+
+/// Runs `f` with the process-wide pipeline cache.
+#[cfg(all(feature = "wgpu", not(target_arch = "wasm32")))]
+fn with_pipeline_cache<R>(f: impl FnOnce(&mut PipelineCache) -> R) -> R {
+    let cache = PIPELINE_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    f(&mut cache.lock().unwrap())
+}
+
+// wgpu handles aren't Send/Sync on wasm32, so the cache is per thread there.
+#[cfg(all(feature = "wgpu", target_arch = "wasm32"))]
+thread_local! {
+    static PIPELINE_CACHE: std::cell::RefCell<PipelineCache> = std::cell::RefCell::new(HashMap::new());
+}
+
+#[cfg(all(feature = "wgpu", target_arch = "wasm32"))]
+fn with_pipeline_cache<R>(f: impl FnOnce(&mut PipelineCache) -> R) -> R {
+    PIPELINE_CACHE.with(|cache| f(&mut cache.borrow_mut()))
+}
 
 #[cfg(feature = "wgpu")]
 fn get_or_create_pipeline(
@@ -29,7 +52,6 @@ fn get_or_create_pipeline(
     num_inputs: usize,
     has_uniform: bool,
 ) -> (Arc<wgpu::ComputePipeline>, Arc<wgpu::BindGroupLayout>) {
-    let cache_mutex = PIPELINE_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
     let key = (
         shader_src.to_string(),
         entry_point.to_string(),
@@ -37,14 +59,15 @@ fn get_or_create_pipeline(
         has_uniform,
     );
 
-    {
-        let cache = cache_mutex.lock().unwrap();
-        if let Some(cached) = cache.get(&key) {
-            return (
+    if let Some(hit) = with_pipeline_cache(|cache| {
+        cache.get(&key).map(|cached| {
+            (
                 Arc::clone(&cached.pipeline),
                 Arc::clone(&cached.bind_group_layout),
-            );
-        }
+            )
+        })
+    }) {
+        return hit;
     }
 
     let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -119,14 +142,15 @@ fn get_or_create_pipeline(
         },
     ));
 
-    let mut cache = cache_mutex.lock().unwrap();
-    cache.insert(
-        key,
-        CachedPipeline {
-            pipeline: Arc::clone(&compute_pipeline),
-            bind_group_layout: Arc::clone(&bind_group_layout),
-        },
-    );
+    with_pipeline_cache(|cache| {
+        cache.insert(
+            key,
+            CachedPipeline {
+                pipeline: Arc::clone(&compute_pipeline),
+                bind_group_layout: Arc::clone(&bind_group_layout),
+            },
+        )
+    });
 
     (compute_pipeline, bind_group_layout)
 }
