@@ -49,10 +49,10 @@ pub use spodeian_web_utils as web_utils;
 pub use spodeian_ui as ui;
 
 #[cfg(feature = "lake")]
-pub use spodeian_lake as lake;
+pub use sml_lake as lake;
 
 #[cfg(feature = "ml-utils")]
-pub use spodeian_ml_utils as ml_utils;
+pub use sml_runtime as ml_utils;
 
 /// Standard prelude re-exporting common ecosystem traits and types.
 pub mod prelude {
@@ -71,12 +71,12 @@ pub mod prelude {
     pub use spodeian_ui::ScreenConstraints;
 
     #[cfg(feature = "lake")]
-    pub use spodeian_lake::{
+    pub use sml_lake::{
         SyntheticAcousticGenerator, SyntheticMarketGenerator, TabularDataset, TabularSchema,
     };
 
     #[cfg(feature = "ml-utils")]
-    pub use spodeian_ml_utils::{
+    pub use sml_runtime::{
         ComputeDevice, ComputeRouter, ContinuousIntegrator, EulerStepper, ExponentialMovingAverage,
         GoldenParityHarness, HeunPredictorCorrector, LbfgsCurvatureTracker, LbfgsOptimizer,
         OnlineSlidingCovariance, OnlineSlidingStats, ParityReport, Rk4Stepper, RollingWindow,

@@ -1,10 +1,10 @@
 [package]
 name = "spodeian-ml-utils"
-version = "0.2.0"
+version = "0.3.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Spodeian ML Utils · SafeTensors streaming loader, dynamic multi-horizon/quantile heads, RLS online adaptation, and dual-speed TTA for Candle"
+description = "Deprecated: use sml-runtime. Re-exports sml-runtime for compatibility; removed in spodeian-core v3.0.0."
 repository.workspace = true
 readme = "README.md"
 
@@ -12,15 +12,9 @@ readme = "README.md"
 workspace = true
 
 [dependencies]
-candle-core = { workspace = true }
-candle-nn = { workspace = true }
-safetensors = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
+sml-runtime = { workspace = true }
 
 [features]
 default = []
-cuda = ["candle-core/cuda"]
-metal = ["candle-core/metal"]
+cuda = ["sml-runtime/cuda"]
+metal = ["sml-runtime/metal"]

@@ -61,6 +61,29 @@ fn test_tabular_dataset_parquet_roundtrip() {
 }
 
 #[test]
+fn test_tabular_dataset_multibatch_parquet() {
+    use parquet::arrow::ArrowWriter;
+    let dataset = create_mock_market_dataset();
+    let batch = dataset.to_record_batch().unwrap();
+    let schema = batch.schema();
+
+    let mut parquet_buffer = Vec::new();
+    let mut writer = ArrowWriter::try_new(&mut parquet_buffer, schema, None).unwrap();
+    // Write two batches to simulate multi-batch/multi-rowgroup parquet
+    writer.write(&batch).unwrap();
+    writer.write(&batch).unwrap();
+    writer.close().unwrap();
+
+    let restored = TabularDataset::read_from_parquet(&parquet_buffer).unwrap();
+    assert_eq!(restored.num_rows, 6);
+    assert_eq!(restored.float_columns.get("close").unwrap().len(), 6);
+    assert_eq!(
+        restored.float_columns.get("close").unwrap(),
+        &vec![42.50, 42.75, 42.60, 42.50, 42.75, 42.60]
+    );
+}
+
+#[test]
 fn test_windows_data_lake_lifecycle() {
     let temp_dir = std::env::temp_dir().join(format!("spodeian_lake_test_{}", std::process::id()));
     let config = DataLakeConfig {

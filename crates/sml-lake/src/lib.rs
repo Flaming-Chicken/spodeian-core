@@ -4,12 +4,15 @@
 //! **Stability: Experimental** — API subject to change
 
 pub mod citation;
+pub mod generators;
 pub mod parquet_io;
 pub mod registry;
 pub mod schema;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use citation::{CitationDistiller, CitationFormat};
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use generators::{SyntheticAcousticGenerator, SyntheticMarketGenerator, TabularSchema};
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use parquet_io::{ParquetError, TabularDataset};
 #[doc = "**Stability: Experimental** — API subject to change"]
