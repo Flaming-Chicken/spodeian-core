@@ -1,0 +1,3 @@
+# Pure-formatting commits, skipped by `git blame` (git config blame.ignoreRevsFile .git-blame-ignore-revs).
+# cargo fmt --all after folding in spodeian-ml-*
+496f1427dfc616db96806d8e3c6e8f23d3527c27
