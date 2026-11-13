@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

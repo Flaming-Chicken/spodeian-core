@@ -314,7 +314,7 @@ pub fn node_single_tree_auto(
                 });
                 compute_pass.set_pipeline(&pipeline);
                 compute_pass.set_bind_group(0, &bind_group, &[]);
-                let wg_x = ((n + 63) / 64) as u32;
+                let wg_x = n.div_ceil(64) as u32;
                 compute_pass.dispatch_workgroups(wg_x, 1, 1);
             }
 
@@ -396,9 +396,7 @@ pub fn pav_isotonic_regression_cpu(y: &[f32]) -> Vec<f32> {
             blocks[i].2 += blocks[i + 1].2;
             blocks[i].3 += blocks[i + 1].3;
             blocks.remove(i + 1);
-            if i > 0 {
-                i -= 1;
-            }
+            i = i.saturating_sub(1);
         } else {
             i += 1;
         }

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t11_offline_rl_imitation_cql_iql_gail_and_decision_transformer as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t11_offline_rl_imitation_cql_iql_gail_and_decision_transformer as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t08_ai_analysis_neural_collapse_superposition_and_weightwatcher_rmt as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t08_ai_analysis_neural_collapse_superposition_and_weightwatcher_rmt as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

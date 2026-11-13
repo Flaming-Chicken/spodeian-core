@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t09_unet_and_multiscale_feature_pyramids as unet;
+use sml_candle::c05_architectures::t09_unet_and_multiscale_feature_pyramids as unet;
 
 #[path = "../common/mod.rs"]
 mod common;

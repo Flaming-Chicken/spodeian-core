@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t04_tensor_parallelism_megatron_sequence_and_async_tp as topic;
+use sml_candle::c16_distributed_and_scalable::t04_tensor_parallelism_megatron_sequence_and_async_tp as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

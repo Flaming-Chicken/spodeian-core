@@ -211,8 +211,8 @@ pub fn rbf_kernel_auto(
                 });
                 compute_pass.set_pipeline(&pipeline);
                 compute_pass.set_bind_group(0, &bind_group, &[]);
-                let wg_x = ((n + 15) / 16) as u32;
-                let wg_y = ((n + 15) / 16) as u32;
+                let wg_x = n.div_ceil(16) as u32;
+                let wg_y = n.div_ceil(16) as u32;
                 compute_pass.dispatch_workgroups(wg_x, wg_y, 1);
             }
 

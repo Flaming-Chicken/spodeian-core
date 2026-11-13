@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t39_multimodal_fusion_film_perceiver_resampler_and_vlm_connectors as topic;
+use sml_candle::c05_architectures::t39_multimodal_fusion_film_perceiver_resampler_and_vlm_connectors as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

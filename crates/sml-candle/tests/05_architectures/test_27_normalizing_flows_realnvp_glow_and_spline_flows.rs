@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t27_normalizing_flows_realnvp_glow_and_spline_flows as topic;
+use sml_candle::c05_architectures::t27_normalizing_flows_realnvp_glow_and_spline_flows as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

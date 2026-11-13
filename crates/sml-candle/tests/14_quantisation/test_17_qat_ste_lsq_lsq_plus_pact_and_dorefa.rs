@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t17_qat_ste_lsq_lsq_plus_pact_and_dorefa as topic;
+use sml_candle::c14_quantisation::t17_qat_ste_lsq_lsq_plus_pact_and_dorefa as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

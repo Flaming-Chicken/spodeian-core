@@ -13,7 +13,7 @@ use candle_core::{Result, Tensor};
 /// # Example
 /// ```rust
 /// use candle_core::{Device, Tensor};
-/// use ai_candle::c00_foundations::t01_linear_neuron_and_invertible_transforms::LinearNeuron;
+/// use sml_candle::c00_foundations::t01_linear_neuron_and_invertible_transforms::LinearNeuron;
 ///
 /// let device = Device::Cpu;
 /// let weight = Tensor::new(&[[2.0f32]], &device).unwrap();

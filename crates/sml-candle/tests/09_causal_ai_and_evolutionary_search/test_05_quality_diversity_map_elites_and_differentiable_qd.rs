@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t05_quality_diversity_map_elites_and_differentiable_qd as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t05_quality_diversity_map_elites_and_differentiable_qd as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

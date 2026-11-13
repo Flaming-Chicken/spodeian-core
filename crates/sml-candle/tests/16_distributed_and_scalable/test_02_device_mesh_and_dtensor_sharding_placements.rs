@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t02_device_mesh_and_dtensor_sharding_placements as topic;
+use sml_candle::c16_distributed_and_scalable::t02_device_mesh_and_dtensor_sharding_placements as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

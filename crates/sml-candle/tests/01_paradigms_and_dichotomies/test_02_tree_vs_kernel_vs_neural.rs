@@ -1,9 +1,9 @@
 //! Integration test for Category 01 Topic 02: Tree vs Kernel vs Neural Inductive Biases (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t02_tree_vs_kernel_vs_neural_inductive_biases::{
+use candle_core::{Device, Result, Tensor, safetensors::load};
+use sml_candle::c01_paradigms_and_dichotomies::t02_tree_vs_kernel_vs_neural_inductive_biases::{
     MLPClassifier, RBFKernelRidge, SoftDecisionTree,
 };
-use candle_core::{Device, Result, Tensor, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

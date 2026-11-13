@@ -344,7 +344,7 @@ fn run_lamb_wgpu(
     use wgpu::util::DeviceExt;
 
     let n = param.len();
-    let size_bytes = (n * std::mem::size_of::<f32>()) as u64;
+    let size_bytes = std::mem::size_of_val(param) as u64;
 
     #[repr(C)]
     #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
@@ -592,7 +592,7 @@ fn run_lamb_wgpu(
         });
         cpass.set_pipeline(&pipeline);
         cpass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = ((n as u32) + 63) / 64;
+        let workgroups = (n as u32).div_ceil(64);
         cpass.dispatch_workgroups(workgroups, 1, 1);
     }
 

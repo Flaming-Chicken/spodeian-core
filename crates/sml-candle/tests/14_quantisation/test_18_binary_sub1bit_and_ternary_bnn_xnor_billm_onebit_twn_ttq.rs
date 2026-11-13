@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t18_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq as topic;
+use sml_candle::c14_quantisation::t18_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

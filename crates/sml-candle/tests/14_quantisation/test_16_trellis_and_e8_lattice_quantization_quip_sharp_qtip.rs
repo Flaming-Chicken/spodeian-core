@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t16_trellis_and_e8_lattice_quantization_quip_sharp_qtip as topic;
+use sml_candle::c14_quantisation::t16_trellis_and_e8_lattice_quantization_quip_sharp_qtip as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

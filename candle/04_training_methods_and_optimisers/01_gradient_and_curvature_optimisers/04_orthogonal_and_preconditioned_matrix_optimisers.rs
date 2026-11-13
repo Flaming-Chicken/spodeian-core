@@ -223,8 +223,8 @@ pub fn step_galore(
     let new_m = ((m_low * beta1)? + (&grad_low * (1.0 - beta1))?)?;
     let new_v = ((v_low * beta2)? + (grad_low.sqr()? * (1.0 - beta2))?)?;
 
-    let bc1 = 1.0 - (beta1 as f64).powi(step as i32);
-    let bc2 = 1.0 - (beta2 as f64).powi(step as i32);
+    let bc1 = 1.0 - beta1.powi(step as i32);
+    let bc2 = 1.0 - beta2.powi(step as i32);
 
     let m_hat = (&new_m * (1.0 / bc1))?;
     let v_hat = (&new_v * (1.0 / bc2))?;

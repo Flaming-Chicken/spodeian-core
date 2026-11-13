@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t07_kv_cache_paged_radix_h2o_snapkv_and_yoco as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t07_kv_cache_paged_radix_h2o_snapkv_and_yoco as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t06_nlp_dense_retrieval_colbert_ubinary_and_rag as topic;
+use sml_candle::c07_domain_tasks::t06_nlp_dense_retrieval_colbert_ubinary_and_rag as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

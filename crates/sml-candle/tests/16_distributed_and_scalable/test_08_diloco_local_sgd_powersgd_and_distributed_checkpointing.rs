@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t08_diloco_local_sgd_powersgd_and_distributed_checkpointing as topic;
+use sml_candle::c16_distributed_and_scalable::t08_diloco_local_sgd_powersgd_and_distributed_checkpointing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

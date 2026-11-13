@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

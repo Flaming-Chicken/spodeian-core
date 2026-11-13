@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t11_llm_int8_mixed_precision_outlier_decomposition as topic;
+use sml_candle::c14_quantisation::t11_llm_int8_mixed_precision_outlier_decomposition as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

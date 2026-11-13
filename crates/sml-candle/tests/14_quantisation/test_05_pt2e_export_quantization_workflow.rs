@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t05_pt2e_export_quantization_workflow as topic;
+use sml_candle::c14_quantisation::t05_pt2e_export_quantization_workflow as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

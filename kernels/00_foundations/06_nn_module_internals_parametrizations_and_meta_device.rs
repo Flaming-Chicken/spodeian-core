@@ -56,9 +56,7 @@ pub fn invert_matrix(p: &[f32], n: usize) -> Vec<f32> {
         }
         if pivot_row != i {
             for c in 0..(2 * n) {
-                let tmp = aug[i * (2 * n) + c];
-                aug[i * (2 * n) + c] = aug[pivot_row * (2 * n) + c];
-                aug[pivot_row * (2 * n) + c] = tmp;
+                aug.swap(i * (2 * n) + c, pivot_row * (2 * n) + c);
             }
         }
         let pivot = aug[i * (2 * n) + i];
@@ -152,8 +150,8 @@ pub fn linear_forward_wgpu(
         in_dim: in_dim as u32,
         out_dim: out_dim as u32,
     };
-    let wg_x = ((batch as u32) + 15) / 16;
-    let wg_y = ((out_dim as u32) + 15) / 16;
+    let wg_x = (batch as u32).div_ceil(16);
+    let wg_y = (out_dim as u32).div_ceil(16);
 
     let bytes = crate::wgpu_util::run_compute_shader(
         ctx,

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t29_diffusion_conditioning_controlnet_and_ip_adapter as topic;
+use sml_candle::c05_architectures::t29_diffusion_conditioning_controlnet_and_ip_adapter as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

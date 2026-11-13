@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t02_onnx_export_dynamo_and_onnxruntime_inference as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t02_onnx_export_dynamo_and_onnxruntime_inference as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

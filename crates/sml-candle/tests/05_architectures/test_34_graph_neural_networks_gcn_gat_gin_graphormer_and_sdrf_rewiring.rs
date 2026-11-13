@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t34_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring as topic;
+use sml_candle::c05_architectures::t34_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

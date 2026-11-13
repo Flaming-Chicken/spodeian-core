@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t04_deterministic_vs_stochastic_and_mixture_density_networks::DeterministicRegressor;
+//! use sml_candle::c01_paradigms_and_dichotomies::t04_deterministic_vs_stochastic_and_mixture_density_networks::DeterministicRegressor;
 //!
 //! let device = Device::Cpu;
 //! let w_h = Tensor::zeros((4, 8), candle_core::DType::F32, &device).unwrap();

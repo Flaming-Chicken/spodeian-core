@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t23_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba as topic;
+use sml_candle::c05_architectures::t23_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

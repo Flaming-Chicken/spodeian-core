@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t03_torch_fx_graph_capture_and_custom_compiler_passes as topic;
+use sml_candle::c12_compilation_and_performance::t03_torch_fx_graph_capture_and_custom_compiler_passes as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

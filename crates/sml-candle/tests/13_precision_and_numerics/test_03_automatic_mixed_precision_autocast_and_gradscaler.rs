@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t03_automatic_mixed_precision_autocast_and_gradscaler as topic;
+use sml_candle::c13_precision_and_numerics::t03_automatic_mixed_precision_autocast_and_gradscaler as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

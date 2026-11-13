@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t31_discrete_diffusion_d3pm_mdlm_and_sedd as topic;
+use sml_candle::c05_architectures::t31_discrete_diffusion_d3pm_mdlm_and_sedd as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

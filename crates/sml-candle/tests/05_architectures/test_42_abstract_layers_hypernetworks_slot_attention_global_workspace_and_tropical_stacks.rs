@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t42_abstract_layers_hypernetworks_slot_attention_global_workspace_and_tropical_stacks as topic;
+use sml_candle::c05_architectures::t42_abstract_layers_hypernetworks_slot_attention_global_workspace_and_tropical_stacks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

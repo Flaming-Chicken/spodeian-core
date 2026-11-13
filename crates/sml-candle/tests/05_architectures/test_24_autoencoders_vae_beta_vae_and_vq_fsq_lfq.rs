@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t24_autoencoders_vae_beta_vae_and_vq_fsq_lfq as topic;
+use sml_candle::c05_architectures::t24_autoencoders_vae_beta_vae_and_vq_fsq_lfq as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

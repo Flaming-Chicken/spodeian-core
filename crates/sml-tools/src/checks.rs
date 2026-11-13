@@ -231,14 +231,14 @@ pub fn notebooks(repo: &Repo, readme: &Readme, scope: &Scope, semantics: bool) -
         for (i, cell) in cells.iter().enumerate() {
             total += source_lines(cell);
             let ty = cell.get("cell_type").and_then(Value::as_str).unwrap_or("?");
-            if let Some((want, desc)) = nc.cells.get(i) {
-                if ty != want {
-                    out.push(Diag::error(
-                        C,
-                        rel.clone(),
-                        format!("cell {} ({desc}): expected {want}, got {ty}", i + 1),
-                    ));
-                }
+            if let Some((want, desc)) = nc.cells.get(i)
+                && ty != want
+            {
+                out.push(Diag::error(
+                    C,
+                    rel.clone(),
+                    format!("cell {} ({desc}): expected {want}, got {ty}", i + 1),
+                ));
             }
             if cell.get("id").is_none() {
                 out.push(Diag::error(
@@ -414,12 +414,13 @@ fn percent_decode(s: &str) -> String {
     let mut out = Vec::with_capacity(b.len());
     let mut i = 0;
     while i < b.len() {
-        if b[i] == b'%' && i + 2 < b.len() {
-            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) {
-                out.push(v);
-                i += 3;
-                continue;
-            }
+        if b[i] == b'%'
+            && i + 2 < b.len()
+            && let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16)
+        {
+            out.push(v);
+            i += 3;
+            continue;
         }
         out.push(b[i]);
         i += 1;
@@ -482,31 +483,34 @@ fn suggest(repo: &Repo, readme: &Readme, src: &str, resolved: &str, path: &str) 
         candidate = Some(anchored);
     }
     // 3. Stale slug (or wrong depth inside a category subfolder): another curriculum topic owns the slot.
-    if let Some(c) = candidate.as_deref() {
-        if let Some((track, rest)) = c.split_once('/') {
-            if let Some(ext) = track_ext(track) {
-                if let Some(id) = rest.strip_suffix(&format!(".{ext}")) {
-                    let name = file_name(id);
-                    if is_numbered(name) {
-                        let slot = format!("{}/{}", parent(id), &name[..2]);
-                        let suffix = format!("/{slot}");
-                        if let Some(t) = readme.topics.iter().find(|t| {
-                            (t.slot() == slot || t.slot().ends_with(&suffix)) && t.id != id
-                        }) {
-                            return Some(relative(base, &t.path(track)));
-                        }
-                    }
-                }
+    if let Some(c) = candidate.as_deref()
+        && let Some((track, rest)) = c.split_once('/')
+        && let Some(ext) = track_ext(track)
+        && let Some(id) = rest.strip_suffix(&format!(".{ext}"))
+    {
+        let name = file_name(id);
+        if is_numbered(name) {
+            let slot = format!("{}/{}", parent(id), &name[..2]);
+            let suffix = format!("/{slot}");
+            if let Some(t) = readme
+                .topics
+                .iter()
+                .find(|t| (t.slot() == slot || t.slot().ends_with(&suffix)) && t.id != id)
+            {
+                return Some(relative(base, &t.path(track)));
             }
         }
     }
     None
 }
 
+/// Per-file link occurrences: (optional line, column, target).
+type LinkSources = Vec<(String, Vec<(Option<usize>, usize, String)>)>;
+
 pub fn links(repo: &Repo, readme: &Readme, scope: &Scope, fix: bool) -> Vec<Diag> {
     const C: &str = "links";
     let mut out = Vec::new();
-    let mut sources: Vec<(String, Vec<(Option<usize>, usize, String)>)> = Vec::new();
+    let mut sources: LinkSources = Vec::new();
 
     for rel in repo
         .files
@@ -609,20 +613,21 @@ pub fn links(repo: &Repo, readme: &Readme, scope: &Scope, fix: bool) -> Vec<Diag
                 ))),
             }
         }
-        if fix && !fixes.is_empty() {
-            if let Ok(raw) = fs::read_to_string(repo.abs(&src)) {
-                let mut text = raw.clone();
-                for (old, new) in &fixes {
-                    text = text.replace(&format!("]({old})"), &format!("]({new})"));
-                }
-                if text != raw && fs::write(repo.abs(&src), &text).is_ok() {
-                    for d in out
-                        .iter_mut()
-                        .filter(|d| d.file == src && d.fix.is_some() && d.level == Level::Error)
-                    {
-                        d.level = Level::Warning;
-                        d.msg = format!("fixed: {}", d.msg);
-                    }
+        if fix
+            && !fixes.is_empty()
+            && let Ok(raw) = fs::read_to_string(repo.abs(&src))
+        {
+            let mut text = raw.clone();
+            for (old, new) in &fixes {
+                text = text.replace(&format!("]({old})"), &format!("]({new})"));
+            }
+            if text != raw && fs::write(repo.abs(&src), &text).is_ok() {
+                for d in out
+                    .iter_mut()
+                    .filter(|d| d.file == src && d.fix.is_some() && d.level == Level::Error)
+                {
+                    d.level = Level::Warning;
+                    d.msg = format!("fixed: {}", d.msg);
                 }
             }
         }
@@ -824,8 +829,10 @@ pub fn diff_safetensors(
                     );
                 } else if ta.dtype == "F32" {
                     let max_diff = slice_a
-                        .chunks_exact(4)
-                        .zip(slice_b.chunks_exact(4))
+                        .as_chunks::<4>()
+                        .0
+                        .iter()
+                        .zip(slice_b.as_chunks::<4>().0)
                         .map(|(ca, cb)| {
                             let va = f32::from_le_bytes([ca[0], ca[1], ca[2], ca[3]]);
                             let vb = f32::from_le_bytes([cb[0], cb[1], cb[2], cb[3]]);

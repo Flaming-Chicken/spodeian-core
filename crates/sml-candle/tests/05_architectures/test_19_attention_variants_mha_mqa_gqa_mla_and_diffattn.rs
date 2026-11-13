@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t19_attention_variants_mha_mqa_gqa_mla_and_diffattn as topic;
+use sml_candle::c05_architectures::t19_attention_variants_mha_mqa_gqa_mla_and_diffattn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

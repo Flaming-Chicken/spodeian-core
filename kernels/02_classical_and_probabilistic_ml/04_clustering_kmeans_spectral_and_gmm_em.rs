@@ -313,7 +313,7 @@ pub fn compute_kmeans_assign_auto(
                 });
                 pass.set_pipeline(&cp);
                 pass.set_bind_group(0, &bg, &[]);
-                let wg_x = ((n as u32) + 63) / 64;
+                let wg_x = (n as u32).div_ceil(64);
                 pass.dispatch_workgroups(wg_x, 1, 1);
             }
 

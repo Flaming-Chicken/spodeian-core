@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t02_vision_segmentation_unet_mask2former_and_sam_promptable as topic;
+use sml_candle::c07_domain_tasks::t02_vision_segmentation_unet_mask2former_and_sam_promptable as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

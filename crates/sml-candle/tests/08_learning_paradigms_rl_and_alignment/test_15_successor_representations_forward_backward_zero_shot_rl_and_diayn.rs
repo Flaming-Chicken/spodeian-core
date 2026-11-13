@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t15_successor_representations_forward_backward_zero_shot_rl_and_diayn as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t15_successor_representations_forward_backward_zero_shot_rl_and_diayn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t20_test_time_compute_prm_best_of_n_and_mcts as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t20_test_time_compute_prm_best_of_n_and_mcts as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

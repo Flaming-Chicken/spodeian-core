@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t22_sparse_sliding_window_and_sink_attention as topic;
+use sml_candle::c05_architectures::t22_sparse_sliding_window_and_sink_attention as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

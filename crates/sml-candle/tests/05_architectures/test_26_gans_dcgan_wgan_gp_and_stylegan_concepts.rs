@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t26_gans_dcgan_wgan_gp_and_stylegan_concepts as topic;
+use sml_candle::c05_architectures::t26_gans_dcgan_wgan_gp_and_stylegan_concepts as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

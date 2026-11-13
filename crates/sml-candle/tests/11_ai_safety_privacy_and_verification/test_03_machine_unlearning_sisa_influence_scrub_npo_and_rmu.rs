@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t03_machine_unlearning_sisa_influence_scrub_npo_and_rmu as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t03_machine_unlearning_sisa_influence_scrub_npo_and_rmu as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

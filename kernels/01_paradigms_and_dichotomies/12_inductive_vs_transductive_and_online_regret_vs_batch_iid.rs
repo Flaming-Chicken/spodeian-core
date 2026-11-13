@@ -71,9 +71,7 @@ fn invert_matrix_cpu(mat: &[f32], n: usize) -> Vec<f32> {
         }
         if pivot_row != i {
             for c in 0..(2 * n) {
-                let tmp = a[i * 2 * n + c];
-                a[i * 2 * n + c] = a[pivot_row * 2 * n + c];
-                a[pivot_row * 2 * n + c] = tmp;
+                a.swap(i * 2 * n + c, pivot_row * 2 * n + c);
             }
         }
 
@@ -282,10 +280,10 @@ pub fn ftrl_threshold_auto(
     lambda1: f32,
     lambda2: f32,
 ) -> Vec<f32> {
-    if let (Some(d), Some(q)) = (device, queue) {
-        if let Some(res) = ftrl_threshold_wgpu(d, q, z, n, dim, alpha, beta, lambda1, lambda2) {
-            return res;
-        }
+    if let (Some(d), Some(q)) = (device, queue)
+        && let Some(res) = ftrl_threshold_wgpu(d, q, z, n, dim, alpha, beta, lambda1, lambda2)
+    {
+        return res;
     }
     ftrl_threshold_cpu(z, n, dim, alpha, beta, lambda1, lambda2)
 }
@@ -448,7 +446,7 @@ pub fn ftrl_threshold_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = ((dim as u32) + 63) / 64;
+        let workgroups = (dim as u32).div_ceil(64);
         pass.dispatch_workgroups(workgroups, 1, 1);
     }
 

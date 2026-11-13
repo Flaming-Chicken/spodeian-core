@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,8 +1,8 @@
 //! Category 04 Training Methods & Optimisers Integration Test Suite for ai-kernel.
 
-use ai_kernel::KernelDevice;
-use ai_kernel::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as t01;
 use candle_core::{Device, Result, safetensors::load};
+use sml_kernel::KernelDevice;
+use sml_kernel::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as t01;
 
 #[path = "common/mod.rs"]
 mod common;
@@ -88,7 +88,7 @@ fn test_01_first_order_and_adaptive_optimisers_cpu_and_auto() -> Result<()> {
 
 #[test]
 fn test_02_modern_sign_and_factored_optimisers_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t02_modern_sign_and_factored_optimisers as t02;
+    use sml_kernel::c04_training_methods_and_optimisers::t02_modern_sign_and_factored_optimisers as t02;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -151,7 +151,7 @@ fn test_02_modern_sign_and_factored_optimisers_cpu_and_auto() -> Result<()> {
 
 #[test]
 fn test_03_large_batch_and_layerwise_optimisers_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t03_large_batch_and_layerwise_optimisers as t03;
+    use sml_kernel::c04_training_methods_and_optimisers::t03_large_batch_and_layerwise_optimisers as t03;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -279,7 +279,7 @@ fn test_03_large_batch_and_layerwise_optimisers_cpu_and_auto() -> Result<()> {
 
 #[test]
 fn test_04_orthogonal_and_preconditioned_matrix_optimisers_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t04_orthogonal_and_preconditioned_matrix_optimisers as t04;
+    use sml_kernel::c04_training_methods_and_optimisers::t04_orthogonal_and_preconditioned_matrix_optimisers as t04;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -437,7 +437,7 @@ fn test_04_orthogonal_and_preconditioned_matrix_optimisers_cpu_and_auto() -> Res
 
 #[test]
 fn test_05_second_order_and_curvature_optimisers_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t05_second_order_and_curvature_optimisers as t05;
+    use sml_kernel::c04_training_methods_and_optimisers::t05_second_order_and_curvature_optimisers as t05;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -565,7 +565,7 @@ fn test_05_second_order_and_curvature_optimisers_cpu_and_auto() -> Result<()> {
 
 #[test]
 fn test_06_schedule_free_and_parameter_free_optimisers_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t06_schedule_free_and_parameter_free_optimisers as t06;
+    use sml_kernel::c04_training_methods_and_optimisers::t06_schedule_free_and_parameter_free_optimisers as t06;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -654,7 +654,7 @@ fn test_06_schedule_free_and_parameter_free_optimisers_cpu_and_auto() -> Result<
 
 #[test]
 fn test_07_learning_rate_schedulers_and_lr_finder_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t07_learning_rate_schedulers_and_lr_finder as t07;
+    use sml_kernel::c04_training_methods_and_optimisers::t07_learning_rate_schedulers_and_lr_finder as t07;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -793,7 +793,7 @@ fn test_07_learning_rate_schedulers_and_lr_finder_cpu_and_auto() -> Result<()> {
 
 #[test]
 fn test_08_constrained_proximal_frank_wolfe_admm_and_mirror_descent_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t08_constrained_proximal_frank_wolfe_admm_and_mirror_descent as t08;
+    use sml_kernel::c04_training_methods_and_optimisers::t08_constrained_proximal_frank_wolfe_admm_and_mirror_descent as t08;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -884,7 +884,7 @@ fn test_08_constrained_proximal_frank_wolfe_admm_and_mirror_descent_cpu_and_auto
 #[test]
 fn test_09_multi_objective_pareto_mgda_tchebycheff_and_gradient_surgery_cpu_and_auto() -> Result<()>
 {
-    use ai_kernel::c04_training_methods_and_optimisers::t09_multi_objective_pareto_mgda_tchebycheff_and_gradient_surgery as t09;
+    use sml_kernel::c04_training_methods_and_optimisers::t09_multi_objective_pareto_mgda_tchebycheff_and_gradient_surgery as t09;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1002,7 +1002,7 @@ fn test_09_multi_objective_pareto_mgda_tchebycheff_and_gradient_surgery_cpu_and_
 #[test]
 fn test_10_coordinate_alternating_projections_and_majorization_minimization_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t10_coordinate_alternating_projections_and_majorization_minimization as t10;
+    use sml_kernel::c04_training_methods_and_optimisers::t10_coordinate_alternating_projections_and_majorization_minimization as t10;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1109,7 +1109,7 @@ fn test_10_coordinate_alternating_projections_and_majorization_minimization_cpu_
 #[test]
 fn test_11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn as t11;
+    use sml_kernel::c04_training_methods_and_optimisers::t11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn as t11;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1211,7 +1211,7 @@ fn test_11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn
 #[test]
 fn test_12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed as t12;
+    use sml_kernel::c04_training_methods_and_optimisers::t12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed as t12;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1313,7 +1313,7 @@ fn test_12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed_cp
 
 #[test]
 fn test_13_sharpness_aware_swad_and_weight_averaging_dynamics_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t13_sharpness_aware_swad_and_weight_averaging_dynamics as t13;
+    use sml_kernel::c04_training_methods_and_optimisers::t13_sharpness_aware_swad_and_weight_averaging_dynamics as t13;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1437,7 +1437,7 @@ fn test_13_sharpness_aware_swad_and_weight_averaging_dynamics_cpu_and_auto() -> 
 #[test]
 fn test_14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa as t14;
+    use sml_kernel::c04_training_methods_and_optimisers::t14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa as t14;
 
     let kdev = KernelDevice::Cpu;
     let weights_path = common::get_weights_path(
@@ -1557,7 +1557,7 @@ fn test_14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa_c
 #[test]
 fn test_15_grokking_phase_transitions_edge_of_stability_and_implicit_bias_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t15_grokking_phase_transitions_edge_of_stability_and_implicit_bias as t15;
+    use sml_kernel::c04_training_methods_and_optimisers::t15_grokking_phase_transitions_edge_of_stability_and_implicit_bias as t15;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -1645,7 +1645,7 @@ fn test_15_grokking_phase_transitions_edge_of_stability_and_implicit_bias_cpu_an
 #[test]
 fn test_16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity as t16;
+    use sml_kernel::c04_training_methods_and_optimisers::t16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity as t16;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -1790,7 +1790,7 @@ fn test_16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plas
 #[test]
 fn test_17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting as t17;
+    use sml_kernel::c04_training_methods_and_optimisers::t17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting as t17;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -1996,7 +1996,7 @@ fn test_17_self_optimising_hypergradients_learned_optimisers_and_meta_reweightin
 #[test]
 fn test_18_self_optimising_test_time_adaptation_tent_memo_star_and_spin_cpu_and_auto() -> Result<()>
 {
-    use ai_kernel::c04_training_methods_and_optimisers::t18_self_optimising_test_time_adaptation_tent_memo_star_and_spin as t18;
+    use sml_kernel::c04_training_methods_and_optimisers::t18_self_optimising_test_time_adaptation_tent_memo_star_and_spin as t18;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -2148,7 +2148,7 @@ fn test_18_self_optimising_test_time_adaptation_tent_memo_star_and_spin_cpu_and_
 #[test]
 fn test_19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian as t19;
+    use sml_kernel::c04_training_methods_and_optimisers::t19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian as t19;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -2305,7 +2305,7 @@ fn test_19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian_cpu
 
 #[test]
 fn test_20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck_cpu_and_auto() -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck as t20;
+    use sml_kernel::c04_training_methods_and_optimisers::t20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck as t20;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -2457,7 +2457,7 @@ fn test_20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck_cpu_and_aut
 #[test]
 fn test_21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse_cpu_and_auto() -> Result<()>
 {
-    use ai_kernel::c04_training_methods_and_optimisers::t21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse as t21;
+    use sml_kernel::c04_training_methods_and_optimisers::t21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse as t21;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -2618,7 +2618,7 @@ fn test_21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse_cpu_and_
 #[test]
 fn test_22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr_cpu_and_auto()
 -> Result<()> {
-    use ai_kernel::c04_training_methods_and_optimisers::t22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr as t22;
+    use sml_kernel::c04_training_methods_and_optimisers::t22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr as t22;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
@@ -2796,7 +2796,7 @@ fn test_22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective
 #[test]
 fn test_23_curriculum_self_paced_learning_and_dataset_distillation_mtt_cpu_and_auto() -> Result<()>
 {
-    use ai_kernel::c04_training_methods_and_optimisers::t23_curriculum_self_paced_learning_and_dataset_distillation_mtt as t23;
+    use sml_kernel::c04_training_methods_and_optimisers::t23_curriculum_self_paced_learning_and_dataset_distillation_mtt as t23;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(

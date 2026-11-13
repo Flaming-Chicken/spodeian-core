@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 13: Differentiable Sorting, Ranking, Top-k, Permutahedron, and I-MLE (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t13_differentiable_sorting_ranking_topk_permutahedron_and_imle::{
+use sml_candle::c03_building_blocks_and_losses::t13_differentiable_sorting_ranking_topk_permutahedron_and_imle::{
     diff_topk_forward, neural_sort_forward, soft_histogram_forward, soft_quantile_forward,
     soft_sort_forward, LinearAnchor,
 };

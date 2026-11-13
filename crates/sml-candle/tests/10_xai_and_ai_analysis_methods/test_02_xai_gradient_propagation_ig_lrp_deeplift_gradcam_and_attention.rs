@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

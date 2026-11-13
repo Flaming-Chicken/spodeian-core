@@ -208,7 +208,7 @@ pub async fn snake_wgpu(
     a: f32,
 ) -> Option<Vec<f32>> {
     let len = in_data.len() as u32;
-    let byte_size = (in_data.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(in_data) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Snake In Buffer"),
@@ -318,7 +318,7 @@ pub async fn snake_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (len + 63) / 64;
+        let workgroups = len.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -353,10 +353,10 @@ pub async fn snake_auto(
     x: &[f32],
     a: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = snake_wgpu(&ctx.0, &ctx.1, x, a).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = snake_wgpu(&ctx.0, &ctx.1, x, a).await
+    {
+        return res;
     }
     snake_cpu(x, a)
 }

@@ -1,9 +1,9 @@
 //! Integration test for Category 01 Topic 08: Computation Spaces (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t08_computation_spaces_latent_reasoning_and_jepa::{
+use candle_core::{Device, Result, Tensor, safetensors::load};
+use sml_candle::c01_paradigms_and_dichotomies::t08_computation_spaces_latent_reasoning_and_jepa::{
     ContinuousLatentReasoner, JEPAPredictor, PonderNetHalting,
 };
-use candle_core::{Device, Result, Tensor, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

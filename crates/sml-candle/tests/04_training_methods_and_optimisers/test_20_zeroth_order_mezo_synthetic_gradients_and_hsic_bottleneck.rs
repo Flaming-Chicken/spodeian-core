@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck::ZerothOrderUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t20_zeroth_order_mezo_synthetic_gradients_and_hsic_bottleneck::ZerothOrderUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t04_xai_data_attribution_influence_functions_tracin_and_trak as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t04_xai_data_attribution_influence_functions_tracin_and_trak as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

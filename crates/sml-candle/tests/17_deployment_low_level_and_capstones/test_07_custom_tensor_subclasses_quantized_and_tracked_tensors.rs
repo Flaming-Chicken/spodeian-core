@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t07_custom_tensor_subclasses_quantized_and_tracked_tensors as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t07_custom_tensor_subclasses_quantized_and_tracked_tensors as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

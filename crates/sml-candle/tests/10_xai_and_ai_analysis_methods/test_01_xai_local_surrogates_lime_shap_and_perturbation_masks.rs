@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t01_xai_local_surrogates_lime_shap_and_perturbation_masks as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t01_xai_local_surrogates_lime_shap_and_perturbation_masks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -237,7 +237,7 @@ pub async fn dual_geodesic_wgpu(
     t: f32,
 ) -> Option<Vec<f32>> {
     let dim = p1.len() as u32;
-    let byte_size = (p1.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(p1) as u64;
 
     let p1_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("P1 Buffer"),
@@ -366,7 +366,7 @@ pub async fn dual_geodesic_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (dim + 63) / 64;
+        let workgroups = dim.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -402,10 +402,10 @@ pub async fn dual_geodesic_auto(
     p2: &[f32],
     t: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = dual_geodesic_wgpu(&ctx.0, &ctx.1, p1, p2, t).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = dual_geodesic_wgpu(&ctx.0, &ctx.1, p1, p2, t).await
+    {
+        return res;
     }
     e_geodesic_cpu(p1, p2, t)
 }

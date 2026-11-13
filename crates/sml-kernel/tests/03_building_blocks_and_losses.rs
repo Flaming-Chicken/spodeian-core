@@ -1,7 +1,7 @@
 //! Category 03 Building Blocks & Losses Integration Test Suite for ai-kernel.
 
-use ai_kernel::c03_building_blocks_and_losses::t01_activation_functions_zoo as t01;
 use candle_core::{Device, Result, safetensors::load};
+use sml_kernel::c03_building_blocks_and_losses::t01_activation_functions_zoo as t01;
 
 #[path = "common/mod.rs"]
 mod common;
@@ -159,7 +159,7 @@ fn test_01_activation_functions_zoo_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t02_normalization_layers_complete as t02;
+use sml_kernel::c03_building_blocks_and_losses::t02_normalization_layers_complete as t02;
 
 #[test]
 fn test_02_normalization_layers_complete_cpu_and_auto() -> Result<()> {
@@ -344,7 +344,7 @@ fn test_02_normalization_layers_complete_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t03_weight_initialization_and_mup_scaling as t03;
+use sml_kernel::c03_building_blocks_and_losses::t03_weight_initialization_and_mup_scaling as t03;
 
 #[test]
 fn test_03_weight_initialization_and_mup_scaling_cpu_and_auto() -> Result<()> {
@@ -492,7 +492,7 @@ fn test_03_weight_initialization_and_mup_scaling_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t04_positional_and_structural_encodings as t04;
+use sml_kernel::c03_building_blocks_and_losses::t04_positional_and_structural_encodings as t04;
 
 #[test]
 fn test_04_positional_and_structural_encodings_cpu_and_auto() -> Result<()> {
@@ -638,7 +638,7 @@ fn test_04_positional_and_structural_encodings_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t05_pooling_and_downsampling_operators as t05;
+use sml_kernel::c03_building_blocks_and_losses::t05_pooling_and_downsampling_operators as t05;
 
 #[test]
 fn test_05_pooling_and_downsampling_operators_cpu_and_auto() -> Result<()> {
@@ -789,7 +789,7 @@ fn test_05_pooling_and_downsampling_operators_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t06_regularization_and_training_stabilizers as t06;
+use sml_kernel::c03_building_blocks_and_losses::t06_regularization_and_training_stabilizers as t06;
 
 #[test]
 fn test_06_regularization_and_training_stabilizers_cpu_and_auto() -> Result<()> {
@@ -954,7 +954,7 @@ fn test_06_regularization_and_training_stabilizers_cpu_and_auto() -> Result<()> 
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t07_losses_regression_classification_and_barron_robust as t07;
+use sml_kernel::c03_building_blocks_and_losses::t07_losses_regression_classification_and_barron_robust as t07;
 
 #[test]
 fn test_07_losses_regression_classification_and_barron_robust_cpu_and_auto() -> Result<()> {
@@ -1089,7 +1089,7 @@ fn test_07_losses_regression_classification_and_barron_robust_cpu_and_auto() -> 
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t08_losses_metric_contrastive_and_structured_vision as t08;
+use sml_kernel::c03_building_blocks_and_losses::t08_losses_metric_contrastive_and_structured_vision as t08;
 
 #[test]
 fn test_08_losses_metric_contrastive_and_structured_vision_cpu_and_auto() -> Result<()> {
@@ -1234,7 +1234,7 @@ fn test_08_losses_metric_contrastive_and_structured_vision_cpu_and_auto() -> Res
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t09_losses_divergences_information_bottleneck_and_coding_rate as t09;
+use sml_kernel::c03_building_blocks_and_losses::t09_losses_divergences_information_bottleneck_and_coding_rate as t09;
 
 #[test]
 fn test_09_losses_divergences_information_bottleneck_and_coding_rate_cpu_and_auto() -> Result<()> {
@@ -1377,7 +1377,7 @@ fn test_09_losses_divergences_information_bottleneck_and_coding_rate_cpu_and_aut
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd as t10;
+use sml_kernel::c03_building_blocks_and_losses::t10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd as t10;
 
 #[test]
 fn test_10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd_cpu_and_auto() -> Result<()> {
@@ -1514,7 +1514,7 @@ fn test_10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd_cpu_and_auto() 
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t11_losses_proper_scoring_evidential_and_differentiable_ranking as t11;
+use sml_kernel::c03_building_blocks_and_losses::t11_losses_proper_scoring_evidential_and_differentiable_ranking as t11;
 
 #[test]
 fn test_11_losses_proper_scoring_evidential_and_differentiable_ranking_cpu_and_auto() -> Result<()>
@@ -1691,7 +1691,7 @@ fn test_11_losses_proper_scoring_evidential_and_differentiable_ranking_cpu_and_a
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting as t12;
+use sml_kernel::c03_building_blocks_and_losses::t12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting as t12;
 
 #[test]
 fn test_12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting_cpu_and_auto()
@@ -1941,7 +1941,7 @@ fn test_12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting
     Ok(())
 }
 
-use ai_kernel::c03_building_blocks_and_losses::t13_differentiable_sorting_ranking_topk_permutahedron_and_imle as t13;
+use sml_kernel::c03_building_blocks_and_losses::t13_differentiable_sorting_ranking_topk_permutahedron_and_imle as t13;
 
 #[test]
 fn test_13_differentiable_sorting_ranking_topk_permutahedron_and_imle_cpu_and_auto() -> Result<()> {

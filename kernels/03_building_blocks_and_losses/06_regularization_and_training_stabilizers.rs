@@ -170,7 +170,7 @@ pub async fn softcapping_wgpu(
     });
 
     let total_elements = x.len() as u32;
-    let byte_size = (x.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(x) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("SoftCap In Buffer"),
@@ -286,7 +286,7 @@ pub async fn softcapping_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_elements + 63) / 64;
+        let workgroups = total_elements.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -316,10 +316,10 @@ pub async fn softcapping_auto(
     x: &[f32],
     cap: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = softcapping_wgpu(&ctx.0, &ctx.1, x, cap).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = softcapping_wgpu(&ctx.0, &ctx.1, x, cap).await
+    {
+        return res;
     }
     softcapping_cpu(x, cap)
 }

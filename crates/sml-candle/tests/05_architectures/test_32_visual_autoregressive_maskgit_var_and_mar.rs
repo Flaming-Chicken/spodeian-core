@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t32_visual_autoregressive_maskgit_var_and_mar as topic;
+use sml_candle::c05_architectures::t32_visual_autoregressive_maskgit_var_and_mar as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t07_sub_byte_bitpacking_tmac_lut_and_gguf_k_quants as topic;
+use sml_candle::c14_quantisation::t07_sub_byte_bitpacking_tmac_lut_and_gguf_k_quants as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

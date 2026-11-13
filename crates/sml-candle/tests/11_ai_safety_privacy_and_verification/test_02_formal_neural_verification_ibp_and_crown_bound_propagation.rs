@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t02_formal_neural_verification_ibp_and_crown_bound_propagation as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t02_formal_neural_verification_ibp_and_crown_bound_propagation as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

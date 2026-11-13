@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t01_safe_serialization_weights_only_safetensors_and_mmap as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t01_safe_serialization_weights_only_safetensors_and_mmap as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

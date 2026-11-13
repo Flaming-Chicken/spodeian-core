@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t14_peft_adapters_ia3_prefix_prompt_and_llama_adapter as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t14_peft_adapters_ia3_prefix_prompt_and_llama_adapter as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

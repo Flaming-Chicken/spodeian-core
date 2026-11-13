@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t13_omniquant_and_hqq_optimization_based_ptq as topic;
+use sml_candle::c14_quantisation::t13_omniquant_and_hqq_optimization_based_ptq as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

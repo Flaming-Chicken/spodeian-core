@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t18_reservoir_computing_echo_state_networks_lsm_and_ngrc as topic;
+use sml_candle::c05_architectures::t18_reservoir_computing_echo_state_networks_lsm_and_ngrc as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

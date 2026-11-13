@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t07_numerical_integration_pcec_rk45_neural_ode_ltc_and_sde as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t07_numerical_integration_pcec_rk45_neural_ode_ltc_and_sde as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t10_survival_analysis_and_contextual_bandits as surv;
 use candle_core::{Device, Result, Tensor};
+use sml_candle::c02_classical_and_probabilistic_ml::t10_survival_analysis_and_contextual_bandits as surv;
 use std::path::PathBuf;
 
 #[test]

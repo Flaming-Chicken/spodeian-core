@@ -16,7 +16,7 @@
 //! # Examples
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t06_nn_module_internals_parametrizations_and_meta_device::{
+//! use sml_candle::c00_foundations::t06_nn_module_internals_parametrizations_and_meta_device::{
 //!     cayley_transform, OrthogonalLinear, MetaTensor
 //! };
 //!

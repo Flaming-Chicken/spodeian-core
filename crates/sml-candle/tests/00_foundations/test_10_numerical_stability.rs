@@ -1,6 +1,6 @@
 //! Integration test for Topic 10: Numerical Stability, Welford Variance & LogSumExp (Candle Track).
 
-use ai_candle::c00_foundations::t10_floating_point_arithmetic_conditioning_and_numerical_stability::{
+use sml_candle::c00_foundations::t10_floating_point_arithmetic_conditioning_and_numerical_stability::{
     neumaier_sum_2d, welford_mean_var, StableLinear,
 };
 use candle_core::{safetensors::load, Device, Result};

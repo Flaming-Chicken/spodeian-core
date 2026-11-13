@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 11: Statistical Inference (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t11_statistical_inference_bayesian_frequentist_likelihoodist_mdl_and_pac_bayes::{
+use sml_candle::c01_paradigms_and_dichotomies::t11_statistical_inference_bayesian_frequentist_likelihoodist_mdl_and_pac_bayes::{
     anytime_valid_martingale, bayesian_conjugate_laplace, frequentist_fisher_cramer_rao,
     james_stein_estimator, pac_bayes_bound,
 };

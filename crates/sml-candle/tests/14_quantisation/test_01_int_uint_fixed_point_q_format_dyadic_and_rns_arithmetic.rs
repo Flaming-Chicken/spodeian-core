@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic as topic;
+use sml_candle::c14_quantisation::t01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

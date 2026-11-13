@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t06_stochastic_rounding_and_master_weight_free_bf16_training as topic;
+use sml_candle::c13_precision_and_numerics::t06_stochastic_rounding_and_master_weight_free_bf16_training as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

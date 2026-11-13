@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t11_peft_lora_rslora_loraplus_and_dora as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t11_peft_lora_rslora_loraplus_and_dora as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

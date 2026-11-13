@@ -10,7 +10,7 @@ use candle_core::{Result, Tensor};
 /// # Example
 /// ```rust
 /// use candle_core::{Device, Tensor};
-/// use ai_candle::c00_foundations::t03_autograd_mechanics_complex_wirtinger_and_custom_functions::LinearVjp;
+/// use sml_candle::c00_foundations::t03_autograd_mechanics_complex_wirtinger_and_custom_functions::LinearVjp;
 ///
 /// let device = Device::Cpu;
 /// let x = Tensor::new(&[[1.0f32, 2.0f32]], &device).unwrap();

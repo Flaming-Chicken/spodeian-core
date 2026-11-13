@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 07: Losses Regression, Classification, and Barron Robust (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t07_losses_regression_classification_and_barron_robust::{
+use sml_candle::c03_building_blocks_and_losses::t07_losses_regression_classification_and_barron_robust::{
     asymmetric_loss_forward, barron_robust_loss_forward, focal_loss_forward, huber_loss_forward,
     polyloss_forward, LinearAnchor,
 };

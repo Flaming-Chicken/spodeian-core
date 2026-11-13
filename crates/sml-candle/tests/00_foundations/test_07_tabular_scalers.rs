@@ -1,9 +1,9 @@
 //! Integration test for Topic 07: Tabular Scalers, Yeo-Johnson & Weight Folding (Candle Track).
 
-use ai_candle::c00_foundations::t07_feature_engineering_scalers_and_tabular_preprocessing::{
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t07_feature_engineering_scalers_and_tabular_preprocessing::{
     FusedTabularLinear, StandardScaler, yeo_johnson_transform,
 };
-use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

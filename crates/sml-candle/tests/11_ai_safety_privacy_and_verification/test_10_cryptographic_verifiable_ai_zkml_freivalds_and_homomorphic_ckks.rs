@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

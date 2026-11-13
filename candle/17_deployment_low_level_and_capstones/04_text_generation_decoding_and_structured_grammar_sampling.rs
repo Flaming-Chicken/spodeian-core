@@ -61,7 +61,7 @@ pub fn apply_grammar_mask(
 
 /// Scales logits by temperature T before softmax.
 pub fn apply_temperature(logits: &Tensor, temperature: f64) -> Result<Tensor> {
-    let temp = (temperature as f64).max(1e-5);
+    let temp = temperature.max(1e-5);
     logits.affine(1.0 / temp, 0.0)
 }
 

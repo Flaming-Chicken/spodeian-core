@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t12_koopman_operators_sindy_equation_discovery_and_4dvar_data_assimilation as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t12_koopman_operators_sindy_equation_discovery_and_4dvar_data_assimilation as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

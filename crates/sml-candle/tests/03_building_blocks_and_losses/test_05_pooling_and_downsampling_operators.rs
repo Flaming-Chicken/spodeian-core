@@ -1,9 +1,9 @@
 //! Integration test for Category 03 Topic 05: Pooling and Downsampling Operators (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t05_pooling_and_downsampling_operators::{
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c03_building_blocks_and_losses::t05_pooling_and_downsampling_operators::{
     LinearAnchor, blur_pool_forward, gem_pool_forward, pixel_unshuffle_forward, pma_forward,
 };
-use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

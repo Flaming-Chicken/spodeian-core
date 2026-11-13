@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t13_hierarchical_rl_options_feudal_her_and_pomdp_active_inference as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t13_hierarchical_rl_options_feudal_her_and_pomdp_active_inference as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

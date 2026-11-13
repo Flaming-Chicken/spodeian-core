@@ -1,4 +1,5 @@
-use ai_kernel::{
+use candle_core::{Device, safetensors::load};
+use sml_kernel::{
     KernelDevice,
     c00_foundations::{
         t01_linear_neuron_and_invertible_transforms as t01,
@@ -14,7 +15,6 @@ use ai_kernel::{
         t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp as t11,
     },
 };
-use candle_core::{Device, safetensors::load};
 
 mod common;
 

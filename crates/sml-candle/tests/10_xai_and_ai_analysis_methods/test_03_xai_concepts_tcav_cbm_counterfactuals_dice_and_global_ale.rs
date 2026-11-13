@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

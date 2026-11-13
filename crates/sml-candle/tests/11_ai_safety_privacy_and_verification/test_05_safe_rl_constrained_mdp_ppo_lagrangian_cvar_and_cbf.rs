@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

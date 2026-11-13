@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t14_spqr_and_squeezellm_sparse_plus_nonuniform_ptq as topic;
+use sml_candle::c14_quantisation::t14_spqr_and_squeezellm_sparse_plus_nonuniform_ptq as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t01_causal_discovery_notears_scm_and_instrumental_variables as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t01_causal_discovery_notears_scm_and_instrumental_variables as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

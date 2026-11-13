@@ -203,7 +203,7 @@ pub fn copula_gpd_auto(
                 usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
             });
 
-            let out_size = (n * std::mem::size_of::<f32>()) as u64;
+            let out_size = std::mem::size_of_val(u) as u64;
 
             let copula_out_buffer = wgpu_device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some("Copula Out Buffer"),
@@ -363,7 +363,7 @@ pub fn copula_gpd_auto(
                 });
                 cpass.set_pipeline(&pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                let workgroups = ((n as u32) + 63) / 64;
+                let workgroups = (n as u32).div_ceil(64);
                 cpass.dispatch_workgroups(workgroups, 1, 1);
             }
 

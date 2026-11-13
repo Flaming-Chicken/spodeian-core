@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t25_neural_audio_codecs_encodec_rvq_and_quantizer_dropout as topic;
+use sml_candle::c05_architectures::t25_neural_audio_codecs_encodec_rvq_and_quantizer_dropout as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

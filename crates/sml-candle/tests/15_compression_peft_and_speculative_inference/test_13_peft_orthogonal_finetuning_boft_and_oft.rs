@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t13_peft_orthogonal_finetuning_boft_and_oft as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t13_peft_orthogonal_finetuning_boft_and_oft as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

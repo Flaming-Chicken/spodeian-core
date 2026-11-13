@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t10_continuous_control_ddpg_td3_and_sac as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t10_continuous_control_ddpg_td3_and_sac as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

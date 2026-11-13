@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t02_posit_quire_takum_and_logarithmic_number_systems_lns as topic;
+use sml_candle::c13_precision_and_numerics::t02_posit_quire_takum_and_logarithmic_number_systems_lns as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

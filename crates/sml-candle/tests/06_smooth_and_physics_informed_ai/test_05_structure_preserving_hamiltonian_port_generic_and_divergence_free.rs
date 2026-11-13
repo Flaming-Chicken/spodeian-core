@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t05_structure_preserving_hamiltonian_port_generic_and_divergence_free as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t05_structure_preserving_hamiltonian_port_generic_and_divergence_free as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

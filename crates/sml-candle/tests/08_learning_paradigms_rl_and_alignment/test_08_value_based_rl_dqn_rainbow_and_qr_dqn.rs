@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t08_value_based_rl_dqn_rainbow_and_qr_dqn as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t08_value_based_rl_dqn_rainbow_and_qr_dqn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

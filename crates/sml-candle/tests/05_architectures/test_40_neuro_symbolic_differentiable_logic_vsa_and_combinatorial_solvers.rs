@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t40_neuro_symbolic_differentiable_logic_vsa_and_combinatorial_solvers as topic;
+use sml_candle::c05_architectures::t40_neuro_symbolic_differentiable_logic_vsa_and_combinatorial_solvers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

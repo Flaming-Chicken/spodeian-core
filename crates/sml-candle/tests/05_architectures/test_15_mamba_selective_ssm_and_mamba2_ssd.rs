@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t15_mamba_selective_ssm_and_mamba2_ssd as topic;
+use sml_candle::c05_architectures::t15_mamba_selective_ssm_and_mamba2_ssd as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

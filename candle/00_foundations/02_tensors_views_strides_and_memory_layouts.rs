@@ -9,7 +9,7 @@ use candle_core::{Result, Tensor};
 ///
 /// # Example
 /// ```rust
-/// use ai_candle::c00_foundations::t02_tensors_views_strides_and_memory_layouts::MemoryLayout;
+/// use sml_candle::c00_foundations::t02_tensors_views_strides_and_memory_layouts::MemoryLayout;
 ///
 /// let shape = vec![2, 3, 4];
 /// let strides = MemoryLayout::standard_strides(&shape);

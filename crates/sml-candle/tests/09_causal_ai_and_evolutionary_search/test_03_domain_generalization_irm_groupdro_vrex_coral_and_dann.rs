@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t03_domain_generalization_irm_groupdro_vrex_coral_and_dann as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t03_domain_generalization_irm_groupdro_vrex_coral_and_dann as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

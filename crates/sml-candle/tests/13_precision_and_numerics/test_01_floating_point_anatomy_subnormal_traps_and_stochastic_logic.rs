@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t01_floating_point_anatomy_subnormal_traps_and_stochastic_logic as topic;
+use sml_candle::c13_precision_and_numerics::t01_floating_point_anatomy_subnormal_traps_and_stochastic_logic as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

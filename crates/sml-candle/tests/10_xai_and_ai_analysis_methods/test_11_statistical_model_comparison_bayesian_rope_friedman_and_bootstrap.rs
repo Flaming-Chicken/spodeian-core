@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

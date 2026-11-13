@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t04_torch_export_aot_autograd_and_ir_inspection as topic;
+use sml_candle::c12_compilation_and_performance::t04_torch_export_aot_autograd_and_ir_inspection as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

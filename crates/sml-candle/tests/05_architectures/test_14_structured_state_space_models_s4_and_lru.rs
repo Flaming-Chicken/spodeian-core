@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t14_structured_state_space_models_s4_and_lru as s4;
+use sml_candle::c05_architectures::t14_structured_state_space_models_s4_and_lru as s4;
 
 #[path = "../common/mod.rs"]
 mod common;

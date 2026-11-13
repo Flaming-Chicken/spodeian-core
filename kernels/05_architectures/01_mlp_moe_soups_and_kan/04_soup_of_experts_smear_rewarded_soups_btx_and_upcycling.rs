@@ -266,8 +266,8 @@ pub fn soup_weight_merge_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups_x = (in_dim as u32 + 15) / 16;
-        let workgroups_y = (out_dim as u32 + 15) / 16;
+        let workgroups_x = (in_dim as u32).div_ceil(16);
+        let workgroups_y = (out_dim as u32).div_ceil(16);
         pass.dispatch_workgroups(workgroups_x, workgroups_y, 1);
     }
 
@@ -302,17 +302,17 @@ pub fn soup_weight_merge_auto(
     in_dim: usize,
     out_dim: usize,
 ) -> Vec<f32> {
-    if let Some(c) = ctx {
-        if let Some(gpu_out) = soup_weight_merge_wgpu(
+    if let Some(c) = ctx
+        && let Some(gpu_out) = soup_weight_merge_wgpu(
             c,
             expert_weights,
             routing_weights,
             num_experts,
             in_dim,
             out_dim,
-        ) {
-            return gpu_out;
-        }
+        )
+    {
+        return gpu_out;
     }
     soup_weight_merge_cpu(
         expert_weights,

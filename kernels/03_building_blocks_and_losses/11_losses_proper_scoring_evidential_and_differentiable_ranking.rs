@@ -335,8 +335,8 @@ pub fn soft_ranks_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups_x = ((batch_size as u32) + 7) / 8;
-        let workgroups_y = ((n_items as u32) + 7) / 8;
+        let workgroups_x = (batch_size as u32).div_ceil(8);
+        let workgroups_y = (n_items as u32).div_ceil(8);
         pass.dispatch_workgroups(workgroups_x, workgroups_y, 1);
     }
 
@@ -369,10 +369,10 @@ pub fn soft_ranks_auto(
     n_items: usize,
     tau: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = soft_ranks_wgpu(ctx, scores, batch_size, n_items, tau) {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = soft_ranks_wgpu(ctx, scores, batch_size, n_items, tau)
+    {
+        return res;
     }
     soft_ranks_cpu(scores, batch_size, n_items, tau)
 }

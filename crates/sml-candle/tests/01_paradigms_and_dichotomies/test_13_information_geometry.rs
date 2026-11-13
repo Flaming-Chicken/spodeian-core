@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 13: Information Geometry, MDL & Free Energy (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy::{
+use sml_candle::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy::{
     AmariDuallyFlatGeometry, LinearAnchor, ShtarkovNMLAndPrequentialMDL, VariationalFreeEnergy,
 };
 use candle_core::{safetensors::load, Device, Result};

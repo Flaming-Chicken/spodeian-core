@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t19_bitnet_b1_58_native_ternary_transformers as topic;
+use sml_candle::c14_quantisation::t19_bitnet_b1_58_native_ternary_transformers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

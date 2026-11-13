@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t09_ai_analysis_loss_landscape_hessian_lanczos_and_empirical_ntk as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t09_ai_analysis_loss_landscape_hessian_lanczos_and_empirical_ntk as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

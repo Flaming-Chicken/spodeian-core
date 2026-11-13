@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t18_direct_preference_dpo_ipo_kto_simpo_dno_and_spo as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t18_direct_preference_dpo_ipo_kto_simpo_dno_and_spo as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

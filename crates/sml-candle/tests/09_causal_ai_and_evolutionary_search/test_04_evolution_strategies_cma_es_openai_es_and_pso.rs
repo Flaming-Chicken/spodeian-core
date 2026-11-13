@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t04_evolution_strategies_cma_es_openai_es_and_pso as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t04_evolution_strategies_cma_es_openai_es_and_pso as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

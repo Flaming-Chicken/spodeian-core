@@ -314,8 +314,8 @@ pub async fn spatial_gating_wgpu(
         });
         cpass.set_pipeline(&pipeline);
         cpass.set_bind_group(0, &bind_group, &[]);
-        let wg_x = ((seq_len as u32) + 15) / 16;
-        let wg_y = ((dim as u32) + 15) / 16;
+        let wg_x = (seq_len as u32).div_ceil(16);
+        let wg_y = (dim as u32).div_ceil(16);
         let wg_z = batch_size as u32;
         cpass.dispatch_workgroups(wg_x, wg_y, wg_z);
     }
@@ -356,12 +356,11 @@ pub async fn spatial_gating_auto(
     dim: usize,
 ) -> Vec<f32> {
     #[cfg(feature = "wgpu")]
-    if let Some(c) = ctx {
-        if let Ok(res) =
+    if let Some(c) = ctx
+        && let Ok(res) =
             spatial_gating_wgpu(c, z1, z2, w_sgu, b_sgu, batch_size, seq_len, dim).await
-        {
-            return res;
-        }
+    {
+        return res;
     }
     spatial_gating_cpu(z1, z2, w_sgu, b_sgu, batch_size, seq_len, dim)
 }

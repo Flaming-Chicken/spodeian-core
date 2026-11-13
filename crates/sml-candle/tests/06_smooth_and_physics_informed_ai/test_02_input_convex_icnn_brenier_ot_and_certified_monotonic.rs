@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t02_input_convex_icnn_brenier_ot_and_certified_monotonic as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t02_input_convex_icnn_brenier_ot_and_certified_monotonic as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

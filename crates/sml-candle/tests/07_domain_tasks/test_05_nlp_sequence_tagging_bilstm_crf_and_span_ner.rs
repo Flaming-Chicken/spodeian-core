@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t05_nlp_sequence_tagging_bilstm_crf_and_span_ner as topic;
+use sml_candle::c07_domain_tasks::t05_nlp_sequence_tagging_bilstm_crf_and_span_ner as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

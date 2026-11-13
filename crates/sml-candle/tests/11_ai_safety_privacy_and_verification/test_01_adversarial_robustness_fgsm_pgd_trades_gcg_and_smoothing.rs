@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t01_adversarial_robustness_fgsm_pgd_trades_gcg_and_smoothing as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t01_adversarial_robustness_fgsm_pgd_trades_gcg_and_smoothing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t10_smoothquant_and_outlier_migration_w8a8 as topic;
+use sml_candle::c14_quantisation::t10_smoothquant_and_outlier_migration_w8a8 as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

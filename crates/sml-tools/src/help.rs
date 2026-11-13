@@ -112,9 +112,9 @@ OPTIONS:
   --help, -h          Show this help message
 
 AFFECTED TARGETS:
-  - crates/ai-candle/src/lib.rs        (Rust Candle topic modules inside <aix:generated>)
-  - crates/ai-kernel/src/lib.rs        (Rust WGPU/CPU kernel modules inside <aix:generated>)
-  - crates/ai-candle/tests/<cat>.rs    (Integration test runner modules)
+  - crates/sml-candle/src/lib.rs        (Rust Candle topic modules inside <aix:generated>)
+  - crates/sml-kernel/src/lib.rs        (Rust WGPU/CPU kernel modules inside <aix:generated>)
+  - crates/sml-candle/tests/<cat>.rs    (Integration test runner modules)
   - README.md                          (Curriculum [x]/[~]/[ ] marks and progress table)
   - README.md & INDEX_BY_GOAL.md       (Top-of-file Progress-XX/263 badges)
 
@@ -182,7 +182,7 @@ GENERATED TRACKS:
   - jax/<id>.py                        (Track 4: Functional JAX/Equinox module)
   - candle/<id>.rs                     (Track 5: Native Rust Candle module)
   - kernels/<id>.rs                    (Companion A: Native Rust WGPU/CPU kernel)
-  - crates/ai-candle/tests/<cat>/...   (Integration test stub)
+  - crates/sml-candle/tests/<cat>/...   (Integration test stub)
   Automatically runs `sync` after file creation to register all Rust modules.
 
 EXAMPLES:
@@ -289,8 +289,8 @@ USAGE: cargo aix test [options]
 
 OPTIONS:
   --topic <T>, -t     Verify all implementations of a single topic:
-                      1. cargo test -p ai-candle --tests -- <filter>
-                      2. cargo test -p ai-kernel --tests -- <filter>
+                      1. cargo test -p sml-candle --tests -- <filter>
+                      2. cargo test -p sml-kernel --tests -- <filter>
                       3. python pytorch2/<id>.py (parity vs golden weights)
                       4. python jax/<id>.py (parity vs golden weights)
                       5. run-notebooks for notebooks/<id>.ipynb
@@ -303,7 +303,7 @@ OPTIONS:
 
 EXAMPLES:
   cargo aix test --topic 00_foundations/01_linear_neuron_and_invertible_transforms
-  cargo aix test --crate ai-candle
+  cargo aix test --crate sml-candle
 ";
 
 pub const CI_HELP: &str = "\
@@ -320,7 +320,7 @@ OPTIONS:
 CHECKS EXECUTED:
   1. aix check --semantics (structure, notebooks, markdown, links, forbidden, weights)
   2. aix run-notebooks (all notebooks within budget)
-  3. cargo test --workspace --tests (ai-architect-schema, aix, ai-candle, ai-kernel)
+  3. cargo test --workspace --tests (ai-architect-schema, aix, sml-candle, sml-kernel)
 
 EXAMPLES:
   cargo aix ci
@@ -340,7 +340,7 @@ DIAGNOSTICS PERFORMED:
   - Repository root, curriculum size (263), and contract validity
   - Overall progress (done, wip, planned, percentage)
   - Rust toolchain and cargo availability
-  - Workspace crates existence (ai-architect-schema, ai-candle, ai-kernel, aix)
+  - Workspace crates existence (ai-architect-schema, sml-candle, sml-kernel, aix)
   - Python interpreter detection (probing .venv, venv, and system installations)
   - ML package availability (torch, safetensors, jax, matplotlib, numpy)
   - Full static check diagnostic status
@@ -401,8 +401,8 @@ SUPPORTED FLAGS:
   --check-symmetry    Check directory symmetry and contract compliance
   --check-links       Check for broken relative links
   --check-semantics   Check Cell 1–8 notebook semantic rules
-  --check-candle      Run ai-candle integration tests
-  --check-kernel      Run ai-kernel integration tests
+  --check-candle      Run sml-candle integration tests
+  --check-kernel      Run sml-kernel integration tests
   --run               Execute notebooks via worker processes
   --timeout <S>       Notebook CPU timeout in seconds
   --workers <N>       Parallel worker process count

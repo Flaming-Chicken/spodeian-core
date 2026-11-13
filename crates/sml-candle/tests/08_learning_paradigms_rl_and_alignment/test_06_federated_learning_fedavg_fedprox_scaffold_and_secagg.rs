@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t06_federated_learning_fedavg_fedprox_scaffold_and_secagg as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t06_federated_learning_fedavg_fedprox_scaffold_and_secagg as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t06_adaptive_compute_early_exit_token_merging_and_frugalgpt_cascades as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t06_adaptive_compute_early_exit_token_merging_and_frugalgpt_cascades as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

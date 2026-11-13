@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks as topic;
+use sml_candle::c12_compilation_and_performance::t06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

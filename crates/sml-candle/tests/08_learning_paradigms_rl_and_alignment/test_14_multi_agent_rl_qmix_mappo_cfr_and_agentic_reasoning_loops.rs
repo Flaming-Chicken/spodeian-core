@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t14_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t14_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

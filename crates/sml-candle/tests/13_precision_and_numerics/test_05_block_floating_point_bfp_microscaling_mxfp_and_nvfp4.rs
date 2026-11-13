@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4 as topic;
+use sml_candle::c13_precision_and_numerics::t05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4 as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

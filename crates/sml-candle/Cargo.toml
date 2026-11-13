@@ -31,3 +31,5 @@ eq_op = "allow"
 same_item_push = "allow"
 type_complexity = "allow"
 manual_memcpy = "allow"
+# Each tests/<category>.rs runner loads the shared tests/common helpers.
+duplicate_mod = "allow"

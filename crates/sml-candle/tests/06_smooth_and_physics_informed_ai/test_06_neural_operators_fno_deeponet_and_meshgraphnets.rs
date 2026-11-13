@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t06_neural_operators_fno_deeponet_and_meshgraphnets as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t06_neural_operators_fno_deeponet_and_meshgraphnets as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

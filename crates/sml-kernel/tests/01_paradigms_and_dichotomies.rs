@@ -1,4 +1,5 @@
-use ai_kernel::{
+use candle_core::{Device, safetensors::load};
+use sml_kernel::{
     KernelDevice,
     c01_paradigms_and_dichotomies::{
         t01_generative_vs_discriminative_classifiers as t01,
@@ -15,7 +16,6 @@ use ai_kernel::{
         t12_inductive_vs_transductive_and_online_regret_vs_batch_iid as t12,
     },
 };
-use candle_core::{Device, safetensors::load};
 
 mod common;
 
@@ -2047,7 +2047,7 @@ fn test_12_inductive_vs_transductive_cpu_and_auto() -> candle_core::Result<()> {
 
 #[test]
 fn test_13_information_geometry_cpu_and_auto() -> candle_core::Result<()> {
-    use ai_kernel::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy as t13;
+    use sml_kernel::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy as t13;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(

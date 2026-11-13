@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t05_torch_library_custom_ops_and_fake_kernels as topic;
+use sml_candle::c12_compilation_and_performance::t05_torch_library_custom_ops_and_fake_kernels as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

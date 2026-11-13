@@ -1,7 +1,7 @@
 //! Integration test for Topic 05: Hooks & Saved Tensor Hooks (Candle Track).
 
-use ai_candle::c00_foundations::t05_hooks_and_saved_tensor_hooks::HookedLinearLayer;
 use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t05_hooks_and_saved_tensor_hooks::HookedLinearLayer;
 
 #[path = "../common/mod.rs"]
 mod common;

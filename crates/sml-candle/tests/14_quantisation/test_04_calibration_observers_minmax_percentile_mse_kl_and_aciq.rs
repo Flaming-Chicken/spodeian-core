@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t04_calibration_observers_minmax_percentile_mse_kl_and_aciq as topic;
+use sml_candle::c14_quantisation::t04_calibration_observers_minmax_percentile_mse_kl_and_aciq as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

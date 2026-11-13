@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t37_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs as topic;
+use sml_candle::c05_architectures::t37_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

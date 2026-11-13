@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t02_dynamic_shapes_mark_dynamic_and_recompilation_guards as topic;
+use sml_candle::c12_compilation_and_performance::t02_dynamic_shapes_mark_dynamic_and_recompilation_guards as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t10_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t10_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

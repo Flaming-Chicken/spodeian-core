@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t09_tree_speculative_medusa_eagle_got_and_jacobi as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t09_tree_speculative_medusa_eagle_got_and_jacobi as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

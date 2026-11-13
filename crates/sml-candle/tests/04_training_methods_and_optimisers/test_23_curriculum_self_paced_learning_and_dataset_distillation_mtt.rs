@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t23_curriculum_self_paced_learning_and_dataset_distillation_mtt::CurriculumDistillationUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t23_curriculum_self_paced_learning_and_dataset_distillation_mtt::CurriculumDistillationUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t04_meta_learning_prototypical_maml_and_reptile as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t04_meta_learning_prototypical_maml_and_reptile as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

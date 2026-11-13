@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t03_llm_oneshot_pruning_wanda_and_sparsegpt as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t03_llm_oneshot_pruning_wanda_and_sparsegpt as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

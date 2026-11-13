@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t20_transformer_heads_induction_ov_qk_circuits_mtp_and_registers as topic;
+use sml_candle::c05_architectures::t20_transformer_heads_induction_ov_qk_circuits_mtp_and_registers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

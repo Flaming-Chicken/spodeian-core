@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

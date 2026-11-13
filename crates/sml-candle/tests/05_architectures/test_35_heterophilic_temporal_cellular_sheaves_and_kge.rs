@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t35_heterophilic_temporal_cellular_sheaves_and_kge as topic;
+use sml_candle::c05_architectures::t35_heterophilic_temporal_cellular_sheaves_and_kge as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

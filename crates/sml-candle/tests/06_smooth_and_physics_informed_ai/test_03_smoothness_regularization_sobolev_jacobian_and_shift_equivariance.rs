@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t03_smoothness_regularization_sobolev_jacobian_and_shift_equivariance as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t03_smoothness_regularization_sobolev_jacobian_and_shift_equivariance as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

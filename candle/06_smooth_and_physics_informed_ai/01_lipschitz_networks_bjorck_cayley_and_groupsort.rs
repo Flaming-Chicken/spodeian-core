@@ -46,9 +46,7 @@ fn invert_matrix(mat: &[f32], n: usize) -> Vec<f32> {
         }
         if pivot != i {
             for j in 0..(2 * n) {
-                let tmp = a[i * (2 * n) + j];
-                a[i * (2 * n) + j] = a[pivot * (2 * n) + j];
-                a[pivot * (2 * n) + j] = tmp;
+                a.swap(i * (2 * n) + j, pivot * (2 * n) + j);
             }
         }
         let diag = a[i * (2 * n) + i];

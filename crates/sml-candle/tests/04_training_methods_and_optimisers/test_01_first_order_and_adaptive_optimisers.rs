@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as opt;
+use sml_candle::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as opt;
 
 #[path = "../common/mod.rs"]
 mod common;

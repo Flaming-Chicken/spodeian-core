@@ -12,7 +12,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t10_floating_point_arithmetic_conditioning_and_numerical_stability::{
+//! use sml_candle::c00_foundations::t10_floating_point_arithmetic_conditioning_and_numerical_stability::{
 //!     log_sum_exp_stable, welford_mean_var,
 //! };
 //!

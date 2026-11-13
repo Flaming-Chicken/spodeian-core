@@ -281,7 +281,7 @@ pub fn factorization_machine_auto(
                 });
                 compute_pass.set_pipeline(&pipeline);
                 compute_pass.set_bind_group(0, &bind_group, &[]);
-                let wg_x = ((n + 63) / 64) as u32;
+                let wg_x = n.div_ceil(64) as u32;
                 compute_pass.dispatch_workgroups(wg_x, 1, 1);
             }
 

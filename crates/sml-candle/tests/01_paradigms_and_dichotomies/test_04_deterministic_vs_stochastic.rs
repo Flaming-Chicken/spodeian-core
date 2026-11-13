@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 04: Deterministic vs Stochastic & Mixture Density Networks (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t04_deterministic_vs_stochastic_and_mixture_density_networks::{
+use sml_candle::c01_paradigms_and_dichotomies::t04_deterministic_vs_stochastic_and_mixture_density_networks::{
     DeterministicRegressor, MixtureDensityNetwork, QuantileRegressor,
 };
 use candle_core::{safetensors::load, Device, Result, Tensor};

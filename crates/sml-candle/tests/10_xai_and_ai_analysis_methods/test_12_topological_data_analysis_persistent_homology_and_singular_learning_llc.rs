@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t12_topological_data_analysis_persistent_homology_and_singular_learning_llc as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t12_topological_data_analysis_persistent_homology_and_singular_learning_llc as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

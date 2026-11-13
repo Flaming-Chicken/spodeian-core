@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t06_torchao_modern_api_and_affine_quantized_tensor as topic;
+use sml_candle::c14_quantisation::t06_torchao_modern_api_and_affine_quantized_tensor as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

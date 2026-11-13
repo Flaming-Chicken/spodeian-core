@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t08_deep_equilibrium_models_deq_implicit_differentiation as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t08_deep_equilibrium_models_deq_implicit_differentiation as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

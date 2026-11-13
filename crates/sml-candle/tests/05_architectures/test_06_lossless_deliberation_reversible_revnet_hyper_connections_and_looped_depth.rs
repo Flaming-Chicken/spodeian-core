@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as rev;
+use sml_candle::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as rev;
 
 #[path = "../common/mod.rs"]
 mod common;

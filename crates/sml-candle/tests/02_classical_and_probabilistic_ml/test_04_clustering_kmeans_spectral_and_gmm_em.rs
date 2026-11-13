@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t04_clustering_kmeans_spectral_and_gmm_em as cluster;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t04_clustering_kmeans_spectral_and_gmm_em as cluster;
 use std::path::PathBuf;
 
 #[test]

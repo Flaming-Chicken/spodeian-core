@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t02_causal_treatment_effects_tarnet_cfrnet_dragonnet_dml_and_r_learner as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t02_causal_treatment_effects_tarnet_cfrnet_dragonnet_dml_and_r_learner as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

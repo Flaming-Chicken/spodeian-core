@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t08_ai_watermarking_ai_detection_and_model_obfuscation as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t08_ai_watermarking_ai_detection_and_model_obfuscation as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

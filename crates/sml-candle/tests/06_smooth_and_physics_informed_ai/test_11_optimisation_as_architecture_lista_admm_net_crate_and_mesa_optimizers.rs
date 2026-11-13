@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

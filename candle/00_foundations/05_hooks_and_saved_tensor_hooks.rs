@@ -11,7 +11,7 @@
 //! # Examples
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t05_hooks_and_saved_tensor_hooks::HookedLinearLayer;
+//! use sml_candle::c00_foundations::t05_hooks_and_saved_tensor_hooks::HookedLinearLayer;
 //!
 //! # fn main() -> candle_core::Result<()> {
 //! let dev = Device::Cpu;
@@ -71,7 +71,7 @@ impl HookedLinearLayer {
 
 /// Gaussian Error Linear Unit (GELU) forward: 0.5 * x * (1 + erf(x / sqrt(2)))
 pub fn gelu_forward(x: &Tensor) -> Result<Tensor> {
-    let sqrt_2 = (2.0f64).sqrt() as f64;
+    let sqrt_2 = (2.0f64).sqrt();
     let x_scaled = (x / sqrt_2)?;
     let erf_val = erf_tensor(&x_scaled)?;
     let one_plus_erf = erf_val.affine(1.0, 1.0)?;
@@ -81,7 +81,7 @@ pub fn gelu_forward(x: &Tensor) -> Result<Tensor> {
 
 /// Exact derivative of GELU: Phi(z) + z * phi(z)
 pub fn gelu_derivative(z: &Tensor) -> Result<Tensor> {
-    let sqrt_2 = (2.0f64).sqrt() as f64;
+    let sqrt_2 = (2.0f64).sqrt();
     let inv_sqrt_2pi = 1.0 / (2.0 * std::f64::consts::PI).sqrt();
 
     let z_scaled = (z / sqrt_2)?;

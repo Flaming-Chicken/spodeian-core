@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t04_fp8_e4m3_e5m2_fnuz_and_minifloats_fp6_fp4 as topic;
+use sml_candle::c13_precision_and_numerics::t04_fp8_e4m3_e5m2_fnuz_and_minifloats_fp6_fp4 as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

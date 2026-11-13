@@ -34,11 +34,11 @@ jobs:
         uses: taiki-e/install-action@nextest
 
       - name: Run Test Suite with Nextest
-        run: cargo nextest run --workspace --all-targets --exclude spodeian-py-bridge --profile ci
+        run: cargo nextest run --workspace --all-targets --exclude spodeian-py-bridge --exclude sml-py-bridge --profile ci
 
       - name: Check WebAssembly Compilation
-        # spodeian-py-bridge links CPython through PyO3 and cannot target wasm32.
-        run: cargo check --workspace --exclude spodeian-py-bridge --target wasm32-unknown-unknown
+        # The py-bridge crates link CPython through PyO3 and cannot target wasm32.
+        run: cargo check --workspace --exclude spodeian-py-bridge --exclude sml-py-bridge --target wasm32-unknown-unknown
 
       - name: Install wasm-bindgen Test Runner (version from Cargo.lock)
         run: |

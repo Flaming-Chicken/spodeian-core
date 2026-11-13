@@ -1,10 +1,10 @@
 //! Integration test for Category 03 Topic 06: Regularization and Training Stabilizers (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t06_regularization_and_training_stabilizers::{
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c03_building_blocks_and_losses::t06_regularization_and_training_stabilizers::{
     LinearAnchor, dropout_forward, droppath_forward, label_smoothing_loss_forward,
     router_z_loss_forward, softcapping_forward,
 };
-use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

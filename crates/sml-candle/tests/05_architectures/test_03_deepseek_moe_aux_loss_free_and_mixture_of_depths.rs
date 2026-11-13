@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t03_deepseek_moe_aux_loss_free_and_mixture_of_depths as ds;
+use sml_candle::c05_architectures::t03_deepseek_moe_aux_loss_free_and_mixture_of_depths as ds;
 
 #[path = "../common/mod.rs"]
 mod common;

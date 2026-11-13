@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

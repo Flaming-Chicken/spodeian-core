@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t07_expert_parallelism_and_3d_4d_parallel_composition as topic;
+use sml_candle::c16_distributed_and_scalable::t07_expert_parallelism_and_3d_4d_parallel_composition as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

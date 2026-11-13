@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t33_energy_based_models_rbm_and_hopfield_networks as topic;
+use sml_candle::c05_architectures::t33_energy_based_models_rbm_and_hopfield_networks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

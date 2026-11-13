@@ -184,7 +184,7 @@ fn readme_output(repo: &Repo, readme: &Readme) -> (String, usize, usize) {
         let line = &mut ls[t.line];
         if let Some(i) = line.find("- [") {
             let at = i + 3;
-            if line[at..].chars().next() != Some(status.mark()) {
+            if !line[at..].starts_with(status.mark()) {
                 let old_len = line[at..].chars().next().map(char::len_utf8).unwrap_or(1);
                 line.replace_range(at..at + old_len, &status.mark().to_string());
             }

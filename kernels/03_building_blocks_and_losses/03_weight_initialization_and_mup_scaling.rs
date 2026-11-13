@@ -150,7 +150,7 @@ pub async fn layerscale_wgpu(
     dim: usize,
 ) -> Option<Vec<f32>> {
     let total_elements = (batch_size * dim) as u32;
-    let byte_size = (x.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(x) as u64;
 
     let in_x_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("LayerScale X Buffer"),
@@ -306,7 +306,7 @@ pub async fn layerscale_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_elements + 63) / 64;
+        let workgroups = total_elements.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -339,12 +339,11 @@ pub async fn layerscale_auto(
     batch_size: usize,
     dim: usize,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) =
+    if let Some(ctx) = context
+        && let Some(res) =
             layerscale_wgpu(&ctx.0, &ctx.1, x, residual, gamma, batch_size, dim).await
-        {
-            return res;
-        }
+    {
+        return res;
     }
     layerscale_cpu(x, residual, gamma, batch_size, dim)
 }

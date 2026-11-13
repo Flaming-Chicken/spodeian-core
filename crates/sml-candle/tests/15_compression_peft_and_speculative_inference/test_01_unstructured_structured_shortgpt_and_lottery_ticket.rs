@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t01_unstructured_structured_shortgpt_and_lottery_ticket as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t01_unstructured_structured_shortgpt_and_lottery_ticket as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

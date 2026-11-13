@@ -290,10 +290,11 @@ fn cmd_status(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
     let mut wip = Vec::new();
     let mut wip_details = Vec::new();
     for t in &readme.topics {
-        if let Some(cat) = cat_filter {
-            if t.category() != cat && !t.category().starts_with(cat) {
-                continue;
-            }
+        if let Some(cat) = cat_filter
+            && t.category() != cat
+            && !t.category().starts_with(cat)
+        {
+            continue;
         }
         let (s, missing) = sync::derived(&ctx.repo, &t.id);
         per.entry(
@@ -318,10 +319,11 @@ fn cmd_status(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
         let mut tot = [0usize; 3];
         let mut cat_map = serde_json::Map::new();
         for cat in repo::CATEGORIES {
-            if let Some(cat_f) = cat_filter {
-                if cat != cat_f && !cat.starts_with(cat_f) {
-                    continue;
-                }
+            if let Some(cat_f) = cat_filter
+                && cat != cat_f
+                && !cat.starts_with(cat_f)
+            {
+                continue;
             }
             let c = per.get(cat).copied().unwrap_or_default();
             (0..3).for_each(|k| tot[k] += c[k]);
@@ -359,10 +361,11 @@ fn cmd_status(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
     );
     let mut tot = [0usize; 3];
     for cat in repo::CATEGORIES {
-        if let Some(cat_f) = cat_filter {
-            if cat != cat_f && !cat.starts_with(cat_f) {
-                continue;
-            }
+        if let Some(cat_f) = cat_filter
+            && cat != cat_f
+            && !cat.starts_with(cat_f)
+        {
+            continue;
         }
         let c = per.get(cat).copied().unwrap_or_default();
         (0..3).for_each(|k| tot[k] += c[k]);
@@ -436,9 +439,11 @@ fn cmd_test(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
     let jobs: Option<usize> = a.num("jobs")?;
     let mut crates = a.all("crate");
     if crates.is_empty() {
-        crates = vec!["ai-candle".into(), "ai-kernel".into()];
+        crates = vec!["sml-candle".into(), "sml-kernel".into()];
     }
+    // `fold` rather than `all`: run every crate's tests even after a failure.
     let Some(q) = a.get("topic") else {
+        #[allow(clippy::unnecessary_fold)]
         return Ok(crates.iter().fold(true, |ok, c| {
             run::cargo_test(&ctx.repo.root, c, None, jobs) && ok
         }));
@@ -446,6 +451,7 @@ fn cmd_test(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
     let readme = ctx.readme()?;
     let topic = readme.resolve(q)?.clone();
     let filter = repo::strip_num(topic.slug()).to_string();
+    #[allow(clippy::unnecessary_fold)]
     let mut ok = crates.iter().fold(true, |ok, c| {
         run::cargo_test(&ctx.repo.root, c, Some(&filter), jobs) && ok
     });
@@ -667,13 +673,11 @@ fn cmd_weights(ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
                     ok = false;
                     continue;
                 }
-                if a.has("check") {
-                    if let (Some(b), Ok(after)) = (before, std::fs::read(ctx.repo.abs(&wt))) {
-                        if b != after {
+                if a.has("check")
+                    && let (Some(b), Ok(after)) = (before, std::fs::read(ctx.repo.abs(&wt)))
+                        && b != after {
                             println!("[WARN] {wt} differed after --export-golden");
                         }
-                    }
-                }
             }
             Ok(ok)
         }

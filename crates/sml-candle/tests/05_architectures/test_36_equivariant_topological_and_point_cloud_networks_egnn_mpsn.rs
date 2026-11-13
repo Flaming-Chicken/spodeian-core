@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t36_equivariant_topological_and_point_cloud_networks_egnn_mpsn as topic;
+use sml_candle::c05_architectures::t36_equivariant_topological_and_point_cloud_networks_egnn_mpsn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

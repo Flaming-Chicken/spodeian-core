@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t01_vision_detection_anchor_free_fcos_and_detr as topic;
+use sml_candle::c07_domain_tasks::t01_vision_detection_anchor_free_fcos_and_detr as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

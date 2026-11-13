@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t21_flash_attention_online_softmax_and_flex_attention as topic;
+use sml_candle::c05_architectures::t21_flash_attention_online_softmax_and_flex_attention as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

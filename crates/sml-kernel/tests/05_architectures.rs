@@ -1,7 +1,7 @@
 //! Category 05 Architectures Integration Test Suite for ai-kernel.
 
-use ai_kernel::c05_architectures::t01_residual_mlp_mlp_mixer_and_gmlp as t01;
 use candle_core::{Device, Result, safetensors::load};
+use sml_kernel::c05_architectures::t01_residual_mlp_mlp_mixer_and_gmlp as t01;
 
 #[path = "common/mod.rs"]
 mod common;
@@ -69,7 +69,7 @@ fn test_01_residual_mlp_mlp_mixer_and_gmlp_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t02_mixture_of_experts_top_k_expert_choice_and_soft_moe as t02;
+use sml_kernel::c05_architectures::t02_mixture_of_experts_top_k_expert_choice_and_soft_moe as t02;
 
 #[test]
 fn test_02_mixture_of_experts_top_k_expert_choice_and_soft_moe_cpu_and_auto() -> Result<()> {
@@ -127,7 +127,7 @@ fn test_02_mixture_of_experts_top_k_expert_choice_and_soft_moe_cpu_and_auto() ->
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t03_deepseek_moe_aux_loss_free_and_mixture_of_depths as t03;
+use sml_kernel::c05_architectures::t03_deepseek_moe_aux_loss_free_and_mixture_of_depths as t03;
 
 #[test]
 fn test_03_deepseek_moe_aux_loss_free_and_mixture_of_depths_cpu_and_auto() -> Result<()> {
@@ -186,7 +186,7 @@ fn test_03_deepseek_moe_aux_loss_free_and_mixture_of_depths_cpu_and_auto() -> Re
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling as t04;
+use sml_kernel::c05_architectures::t04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling as t04;
 
 #[test]
 fn test_04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling_cpu_and_auto() -> Result<()> {
@@ -249,7 +249,7 @@ fn test_04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling_cpu_and_auto()
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t05_kolmogorov_arnold_networks_kan as t05;
+use sml_kernel::c05_architectures::t05_kolmogorov_arnold_networks_kan as t05;
 
 #[test]
 fn test_05_kolmogorov_arnold_networks_kan_cpu_and_auto() -> Result<()> {
@@ -294,7 +294,7 @@ fn test_05_kolmogorov_arnold_networks_kan_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as t06;
+use sml_kernel::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as t06;
 
 #[test]
 fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth_cpu_and_auto()
@@ -343,7 +343,7 @@ fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t07_classic_to_modern_cnns_resnet_densenet_convnext as t07;
+use sml_kernel::c05_architectures::t07_classic_to_modern_cnns_resnet_densenet_convnext as t07;
 
 #[test]
 fn test_07_classic_to_modern_cnns_resnet_densenet_convnext_cpu_and_auto() -> Result<()> {
@@ -396,7 +396,7 @@ fn test_07_classic_to_modern_cnns_resnet_densenet_convnext_cpu_and_auto() -> Res
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t08_specialized_convolutions_and_channel_attention as t08;
+use sml_kernel::c05_architectures::t08_specialized_convolutions_and_channel_attention as t08;
 
 #[test]
 fn test_08_specialized_convolutions_and_channel_attention_cpu_and_auto() -> Result<()> {
@@ -447,7 +447,7 @@ fn test_08_specialized_convolutions_and_channel_attention_cpu_and_auto() -> Resu
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t09_unet_and_multiscale_feature_pyramids as t09;
+use sml_kernel::c05_architectures::t09_unet_and_multiscale_feature_pyramids as t09;
 
 #[test]
 fn test_09_unet_and_multiscale_feature_pyramids_cpu_and_auto() -> Result<()> {
@@ -495,7 +495,7 @@ fn test_09_unet_and_multiscale_feature_pyramids_cpu_and_auto() -> Result<()> {
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer as t10;
+use sml_kernel::c05_architectures::t10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer as t10;
 
 #[test]
 fn test_10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer_cpu_and_auto() -> Result<()> {
@@ -559,7 +559,7 @@ fn test_10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer_cpu_and_auto
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t11_wavelet_scattering_wtconv_steerable_and_morphological_networks as t11;
+use sml_kernel::c05_architectures::t11_wavelet_scattering_wtconv_steerable_and_morphological_networks as t11;
 
 #[test]
 fn test_11_wavelet_scattering_wtconv_steerable_and_morphological_networks_cpu_and_auto()
@@ -628,7 +628,7 @@ fn test_11_wavelet_scattering_wtconv_steerable_and_morphological_networks_cpu_an
     Ok(())
 }
 
-use ai_kernel::c05_architectures::t12_rnn_lstm_gru_and_attention_seq2seq as t12;
+use sml_kernel::c05_architectures::t12_rnn_lstm_gru_and_attention_seq2seq as t12;
 
 #[test]
 fn test_12_rnn_lstm_gru_and_attention_seq2seq_cpu_and_auto() -> Result<()> {

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c04_training_methods_and_optimisers::t08_constrained_proximal_frank_wolfe_admm_and_mirror_descent as opt;
+use sml_candle::c04_training_methods_and_optimisers::t08_constrained_proximal_frank_wolfe_admm_and_mirror_descent as opt;
 
 #[path = "../common/mod.rs"]
 mod common;

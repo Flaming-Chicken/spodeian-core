@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t16_supervised_finetuning_chat_masks_neftune_and_sequence_packing as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t16_supervised_finetuning_chat_masks_neftune_and_sequence_packing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

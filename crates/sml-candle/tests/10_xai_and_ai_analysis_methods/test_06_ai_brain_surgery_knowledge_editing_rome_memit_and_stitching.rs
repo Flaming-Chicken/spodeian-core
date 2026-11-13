@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t06_ai_brain_surgery_knowledge_editing_rome_memit_and_stitching as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t06_ai_brain_surgery_knowledge_editing_rome_memit_and_stitching as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

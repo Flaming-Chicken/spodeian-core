@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t01_collectives_and_ddp_gradient_bucketing_mechanics as topic;
+use sml_candle::c16_distributed_and_scalable::t01_collectives_and_ddp_gradient_bucketing_mechanics as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t08_speculative_decoding_lossless_rejection_sampling_and_drafting as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t08_speculative_decoding_lossless_rejection_sampling_and_drafting as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

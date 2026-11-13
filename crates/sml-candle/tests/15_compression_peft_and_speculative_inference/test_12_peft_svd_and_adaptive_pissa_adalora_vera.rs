@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t12_peft_svd_and_adaptive_pissa_adalora_vera as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t12_peft_svd_and_adaptive_pissa_adalora_vera as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

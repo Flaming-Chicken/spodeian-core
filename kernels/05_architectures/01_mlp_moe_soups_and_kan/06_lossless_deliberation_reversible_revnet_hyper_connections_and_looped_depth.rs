@@ -100,7 +100,7 @@ pub fn hyper_connections_update_wgpu(
     use wgpu::util::DeviceExt;
 
     let num_elements = h1.len();
-    let byte_size = (num_elements * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(h1) as u64;
 
     let h1_buf = ctx
         .device
@@ -279,7 +279,7 @@ pub fn hyper_connections_update_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (num_elements as u32 + 63) / 64;
+        let workgroups = (num_elements as u32).div_ceil(64);
         pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -314,10 +314,10 @@ pub fn hyper_connections_update_auto(
     beta0: f32,
     beta1: f32,
 ) -> Vec<f32> {
-    if let Some(c) = ctx {
-        if let Some(gpu_out) = hyper_connections_update_wgpu(c, h1, h2, v, beta0, beta1) {
-            return gpu_out;
-        }
+    if let Some(c) = ctx
+        && let Some(gpu_out) = hyper_connections_update_wgpu(c, h1, h2, v, beta0, beta1)
+    {
+        return gpu_out;
     }
     hyper_connections_update_cpu(h1, h2, v, beta0, beta1)
 }

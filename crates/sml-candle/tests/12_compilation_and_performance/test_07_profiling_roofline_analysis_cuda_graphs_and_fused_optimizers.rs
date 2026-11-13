@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t07_profiling_roofline_analysis_cuda_graphs_and_fused_optimizers as topic;
+use sml_candle::c12_compilation_and_performance::t07_profiling_roofline_analysis_cuda_graphs_and_fused_optimizers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t04_physics_informed_pinns_deep_ritz_hard_bc_and_ntk_balancing as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t04_physics_informed_pinns_deep_ritz_hard_bc_and_ntk_balancing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

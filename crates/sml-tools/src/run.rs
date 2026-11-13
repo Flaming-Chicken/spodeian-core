@@ -36,10 +36,10 @@ pub fn python(repo: &Repo, explicit: Option<&str>) -> String {
     if let Some(p) = explicit {
         return p.to_string();
     }
-    if let Ok(p) = std::env::var("AIX_PYTHON") {
-        if !p.is_empty() {
-            return p;
-        }
+    if let Ok(p) = std::env::var("AIX_PYTHON")
+        && !p.is_empty()
+    {
+        return p;
     }
     for cand in [
         ".venv/Scripts/python.exe",
@@ -58,17 +58,17 @@ pub fn python(repo: &Repo, explicit: Option<&str>) -> String {
             let base = std::path::PathBuf::from(local)
                 .join("Programs")
                 .join("Python");
-            if base.is_dir() {
-                if let Ok(entries) = std::fs::read_dir(base) {
-                    let mut pythons: Vec<std::path::PathBuf> = entries
-                        .filter_map(|e| e.ok())
-                        .map(|e| e.path().join("python.exe"))
-                        .filter(|p| p.is_file())
-                        .collect();
-                    pythons.sort();
-                    if let Some(best) = pythons.pop() {
-                        return best.to_string_lossy().to_string();
-                    }
+            if base.is_dir()
+                && let Ok(entries) = std::fs::read_dir(base)
+            {
+                let mut pythons: Vec<std::path::PathBuf> = entries
+                    .filter_map(|e| e.ok())
+                    .map(|e| e.path().join("python.exe"))
+                    .filter(|p| p.is_file())
+                    .collect();
+                pythons.sort();
+                if let Some(best) = pythons.pop() {
+                    return best.to_string_lossy().to_string();
                 }
             }
         }
@@ -206,10 +206,7 @@ pub fn run_notebooks(repo: &Repo, opts: &NbOptions) -> bool {
         for _ in 0..jobs {
             let (queue, results, py) = (Arc::clone(&queue), Arc::clone(&results), py.clone());
             s.spawn(move || {
-                loop {
-                    let Some(rel) = queue.lock().ok().and_then(|mut q| q.pop_front()) else {
-                        break;
-                    };
+                while let Some(rel) = queue.lock().ok().and_then(|mut q| q.pop_front()) {
                     let r = run_one(repo, &py, &rel, opts);
                     if r.ok {
                         println!("[PASS] {} ({:.2}s)", r.rel, r.elapsed);

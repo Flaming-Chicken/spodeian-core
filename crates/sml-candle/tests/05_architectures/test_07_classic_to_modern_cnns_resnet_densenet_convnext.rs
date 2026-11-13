@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t07_classic_to_modern_cnns_resnet_densenet_convnext as cnn;
+use sml_candle::c05_architectures::t07_classic_to_modern_cnns_resnet_densenet_convnext as cnn;
 
 #[path = "../common/mod.rs"]
 mod common;

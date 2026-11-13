@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t03_aot_inductor_and_executorch_edge_concepts as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t03_aot_inductor_and_executorch_edge_concepts as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

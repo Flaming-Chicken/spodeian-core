@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t05_parametric_vs_nonparametric_and_neural_processes::ParametricMLP;
+//! use sml_candle::c01_paradigms_and_dichotomies::t05_parametric_vs_nonparametric_and_neural_processes::ParametricMLP;
 //!
 //! let device = Device::Cpu;
 //! let w_mlp1 = Tensor::zeros((2, 4), candle_core::DType::F32, &device).unwrap();

@@ -1,9 +1,9 @@
 //! Integration test for Category 01 Topic 01: Generative vs Discriminative Classifiers (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t01_generative_vs_discriminative_classifiers::{
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c01_paradigms_and_dichotomies::t01_generative_vs_discriminative_classifiers::{
     DiscriminativeClassifier, GaussianDiscriminantAnalysis,
 };
-use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

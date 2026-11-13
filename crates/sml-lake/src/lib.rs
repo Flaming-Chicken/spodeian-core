@@ -171,6 +171,7 @@ impl WindowsDataLake {
 
     /// Stores a `TabularDataset` with explicit regime anomaly flags and crisis memory pinning.
     #[doc = "**Stability: Experimental** — API subject to change"]
+    #[allow(clippy::too_many_arguments)] // mirrors store_parquet's options; an options struct is planned for v3
     pub fn store_parquet_with_options(
         &mut self,
         dataset_id: &str,

@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling as smear;
+use sml_candle::c05_architectures::t04_soup_of_experts_smear_rewarded_soups_btx_and_upcycling as smear;
 
 #[path = "../common/mod.rs"]
 mod common;

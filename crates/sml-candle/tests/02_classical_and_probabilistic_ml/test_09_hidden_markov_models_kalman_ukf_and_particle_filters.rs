@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t09_hidden_markov_models_kalman_ukf_and_particle_filters as kf;
 use candle_core::{Device, Result, Tensor};
+use sml_candle::c02_classical_and_probabilistic_ml::t09_hidden_markov_models_kalman_ukf_and_particle_filters as kf;
 use std::path::PathBuf;
 
 #[test]

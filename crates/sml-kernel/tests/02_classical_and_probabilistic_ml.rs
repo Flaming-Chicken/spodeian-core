@@ -1,20 +1,20 @@
 //! Category 02 Classical & Probabilistic ML Integration Test Suite for ai-kernel.
 
-use ai_kernel::KernelDevice;
-use ai_kernel::c02_classical_and_probabilistic_ml::t01_generalized_linear_models_and_proximal_lasso as t01;
-use ai_kernel::c02_classical_and_probabilistic_ml::t02_support_vector_machines_and_kernel_methods as t02;
-use ai_kernel::c02_classical_and_probabilistic_ml::t03_knn_prototype_and_locally_weighted_regression as t03;
-use ai_kernel::c02_classical_and_probabilistic_ml::t04_clustering_kmeans_spectral_and_gmm_em as t04;
-use ai_kernel::c02_classical_and_probabilistic_ml::t05_dimensionality_reduction_pca_lda_ica_tsne_umap as t05;
-use ai_kernel::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as t06;
-use ai_kernel::c02_classical_and_probabilistic_ml::t07_differentiable_trees_node_soft_gbdt_and_gam_nam as t07;
-use ai_kernel::c02_classical_and_probabilistic_ml::t08_matrix_factorization_als_nmf_bpr_and_fm as t08;
-use ai_kernel::c02_classical_and_probabilistic_ml::t09_hidden_markov_models_kalman_ukf_and_particle_filters as t09;
-use ai_kernel::c02_classical_and_probabilistic_ml::t10_survival_analysis_and_contextual_bandits as t10;
-use ai_kernel::c02_classical_and_probabilistic_ml::t11_probabilistic_graphical_models_factor_graphs_bp_and_cavi as t11;
-use ai_kernel::c02_classical_and_probabilistic_ml::t12_mcmc_hmc_sgld_and_stein_variational_gradient_descent_svgd as t12;
-use ai_kernel::c02_classical_and_probabilistic_ml::t13_tractable_probabilistic_circuits_spn_copulas_evt_and_sbi as t13;
 use candle_core::{Device, Result, safetensors::load};
+use sml_kernel::KernelDevice;
+use sml_kernel::c02_classical_and_probabilistic_ml::t01_generalized_linear_models_and_proximal_lasso as t01;
+use sml_kernel::c02_classical_and_probabilistic_ml::t02_support_vector_machines_and_kernel_methods as t02;
+use sml_kernel::c02_classical_and_probabilistic_ml::t03_knn_prototype_and_locally_weighted_regression as t03;
+use sml_kernel::c02_classical_and_probabilistic_ml::t04_clustering_kmeans_spectral_and_gmm_em as t04;
+use sml_kernel::c02_classical_and_probabilistic_ml::t05_dimensionality_reduction_pca_lda_ica_tsne_umap as t05;
+use sml_kernel::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as t06;
+use sml_kernel::c02_classical_and_probabilistic_ml::t07_differentiable_trees_node_soft_gbdt_and_gam_nam as t07;
+use sml_kernel::c02_classical_and_probabilistic_ml::t08_matrix_factorization_als_nmf_bpr_and_fm as t08;
+use sml_kernel::c02_classical_and_probabilistic_ml::t09_hidden_markov_models_kalman_ukf_and_particle_filters as t09;
+use sml_kernel::c02_classical_and_probabilistic_ml::t10_survival_analysis_and_contextual_bandits as t10;
+use sml_kernel::c02_classical_and_probabilistic_ml::t11_probabilistic_graphical_models_factor_graphs_bp_and_cavi as t11;
+use sml_kernel::c02_classical_and_probabilistic_ml::t12_mcmc_hmc_sgld_and_stein_variational_gradient_descent_svgd as t12;
+use sml_kernel::c02_classical_and_probabilistic_ml::t13_tractable_probabilistic_circuits_spn_copulas_evt_and_sbi as t13;
 
 #[path = "common/mod.rs"]
 mod common;

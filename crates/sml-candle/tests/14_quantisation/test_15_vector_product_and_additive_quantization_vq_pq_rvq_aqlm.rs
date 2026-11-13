@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t15_vector_product_and_additive_quantization_vq_pq_rvq_aqlm as topic;
+use sml_candle::c14_quantisation::t15_vector_product_and_additive_quantization_vq_pq_rvq_aqlm as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

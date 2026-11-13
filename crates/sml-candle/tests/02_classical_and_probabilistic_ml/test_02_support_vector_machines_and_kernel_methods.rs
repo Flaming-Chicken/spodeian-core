@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t02_support_vector_machines_and_kernel_methods as svm;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t02_support_vector_machines_and_kernel_methods as svm;
 use std::path::PathBuf;
 
 #[test]

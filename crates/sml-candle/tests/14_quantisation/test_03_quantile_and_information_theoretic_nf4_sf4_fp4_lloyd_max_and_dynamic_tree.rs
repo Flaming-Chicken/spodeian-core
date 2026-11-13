@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t03_quantile_and_information_theoretic_nf4_sf4_fp4_lloyd_max_and_dynamic_tree as topic;
+use sml_candle::c14_quantisation::t03_quantile_and_information_theoretic_nf4_sf4_fp4_lloyd_max_and_dynamic_tree as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

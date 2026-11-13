@@ -1,6 +1,6 @@
 use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c14_quantisation::t25_hawq_mixed_precision_bit_allocation_and_numeric_debugging as topic;
+use sml_candle::c14_quantisation::t25_hawq_mixed_precision_bit_allocation_and_numeric_debugging as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

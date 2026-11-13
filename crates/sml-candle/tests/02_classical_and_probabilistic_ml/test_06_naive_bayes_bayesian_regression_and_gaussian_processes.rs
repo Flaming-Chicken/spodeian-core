@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as bayes;
 use candle_core::{Device, Result, Tensor};
+use sml_candle::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as bayes;
 use std::path::PathBuf;
 
 #[test]
