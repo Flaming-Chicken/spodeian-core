@@ -288,7 +288,7 @@ pub async fn gem_pool_wgpu(
     });
 
     let total_channels = (b * c) as u32;
-    let _in_bytes = (x.len() * std::mem::size_of::<f32>()) as u64;
+    let _in_bytes = std::mem::size_of_val(x) as u64;
     let out_bytes = ((b * c) * std::mem::size_of::<f32>()) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -409,7 +409,7 @@ pub async fn gem_pool_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_channels + 63) / 64;
+        let workgroups = total_channels.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -444,10 +444,10 @@ pub async fn gem_pool_auto(
     p: f32,
     eps: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = gem_pool_wgpu(&ctx.0, &ctx.1, x, b, c, h, w, p, eps).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = gem_pool_wgpu(&ctx.0, &ctx.1, x, b, c, h, w, p, eps).await
+    {
+        return res;
     }
     gem_pool_cpu(x, b, c, h, w, p, eps)
 }

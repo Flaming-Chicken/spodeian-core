@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t07_differentiable_trees_node_soft_gbdt_and_gam_nam as trees;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t07_differentiable_trees_node_soft_gbdt_and_gam_nam as trees;
 use std::path::PathBuf;
 
 #[test]

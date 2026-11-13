@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t11_offline_rl_imitation_cql_iql_gail_and_decision_transformer as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t11_offline_rl_imitation_cql_iql_gail_and_decision_transformer as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_11_offline_rl_imitation_cql_iql_gail_and_decision_transformer_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/04_offline_rl_imitation_cql_iql_gail_and_decision_transformer.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/04_offline_rl_imitation_cql_iql_gail_and_decision_transformer.safetensors",
+        ),
         &device,
     )?;
 

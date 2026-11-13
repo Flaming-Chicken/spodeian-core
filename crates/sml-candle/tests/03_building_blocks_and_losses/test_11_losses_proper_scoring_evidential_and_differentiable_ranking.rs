@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 11: Losses Proper Scoring, Evidential, and Differentiable Ranking (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t11_losses_proper_scoring_evidential_and_differentiable_ranking::{
+use sml_candle::c03_building_blocks_and_losses::t11_losses_proper_scoring_evidential_and_differentiable_ranking::{
     beta_nll_forward, brier_score_forward, crps_gaussian_forward, edl_mse_forward, listmle_forward,
     soft_ranks_forward, LinearAnchor,
 };

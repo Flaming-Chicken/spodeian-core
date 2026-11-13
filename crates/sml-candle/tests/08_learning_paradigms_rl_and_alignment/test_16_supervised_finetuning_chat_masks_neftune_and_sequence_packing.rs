@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t16_supervised_finetuning_chat_masks_neftune_and_sequence_packing as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t16_supervised_finetuning_chat_masks_neftune_and_sequence_packing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_16_supervised_finetuning_chat_masks_neftune_and_sequence_packing_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/01_supervised_finetuning_chat_masks_neftune_and_sequence_packing.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/01_supervised_finetuning_chat_masks_neftune_and_sequence_packing.safetensors",
+        ),
         &device,
     )?;
 

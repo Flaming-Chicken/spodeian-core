@@ -49,11 +49,7 @@ pub fn is_numbered(name: &str) -> bool {
 
 /// Strips the `NN_` ordering prefix from a slug.
 pub fn strip_num(slug: &str) -> &str {
-    if is_numbered(slug) {
-        &slug[3..]
-    } else {
-        slug
-    }
+    if is_numbered(slug) { &slug[3..] } else { slug }
 }
 
 pub struct Repo {

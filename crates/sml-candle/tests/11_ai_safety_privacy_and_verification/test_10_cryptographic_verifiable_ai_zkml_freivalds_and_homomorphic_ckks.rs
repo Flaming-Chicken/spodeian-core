@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/10_cryptographic_verifiable_ai_zkml_freivalds_and_homomorphic_ckks.safetensors",
+        ),
         &device,
     )?;
 

@@ -2861,7 +2861,7 @@ dependencies = [
 
 [[package]]
 name = "sml-lake"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -2891,7 +2891,7 @@ dependencies = [
 
 [[package]]
 name = "sml-runtime"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ahash",
  "byteorder",
@@ -2965,12 +2965,12 @@ dependencies = [
 
 [[package]]
 name = "spodeian-core"
-version = "2.0.0"
+version = "2.1.0"
 dependencies = [
+ "sml-lake",
+ "sml-runtime",
  "spodeian-cache",
  "spodeian-export",
- "spodeian-lake",
- "spodeian-ml-utils",
  "spodeian-parallel",
  "spodeian-telemetry",
  "spodeian-tokens",
@@ -2992,32 +2992,16 @@ dependencies = [
 
 [[package]]
 name = "spodeian-lake"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
- "arrow-array",
- "arrow-schema",
- "bytes",
- "parquet",
- "rayon",
- "serde",
- "serde_json",
- "sha2",
- "spodeian-cache",
- "spodeian-export",
- "thiserror 2.0.21",
+ "sml-lake",
 ]
 
 [[package]]
 name = "spodeian-ml-utils"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
- "candle-core",
- "candle-nn",
- "safetensors 0.5.3",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "tracing",
+ "sml-runtime",
 ]
 
 [[package]]
@@ -3025,19 +3009,6 @@ name = "spodeian-parallel"
 version = "1.0.0"
 dependencies = [
  "rayon",
-]
-
-[[package]]
-name = "spodeian-py-bridge"
-version = "0.2.0"
-dependencies = [
- "pyo3",
- "serde",
- "serde_json",
- "spodeian-export",
- "spodeian-lake",
- "spodeian-ml-utils",
- "thiserror 2.0.21",
 ]
 
 [[package]]

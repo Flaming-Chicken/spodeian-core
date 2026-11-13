@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t08_value_based_rl_dqn_rainbow_and_qr_dqn as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t08_value_based_rl_dqn_rainbow_and_qr_dqn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_08_value_based_rl_dqn_rainbow_and_qr_dqn_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/01_value_based_rl_dqn_rainbow_and_qr_dqn.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/01_value_based_rl_dqn_rainbow_and_qr_dqn.safetensors",
+        ),
         &device,
     )?;
 

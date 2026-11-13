@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t06_population_based_training_pbt_and_darts_neural_architecture_search as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t06_population_based_training_pbt_and_darts_neural_architecture_search as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -10,7 +10,9 @@ fn test_06_population_based_training_pbt_and_darts_neural_architecture_search_pa
 {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/06_population_based_training_pbt_and_darts_neural_architecture_search.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/06_population_based_training_pbt_and_darts_neural_architecture_search.safetensors",
+        ),
         &device,
     )?;
 

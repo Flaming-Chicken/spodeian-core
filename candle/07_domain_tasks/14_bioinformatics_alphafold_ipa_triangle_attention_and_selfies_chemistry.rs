@@ -96,7 +96,7 @@ pub fn fape_loss(
                     + (lx[1] - ly[1]).powi(2)
                     + (lx[2] - ly[2]).powi(2)
                     + 1e-12;
-                let d = (d_sq as f32).sqrt().min(d_clamp as f32);
+                let d = d_sq.sqrt().min(d_clamp as f32);
                 total_loss += d;
             }
         }

@@ -11,11 +11,11 @@
 //! 7. Numerical stability of ODE solvers across every single `NumericType`.
 
 use candle_core::DType;
-use sml_runtime::logarithmic::{Log16, Log8};
+use sml_runtime::logarithmic::{Log8, Log16};
 use sml_runtime::optim::SelfOptimizingMetaConfig;
-use sml_runtime::precision::{get_precision, DataTypeSpec, NumericType};
+use sml_runtime::precision::{DataTypeSpec, NumericType, get_precision};
 use sml_runtime::quantization::{
-    dequantize_nf4, quantize_to_nf4, ternary_matmul_simd_f32, PositDecoder, NF4_CENTROIDS,
+    NF4_CENTROIDS, PositDecoder, dequantize_nf4, quantize_to_nf4, ternary_matmul_simd_f32,
 };
 use sml_runtime::solvers::{SelfOptimizingMetaIntegrator, SymplecticPreservingIntegrator};
 use sml_runtime::umbral::{RationalResidue, UmbralIntegerState, UmbralLatticeScalar};
@@ -164,7 +164,10 @@ fn test_logarithmic_arithmetic_exactness() {
     let tiny1 = Log16::from_f32(1e-12);
     let tiny2 = Log16::from_f32(1e-10);
     let tiny_prod = tiny1 * tiny2;
-    assert!(tiny_prod.to_f32() != 0.0, "Log16 must not underflow at 1e-22!");
+    assert!(
+        tiny_prod.to_f32() != 0.0,
+        "Log16 must not underflow at 1e-22!"
+    );
 }
 
 // ============================================================================

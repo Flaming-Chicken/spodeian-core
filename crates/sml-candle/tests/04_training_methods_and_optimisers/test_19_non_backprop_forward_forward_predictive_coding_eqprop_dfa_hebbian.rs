@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian::NonBackpropUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian::NonBackpropUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

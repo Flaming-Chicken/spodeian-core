@@ -4,12 +4,15 @@
 //! **Stability: Experimental** — API subject to change
 
 pub mod citation;
+pub mod generators;
 pub mod parquet_io;
 pub mod registry;
 pub mod schema;
 
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use citation::{CitationDistiller, CitationFormat};
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use generators::{SyntheticAcousticGenerator, SyntheticMarketGenerator, TabularSchema};
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use parquet_io::{ParquetError, TabularDataset};
 #[doc = "**Stability: Experimental** — API subject to change"]
@@ -171,6 +174,7 @@ impl WindowsDataLake {
 
     /// Stores a `TabularDataset` with explicit regime anomaly flags and crisis memory pinning.
     #[doc = "**Stability: Experimental** — API subject to change"]
+    #[allow(clippy::too_many_arguments)] // mirrors store_parquet's options; an options struct is planned for v3
     pub fn store_parquet_with_options(
         &mut self,
         dataset_id: &str,

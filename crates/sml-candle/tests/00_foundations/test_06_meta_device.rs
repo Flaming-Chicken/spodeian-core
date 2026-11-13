@@ -1,9 +1,9 @@
 //! Integration test for Topic 06: Module Internals, Parametrizations & Meta Device (Candle Track).
 
-use ai_candle::c00_foundations::t06_nn_module_internals_parametrizations_and_meta_device::{
-    cayley_transform, MetaTensor, OrthogonalLinear,
+use candle_core::{DType, Device, Result, Tensor, safetensors::load};
+use sml_candle::c00_foundations::t06_nn_module_internals_parametrizations_and_meta_device::{
+    MetaTensor, OrthogonalLinear, cayley_transform,
 };
-use candle_core::{safetensors::load, DType, Device, Result, Tensor};
 
 #[path = "../common/mod.rs"]
 mod common;

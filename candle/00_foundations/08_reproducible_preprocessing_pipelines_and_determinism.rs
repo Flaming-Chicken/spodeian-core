@@ -17,7 +17,7 @@
 //! # Examples
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t08_reproducible_preprocessing_pipelines_and_determinism::{
+//! use sml_candle::c00_foundations::t08_reproducible_preprocessing_pipelines_and_determinism::{
 //!     DeterministicLinear, hash_deterministic_split, kahan_sum_2d
 //! };
 //!

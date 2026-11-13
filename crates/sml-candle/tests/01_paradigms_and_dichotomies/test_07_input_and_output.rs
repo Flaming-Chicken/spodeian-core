@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 07: Input & Output Spaces (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds::{
+use sml_candle::c01_paradigms_and_dichotomies::t07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds::{
     fourier_coordinate_encode, rotation_6d_to_matrix, PatchEmbedding, PointerNetworkLayer,
 };
 use candle_core::{safetensors::load, Device, Result};

@@ -1,9 +1,9 @@
 //! Integration test for Topic 08: Determinism, Kahan Summation & Hash Partitioning (Candle Track).
 
-use ai_candle::c00_foundations::t08_reproducible_preprocessing_pipelines_and_determinism::{
-    fnv1a_hash, hash_deterministic_split, kahan_sum_2d, DeterministicLinear,
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t08_reproducible_preprocessing_pipelines_and_determinism::{
+    DeterministicLinear, fnv1a_hash, hash_deterministic_split, kahan_sum_2d,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

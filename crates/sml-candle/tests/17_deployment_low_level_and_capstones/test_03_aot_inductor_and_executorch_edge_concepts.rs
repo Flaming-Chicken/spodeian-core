@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t03_aot_inductor_and_executorch_edge_concepts as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t03_aot_inductor_and_executorch_edge_concepts as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_03_aot_inductor_and_executorch_edge_concepts_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("17_deployment_low_level_and_capstones/03_aot_inductor_and_executorch_edge_concepts.safetensors"),
+        common::get_weights_path(
+            "17_deployment_low_level_and_capstones/03_aot_inductor_and_executorch_edge_concepts.safetensors",
+        ),
         &device,
     )?;
 

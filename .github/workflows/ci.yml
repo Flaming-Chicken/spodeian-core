@@ -34,11 +34,11 @@ jobs:
         uses: taiki-e/install-action@nextest
 
       - name: Run Test Suite with Nextest
-        run: cargo nextest run --workspace --all-targets --exclude spodeian-py-bridge --profile ci
+        run: cargo nextest run --workspace --all-targets --exclude sml-py-bridge --profile ci
 
       - name: Check WebAssembly Compilation
-        # spodeian-py-bridge links CPython through PyO3 and cannot target wasm32.
-        run: cargo check --workspace --exclude spodeian-py-bridge --target wasm32-unknown-unknown
+        # sml-py-bridge links CPython through PyO3 and cannot target wasm32.
+        run: cargo check --workspace --exclude sml-py-bridge --target wasm32-unknown-unknown
 
       - name: Install wasm-bindgen Test Runner (version from Cargo.lock)
         run: |
@@ -53,8 +53,19 @@ jobs:
           export CHROMEDRIVER="$CHROMEWEBDRIVER/chromedriver"
           cargo test --target wasm32-unknown-unknown --lib --tests -p spodeian-cache -p spodeian-telemetry -p spodeian-web-utils
 
+      # tokenizers (via candle) builds oniguruma from C, so the Android check
+      # needs the NDK's clang; cargo-ndk points cc-rs at it.
+      - name: Install cargo-ndk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-ndk
+
       - name: Check Android Compilation
-        run: cargo check --workspace --target aarch64-linux-android
+        run: |
+          if [ -d "$ANDROID_HOME/ndk" ]; then
+            export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$(ls -1 "$ANDROID_HOME/ndk" | sort -V | tail -n 1)"
+          fi
+          cargo ndk -t arm64-v8a check --workspace
 
   semver-checks:
     name: Semver Stability Gate
@@ -82,3 +93,37 @@ jobs:
             cargo semver-checks check-release -p "$crate" --baseline-rev origin/main || status=1
           done
           exit $status
+
+  python:
+    name: Python (uv + pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: python/uv.lock
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      # The tests import the compiled spodeian_py_bridge (crates/sml-py-bridge).
+      - name: Build the Rust bridge
+        run: uv run python scripts/build_bridge.py
+
+      - name: Run Test Suite
+        run: uv run pytest

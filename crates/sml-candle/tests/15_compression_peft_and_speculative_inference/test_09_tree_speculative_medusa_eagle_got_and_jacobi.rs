@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t09_tree_speculative_medusa_eagle_got_and_jacobi as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t09_tree_speculative_medusa_eagle_got_and_jacobi as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_09_tree_speculative_medusa_eagle_got_and_jacobi_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/04_tree_speculative_medusa_eagle_got_and_jacobi.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/04_tree_speculative_medusa_eagle_got_and_jacobi.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

@@ -125,8 +125,8 @@ mod tests {
     fn test_badge_gradient_embeddings_cpu() {
         let feats = vec![1.0, 2.0]; // [1, 2]
         let probs = vec![0.8, 0.2]; // [1, 2], argmax = 0
-                                    // diff: [0.8 - 1.0, 0.2 - 0.0] = [-0.2, 0.2]
-                                    // embed: [-0.2 * 1, -0.2 * 2, 0.2 * 1, 0.2 * 2] = [-0.2, -0.4, 0.2, 0.4]
+        // diff: [0.8 - 1.0, 0.2 - 0.0] = [-0.2, 0.2]
+        // embed: [-0.2 * 1, -0.2 * 2, 0.2 * 1, 0.2 * 2] = [-0.2, -0.4, 0.2, 0.4]
         let embeds = badge_gradient_embeddings_cpu(&feats, &probs, 1, 2, 2);
         assert!((embeds[0] - (-0.2)).abs() < 1e-5);
         assert!((embeds[1] - (-0.4)).abs() < 1e-5);

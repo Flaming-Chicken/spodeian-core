@@ -24,7 +24,7 @@ pub fn ddp_bucketed_allreduce(
     }
     let world_size = dims[0];
     let num_params = dims[1];
-    let num_buckets = (num_params + bucket_cap - 1) / bucket_cap;
+    let num_buckets = num_params.div_ceil(bucket_cap);
 
     let mut bucket_results = Vec::with_capacity(num_buckets);
     for b in 0..num_buckets {

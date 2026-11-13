@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t10_capstone_modern_llm_end_to_end_pipeline as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t10_capstone_modern_llm_end_to_end_pipeline as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

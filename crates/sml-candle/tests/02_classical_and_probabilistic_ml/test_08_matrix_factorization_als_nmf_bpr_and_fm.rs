@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t08_matrix_factorization_als_nmf_bpr_and_fm as mf;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t08_matrix_factorization_als_nmf_bpr_and_fm as mf;
 use std::path::PathBuf;
 
 #[test]

@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t05_dimensionality_reduction_pca_lda_ica_tsne_umap as dr;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t05_dimensionality_reduction_pca_lda_ica_tsne_umap as dr;
 use std::path::PathBuf;
 
 #[test]

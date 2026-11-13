@@ -36,7 +36,10 @@ fn test_training_continuous_f64() -> Result<()> {
     }
 
     let final_loss = var.as_tensor().sqr()?.sum_all()?.to_scalar::<f64>()?;
-    println!("F64 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
+    println!(
+        "F64 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
     assert!(final_loss < 1e-4, "F64 training failed to converge!");
     Ok(())
 }
@@ -57,7 +60,10 @@ fn test_training_continuous_f32() -> Result<()> {
     }
 
     let final_loss = var.as_tensor().sqr()?.sum_all()?.to_scalar::<f32>()?;
-    println!("F32 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
+    println!(
+        "F32 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
     assert!(final_loss < 1e-3, "F32 training failed to converge!");
     Ok(())
 }
@@ -70,7 +76,12 @@ fn test_training_continuous_bf16() -> Result<()> {
     let config = SelfOptimizingMetaConfig::for_dtype(DType::BF16);
     let mut opt = SelfOptimizingMeta::new(vec![var.clone()], config);
 
-    let initial_loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
+    let initial_loss = var
+        .as_tensor()
+        .to_dtype(DType::F32)?
+        .sqr()?
+        .sum_all()?
+        .to_scalar::<f32>()?;
 
     for _ in 0..40 {
         let loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?;
@@ -78,8 +89,16 @@ fn test_training_continuous_bf16() -> Result<()> {
         opt.step(&grads)?;
     }
 
-    let final_loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
-    println!("BF16 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
+    let final_loss = var
+        .as_tensor()
+        .to_dtype(DType::F32)?
+        .sqr()?
+        .sum_all()?
+        .to_scalar::<f32>()?;
+    println!(
+        "BF16 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
     assert!(final_loss < 0.05, "BF16 training failed to converge!");
     Ok(())
 }
@@ -92,7 +111,12 @@ fn test_training_continuous_f16() -> Result<()> {
     let config = SelfOptimizingMetaConfig::for_dtype(DType::F16);
     let mut opt = SelfOptimizingMeta::new(vec![var.clone()], config);
 
-    let initial_loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
+    let initial_loss = var
+        .as_tensor()
+        .to_dtype(DType::F32)?
+        .sqr()?
+        .sum_all()?
+        .to_scalar::<f32>()?;
 
     for _ in 0..40 {
         let loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?;
@@ -100,8 +124,16 @@ fn test_training_continuous_f16() -> Result<()> {
         opt.step(&grads)?;
     }
 
-    let final_loss = var.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
-    println!("F16 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
+    let final_loss = var
+        .as_tensor()
+        .to_dtype(DType::F32)?
+        .sqr()?
+        .sum_all()?
+        .to_scalar::<f32>()?;
+    println!(
+        "F16 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
     assert!(final_loss < 0.05, "F16 training failed to converge!");
     Ok(())
 }
@@ -116,11 +148,14 @@ fn test_training_quantized_nf4() {
     let mut weights = vec![1.5f32, -2.0, 0.8, -1.2];
     let lr = 0.1f32;
 
-    let initial_loss: f32 = weights.iter().map(|&w| {
-        let code = quantize_to_nf4(w);
-        let w_q = dequantize_nf4(code);
-        w_q * w_q
-    }).sum();
+    let initial_loss: f32 = weights
+        .iter()
+        .map(|&w| {
+            let code = quantize_to_nf4(w);
+            let w_q = dequantize_nf4(code);
+            w_q * w_q
+        })
+        .sum();
 
     for _ in 0..40 {
         for w in weights.iter_mut() {
@@ -132,14 +167,23 @@ fn test_training_quantized_nf4() {
         }
     }
 
-    let final_loss: f32 = weights.iter().map(|&w| {
-        let code = quantize_to_nf4(w);
-        let w_q = dequantize_nf4(code);
-        w_q * w_q
-    }).sum();
+    let final_loss: f32 = weights
+        .iter()
+        .map(|&w| {
+            let code = quantize_to_nf4(w);
+            let w_q = dequantize_nf4(code);
+            w_q * w_q
+        })
+        .sum();
 
-    println!("NF4 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
-    assert!(final_loss < initial_loss * 0.10, "NF4 training failed to minimize loss!");
+    println!(
+        "NF4 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
+    assert!(
+        final_loss < initial_loss * 0.10,
+        "NF4 training failed to minimize loss!"
+    );
 }
 
 #[test]
@@ -148,10 +192,13 @@ fn test_training_quantized_posit8() {
     let mut weights = vec![2.0f32, -1.0, 4.0, -2.0];
     let lr = 0.1f32;
 
-    let initial_loss: f32 = weights.iter().map(|&w| {
-        let w_q = decode_posit8(encode_posit8(w));
-        w_q * w_q
-    }).sum();
+    let initial_loss: f32 = weights
+        .iter()
+        .map(|&w| {
+            let w_q = decode_posit8(encode_posit8(w));
+            w_q * w_q
+        })
+        .sum();
 
     for _ in 0..40 {
         for w in weights.iter_mut() {
@@ -161,13 +208,22 @@ fn test_training_quantized_posit8() {
         }
     }
 
-    let final_loss: f32 = weights.iter().map(|&w| {
-        let w_q = decode_posit8(encode_posit8(w));
-        w_q * w_q
-    }).sum();
+    let final_loss: f32 = weights
+        .iter()
+        .map(|&w| {
+            let w_q = decode_posit8(encode_posit8(w));
+            w_q * w_q
+        })
+        .sum();
 
-    println!("Posit8 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
-    assert!(final_loss < initial_loss * 0.10, "Posit8 training failed to minimize loss!");
+    println!(
+        "Posit8 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
+    assert!(
+        final_loss < initial_loss * 0.10,
+        "Posit8 training failed to minimize loss!"
+    );
 }
 
 #[test]
@@ -178,10 +234,13 @@ fn test_training_quantized_int8() {
     let lr = 0.05f32;
     let mut shadow_res: Vec<f32> = vec![0.0; 4];
 
-    let initial_loss: f32 = weights_int8.iter().map(|&w| {
-        let wf = w as f32 * inv_scale;
-        wf * wf
-    }).sum();
+    let initial_loss: f32 = weights_int8
+        .iter()
+        .map(|&w| {
+            let wf = w as f32 * inv_scale;
+            wf * wf
+        })
+        .sum();
 
     for _ in 0..50 {
         for i in 0..weights_int8.len() {
@@ -197,13 +256,22 @@ fn test_training_quantized_int8() {
         }
     }
 
-    let final_loss: f32 = weights_int8.iter().map(|&w| {
-        let wf = w as f32 * inv_scale;
-        wf * wf
-    }).sum();
+    let final_loss: f32 = weights_int8
+        .iter()
+        .map(|&w| {
+            let wf = w as f32 * inv_scale;
+            wf * wf
+        })
+        .sum();
 
-    println!("INT8 Training: initial = {:.4e}, final = {:.4e}", initial_loss, final_loss);
-    assert!(final_loss < initial_loss * 0.10, "INT8 training failed to minimize loss!");
+    println!(
+        "INT8 Training: initial = {:.4e}, final = {:.4e}",
+        initial_loss, final_loss
+    );
+    assert!(
+        final_loss < initial_loss * 0.10,
+        "INT8 training failed to minimize loss!"
+    );
 }
 
 #[test]
@@ -211,22 +279,43 @@ fn test_training_quantized_ternary() {
     let mut latent_weights = vec![1.8f32, -2.4, 0.9, -1.5];
     let lr = 0.15f32;
 
-    let _initial_loss: f32 = latent_weights.iter().map(|&w| {
-        let t = if w > 0.5 { 1.0f32 } else if w < -0.5 { -1.0 } else { 0.0 };
-        (t - 0.0).powi(2)
-    }).sum();
+    let _initial_loss: f32 = latent_weights
+        .iter()
+        .map(|&w| {
+            let t = if w > 0.5 {
+                1.0f32
+            } else if w < -0.5 {
+                -1.0
+            } else {
+                0.0
+            };
+            (t - 0.0).powi(2)
+        })
+        .sum();
 
     for _ in 0..40 {
         for w in latent_weights.iter_mut() {
-            let t = if *w > 0.5 { 1.0f32 } else if *w < -0.5 { -1.0 } else { 0.0 };
+            let t = if *w > 0.5 {
+                1.0f32
+            } else if *w < -0.5 {
+                -1.0
+            } else {
+                0.0
+            };
             let grad = 2.0 * t;
             *w -= lr * grad;
         }
     }
 
     let final_ternary_active: usize = latent_weights.iter().filter(|&&w| w.abs() > 0.5).count();
-    println!("Ternary Training: initial active = 4, final active = {}", final_ternary_active);
-    assert_eq!(final_ternary_active, 0, "Ternary weights should contract to zero state!");
+    println!(
+        "Ternary Training: initial active = 4, final active = {}",
+        final_ternary_active
+    );
+    assert_eq!(
+        final_ternary_active, 0,
+        "Ternary weights should contract to zero state!"
+    );
 }
 
 // ============================================================================
@@ -248,8 +337,15 @@ fn test_training_pure_integer_i32() {
     }
 
     let final_norm: i64 = coords.iter().map(|&x| (x as i64) * (x as i64)).sum();
-    println!("Pure Integer i32 Training: initial norm = {}, final norm = {}", initial_norm, final_norm);
-    assert!(final_norm <= 16, "Integer lattice training must contract to origin neighborhood, got {}", final_norm);
+    println!(
+        "Pure Integer i32 Training: initial norm = {}, final norm = {}",
+        initial_norm, final_norm
+    );
+    assert!(
+        final_norm <= 16,
+        "Integer lattice training must contract to origin neighborhood, got {}",
+        final_norm
+    );
 }
 
 #[test]
@@ -306,7 +402,10 @@ fn test_training_with_cdf_probability_integral_transform() -> Result<()> {
     let dist = GeneralDistribution::standard_gaussian();
     let target_prob = 0.8413447; // Corresponds to x = 1.0
 
-    let mut opt = SelfOptimizingMeta::new(vec![var.clone()], SelfOptimizingMetaConfig::for_dtype(DType::F64));
+    let mut opt = SelfOptimizingMeta::new(
+        vec![var.clone()],
+        SelfOptimizingMetaConfig::for_dtype(DType::F64),
+    );
 
     for _ in 0..30 {
         let x_curr = var.as_tensor().to_vec1::<f64>()?[0];
@@ -324,8 +423,14 @@ fn test_training_with_cdf_probability_integral_transform() -> Result<()> {
 
     let x_final = var.as_tensor().to_vec1::<f64>()?[0];
     let cdf_final = dist.cdf(x_final);
-    println!("CDF Transform Training: x_final = {:.4}, cdf_final = {:.4} (target = {:.4})", x_final, cdf_final, target_prob);
-    assert!((cdf_final - target_prob).abs() < 1e-2, "CDF transform training failed to match target probability!");
+    println!(
+        "CDF Transform Training: x_final = {:.4}, cdf_final = {:.4} (target = {:.4})",
+        x_final, cdf_final, target_prob
+    );
+    assert!(
+        (cdf_final - target_prob).abs() < 1e-2,
+        "CDF transform training failed to match target probability!"
+    );
     assert!((x_final - 1.0).abs() < 0.05);
     Ok(())
 }
@@ -346,8 +451,14 @@ fn test_training_with_mle_log_pdf() -> Result<()> {
         mu -= lr * (nll_grad / samples.len() as f64);
     }
 
-    println!("MLE Log-PDF Training: estimated mu = {:.4} (true = 2.000)", mu);
-    assert!((mu - 2.0).abs() < 0.05, "MLE Log-PDF training failed to converge to sample mean!");
+    println!(
+        "MLE Log-PDF Training: estimated mu = {:.4} (true = 2.000)",
+        mu
+    );
+    assert!(
+        (mu - 2.0).abs() < 0.05,
+        "MLE Log-PDF training failed to converge to sample mean!"
+    );
     Ok(())
 }
 
@@ -361,11 +472,17 @@ fn test_training_with_discrete_pmf_loss_on_integers() {
     let lr = 0.2f64;
 
     for _ in 0..50 {
-        let dist = GeneralDistribution::new(DistributionKind::Logistic { location: mu, scale: 1.0 });
+        let dist = GeneralDistribution::new(DistributionKind::Logistic {
+            location: mu,
+            scale: 1.0,
+        });
         let pmf = dist.discrete_pmf(target_k, grid_step).max(1e-12);
         // Numerical difference gradient d(-ln pmf)/dmu
         let eps = 1e-5;
-        let dist_plus = GeneralDistribution::new(DistributionKind::Logistic { location: mu + eps, scale: 1.0 });
+        let dist_plus = GeneralDistribution::new(DistributionKind::Logistic {
+            location: mu + eps,
+            scale: 1.0,
+        });
         let pmf_plus = dist_plus.discrete_pmf(target_k, grid_step).max(1e-12);
         let grad_mu = -(pmf_plus.ln() - pmf.ln()) / eps;
 
@@ -373,6 +490,12 @@ fn test_training_with_discrete_pmf_loss_on_integers() {
     }
 
     let target_center = (target_k as f64 + 0.5) * grid_step;
-    println!("Discrete PMF Training: converged mu = {:.4} (target center = {:.4})", mu, target_center);
-    assert!((mu - target_center).abs() < 0.10, "Discrete PMF loss failed to align with target integer bin!");
+    println!(
+        "Discrete PMF Training: converged mu = {:.4} (target center = {:.4})",
+        mu, target_center
+    );
+    assert!(
+        (mu - target_center).abs() < 0.10,
+        "Discrete PMF loss failed to align with target integer bin!"
+    );
 }

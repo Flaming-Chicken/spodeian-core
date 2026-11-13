@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t17_rlhf_reward_modeling_and_ppo_vs_rloo as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t17_rlhf_reward_modeling_and_ppo_vs_rloo as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_17_rlhf_reward_modeling_and_ppo_vs_rloo_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/02_rlhf_reward_modeling_and_ppo_vs_rloo.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/02_rlhf_reward_modeling_and_ppo_vs_rloo.safetensors",
+        ),
         &device,
     )?;
 

@@ -4,9 +4,8 @@
 
 use sml_runtime::solvers::TrainedPcecIntegrator;
 use sml_runtime::trajectory::{
-    estimate_jacobian_spectral_radius, BoxConstraints, CompressedTrajectory,
-    ConstraintManifold, DenseHermiteTrajectory, FlatHistoryBuffer, SimplexConstraint,
-    SphereConstraint,
+    BoxConstraints, CompressedTrajectory, ConstraintManifold, DenseHermiteTrajectory,
+    FlatHistoryBuffer, SimplexConstraint, SphereConstraint, estimate_jacobian_spectral_radius,
 };
 
 #[test]
@@ -123,7 +122,11 @@ fn test_manifold_constraints() {
     simplex.project(&mut probs);
 
     let sum: f32 = probs.iter().sum();
-    assert!((sum - 1.0).abs() < 1e-5, "Simplex sum must be 1.0, got {}", sum);
+    assert!(
+        (sum - 1.0).abs() < 1e-5,
+        "Simplex sum must be 1.0, got {}",
+        sum
+    );
     for &p in probs.iter() {
         assert!(p >= 0.0, "Simplex probabilities must be non-negative");
     }
@@ -148,9 +151,8 @@ fn test_stiffness_spectral_radius_detection() {
     let x = vec![1.0f32];
     let base_v = vec![-lambda * x[0]];
 
-    let est_radius = estimate_jacobian_spectral_radius(&x, 0.0f32, &base_v, |xt, _t| {
-        vec![-lambda * xt[0]]
-    });
+    let est_radius =
+        estimate_jacobian_spectral_radius(&x, 0.0f32, &base_v, |xt, _t| vec![-lambda * xt[0]]);
 
     assert!(
         (est_radius - lambda).abs() < 1.0,

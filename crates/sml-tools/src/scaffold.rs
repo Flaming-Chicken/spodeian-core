@@ -3,19 +3,19 @@
 
 use std::fs;
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
-use crate::curriculum::{Readme, Topic, README};
-use crate::repo::{file_name, parent, relative, strip_num, Repo, TRACKS};
+use crate::curriculum::{README, Readme, Topic};
+use crate::repo::{Repo, TRACKS, file_name, parent, relative, strip_num};
 use crate::sync;
 
 fn src_lines(text: &str) -> Value {
     let lines: Vec<String> = text.split_inclusive('\n').map(str::to_string).collect();
     let mut lines = lines;
-    if let Some(last) = lines.last_mut() {
-        if last.ends_with('\n') {
-            last.pop();
-        }
+    if let Some(last) = lines.last_mut()
+        && last.ends_with('\n')
+    {
+        last.pop();
     }
     json!(lines)
 }
@@ -277,7 +277,7 @@ fn candle_test(topic: &Topic, module: &str) -> String {
     let rel = topic.id.as_str();
     let fn_name = module.replacen('t', "test_", 1);
     format!(
-        "use candle_core::{{safetensors::load, Device, Result}};\n\nuse ai_candle::c{cat}::{module} as topic;\n\n#[path = \"../common/mod.rs\"]\nmod common;\n\n#[test]\n#[ignore = \"TODO: remove once weights/{rel}.safetensors and the implementation exist\"]\nfn {fn_name}_parity() -> Result<()> {{\n    let device = Device::Cpu;\n    let w = load(common::get_weights_path(\"{rel}.safetensors\"), &device)?;\n    let y = topic::linear_anchor(&w[\"test_input\"], &w[\"weight\"], &w[\"bias\"])?;\n    common::assert_max_diff(&y, &w[\"test_output\"], 1e-5)\n}}\n",
+        "use candle_core::{{safetensors::load, Device, Result}};\n\nuse sml_candle::c{cat}::{module} as topic;\n\n#[path = \"../common/mod.rs\"]\nmod common;\n\n#[test]\n#[ignore = \"TODO: remove once weights/{rel}.safetensors and the implementation exist\"]\nfn {fn_name}_parity() -> Result<()> {{\n    let device = Device::Cpu;\n    let w = load(common::get_weights_path(\"{rel}.safetensors\"), &device)?;\n    let y = topic::linear_anchor(&w[\"test_input\"], &w[\"weight\"], &w[\"bias\"])?;\n    common::assert_max_diff(&y, &w[\"test_output\"], 1e-5)\n}}\n",
         cat = topic.category()
     )
 }
@@ -364,10 +364,11 @@ pub fn next_topic_filtered<'a>(
     cat_filter: Option<&str>,
 ) -> Option<(&'a Topic, crate::curriculum::Status, Vec<&'static str>)> {
     for t in &readme.topics {
-        if let Some(cat) = cat_filter {
-            if t.category() != cat && !t.category().starts_with(cat) {
-                continue;
-            }
+        if let Some(cat) = cat_filter
+            && t.category() != cat
+            && !t.category().starts_with(cat)
+        {
+            continue;
         }
         let (s, missing) = sync::derived(repo, &t.id);
         if s == crate::curriculum::Status::Wip {
@@ -375,10 +376,11 @@ pub fn next_topic_filtered<'a>(
         }
     }
     for t in &readme.topics {
-        if let Some(cat) = cat_filter {
-            if t.category() != cat && !t.category().starts_with(cat) {
-                continue;
-            }
+        if let Some(cat) = cat_filter
+            && t.category() != cat
+            && !t.category().starts_with(cat)
+        {
+            continue;
         }
         let (s, missing) = sync::derived(repo, &t.id);
         if s == crate::curriculum::Status::Planned {
@@ -462,7 +464,9 @@ pub fn notebook_tool(
             }
             return Err(msg);
         }
-        return Ok(format!("[PASS] {nb_rel} satisfies all 8-cell layout, output stripping, and semantic contract rules."));
+        return Ok(format!(
+            "[PASS] {nb_rel} satisfies all 8-cell layout, output stripping, and semantic contract rules."
+        ));
     }
 
     if let Some(out_path) = export_file {

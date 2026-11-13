@@ -87,8 +87,8 @@ pub fn linear_jvp_wgpu(
         in_dim: in_dim as u32,
         out_dim: out_dim as u32,
     };
-    let wg_x = ((batch as u32) + 15) / 16;
-    let wg_y = ((out_dim as u32) + 15) / 16;
+    let wg_x = (batch as u32).div_ceil(16);
+    let wg_y = (out_dim as u32).div_ceil(16);
 
     // Use single output buffer packing both y and vy to reuse run_compute_shader
     // WGSL compute pipeline layout:

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t05_quality_diversity_map_elites_and_differentiable_qd as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t05_quality_diversity_map_elites_and_differentiable_qd as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_05_quality_diversity_map_elites_and_differentiable_qd_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/05_quality_diversity_map_elites_and_differentiable_qd.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/05_quality_diversity_map_elites_and_differentiable_qd.safetensors",
+        ),
         &device,
     )?;
 

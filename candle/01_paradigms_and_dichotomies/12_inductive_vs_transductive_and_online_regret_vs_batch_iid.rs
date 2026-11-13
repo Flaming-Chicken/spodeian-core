@@ -26,9 +26,7 @@ fn invert_square_matrix(mat: &[f32], n: usize) -> Vec<f32> {
         }
         if pivot_row != i {
             for c in 0..(2 * n) {
-                let tmp = a[i * 2 * n + c];
-                a[i * 2 * n + c] = a[pivot_row * 2 * n + c];
-                a[pivot_row * 2 * n + c] = tmp;
+                a.swap(i * 2 * n + c, pivot_row * 2 * n + c);
             }
         }
 

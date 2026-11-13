@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 10: Losses Optimal Transport, Wasserstein, Sinkhorn, and MMD (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd::{
+use sml_candle::c03_building_blocks_and_losses::t10_losses_optimal_transport_wasserstein_sinkhorn_and_mmd::{
     debiased_sinkhorn_forward, energy_distance_forward, mmd_forward,
     sinkhorn_cost_forward, sliced_wasserstein_forward, wasserstein_1d_forward, LinearAnchor,
 };

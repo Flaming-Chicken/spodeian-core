@@ -322,8 +322,8 @@ pub fn soft_moe_dispatch_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups_x = (total_slots as u32 + 15) / 16;
-        let workgroups_y = (d_model as u32 + 15) / 16;
+        let workgroups_x = (total_slots as u32).div_ceil(16);
+        let workgroups_y = (d_model as u32).div_ceil(16);
         pass.dispatch_workgroups(workgroups_x, workgroups_y, 1);
     }
 
@@ -358,10 +358,10 @@ pub fn soft_moe_dispatch_auto(
     d_model: usize,
     total_slots: usize,
 ) -> Vec<f32> {
-    if let Some(c) = ctx {
-        if let Some(gpu_out) = soft_moe_dispatch_wgpu(c, x, phi, num_tokens, d_model, total_slots) {
-            return gpu_out;
-        }
+    if let Some(c) = ctx
+        && let Some(gpu_out) = soft_moe_dispatch_wgpu(c, x, phi, num_tokens, d_model, total_slots)
+    {
+        return gpu_out;
     }
     soft_moe_dispatch_cpu(x, phi, num_tokens, d_model, total_slots)
 }

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t01_lipschitz_networks_bjorck_cayley_and_groupsort as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t01_lipschitz_networks_bjorck_cayley_and_groupsort as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_01_lipschitz_networks_bjorck_cayley_and_groupsort_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("06_smooth_and_physics_informed_ai/01_lipschitz_networks_bjorck_cayley_and_groupsort.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "06_smooth_and_physics_informed_ai/01_lipschitz_networks_bjorck_cayley_and_groupsort.safetensors",
+        ),
+        &device,
+    )?;
 
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;
     common::assert_max_diff(&y, &w["test_output"], 1e-5)?;

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t08_diloco_local_sgd_powersgd_and_distributed_checkpointing as topic;
+use sml_candle::c16_distributed_and_scalable::t08_diloco_local_sgd_powersgd_and_distributed_checkpointing as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_08_diloco_local_sgd_powersgd_and_distributed_checkpointing_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("16_distributed_and_scalable/08_diloco_local_sgd_powersgd_and_distributed_checkpointing.safetensors"),
+        common::get_weights_path(
+            "16_distributed_and_scalable/08_diloco_local_sgd_powersgd_and_distributed_checkpointing.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/05_safe_rl_constrained_mdp_ppo_lagrangian_cvar_and_cbf.safetensors",
+        ),
         &device,
     )?;
 

@@ -59,7 +59,11 @@ fn test_condition_number_stress_ladder_f64() -> Result<()> {
             kappa.log10().round() as i32,
             initial_loss,
             final_loss,
-            if final_loss < initial_loss { "CONVERGED" } else { "FAILED" }
+            if final_loss < initial_loss {
+                "CONVERGED"
+            } else {
+                "FAILED"
+            }
         );
 
         assert!(

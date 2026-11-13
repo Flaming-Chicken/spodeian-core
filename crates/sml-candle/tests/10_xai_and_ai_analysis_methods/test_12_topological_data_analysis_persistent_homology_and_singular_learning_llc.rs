@@ -1,16 +1,18 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c10_xai_and_ai_analysis_methods::t12_topological_data_analysis_persistent_homology_and_singular_learning_llc as topic;
+use sml_candle::c10_xai_and_ai_analysis_methods::t12_topological_data_analysis_persistent_homology_and_singular_learning_llc as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
 
 #[test]
-fn test_12_topological_data_analysis_persistent_homology_and_singular_learning_llc_parity(
-) -> Result<()> {
+fn test_12_topological_data_analysis_persistent_homology_and_singular_learning_llc_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/12_topological_data_analysis_persistent_homology_and_singular_learning_llc.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/12_topological_data_analysis_persistent_homology_and_singular_learning_llc.safetensors",
+        ),
         &device,
     )?;
 

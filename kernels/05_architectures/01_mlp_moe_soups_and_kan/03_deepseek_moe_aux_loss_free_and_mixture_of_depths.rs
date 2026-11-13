@@ -325,8 +325,8 @@ pub fn mod_selective_gating_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups_x = (num_tokens as u32 + 15) / 16;
-        let workgroups_y = (d_model as u32 + 15) / 16;
+        let workgroups_x = (num_tokens as u32).div_ceil(16);
+        let workgroups_y = (d_model as u32).div_ceil(16);
         pass.dispatch_workgroups(workgroups_x, workgroups_y, 1);
     }
 
@@ -362,12 +362,11 @@ pub fn mod_selective_gating_auto(
     num_tokens: usize,
     d_model: usize,
 ) -> Vec<f32> {
-    if let Some(c) = ctx {
-        if let Some(gpu_out) =
+    if let Some(c) = ctx
+        && let Some(gpu_out) =
             mod_selective_gating_wgpu(c, x, block_out, gate, mask, num_tokens, d_model)
-        {
-            return gpu_out;
-        }
+    {
+        return gpu_out;
     }
     mod_selective_gating_cpu(x, block_out, gate, mask, num_tokens, d_model)
 }

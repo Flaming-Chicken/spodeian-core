@@ -90,8 +90,8 @@ pub fn linear_forward_wgpu(
         in_dim: in_dim as u32,
         out_dim: out_dim as u32,
     };
-    let wg_x = ((batch as u32) + 15) / 16;
-    let wg_y = ((out_dim as u32) + 15) / 16;
+    let wg_x = (batch as u32).div_ceil(16);
+    let wg_y = (out_dim as u32).div_ceil(16);
 
     let bytes = crate::wgpu_util::run_compute_shader(
         ctx,

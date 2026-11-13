@@ -100,9 +100,7 @@ pub fn pav_isotonic_regression(y: &[f32]) -> Vec<f32> {
             blocks[i].2 += blocks[i + 1].2;
             blocks[i].3 += blocks[i + 1].3;
             blocks.remove(i + 1);
-            if i > 0 {
-                i -= 1;
-            }
+            i = i.saturating_sub(1);
         } else {
             i += 1;
         }

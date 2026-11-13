@@ -1,4 +1,4 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t01_generalized_linear_models_and_proximal_lasso::GLMUnifiedModule;
+use sml_candle::c02_classical_and_probabilistic_ml::t01_generalized_linear_models_and_proximal_lasso::GLMUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

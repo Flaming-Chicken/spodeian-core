@@ -1,6 +1,6 @@
 //! Integration test for Topic 11: Randomized Linear Algebra, Spectral Autograd & Hutch++ (Candle Track).
 
-use ai_candle::c00_foundations::t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp::{
+use sml_candle::c00_foundations::t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp::{
     hutch_plus_plus_trace, lorentzian_broadened_f_matrix, modified_gram_schmidt_qr,
     power_iteration_spectral_norm, SpectralLinear,
 };

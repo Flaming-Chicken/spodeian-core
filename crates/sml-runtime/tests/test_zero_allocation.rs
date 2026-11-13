@@ -1,7 +1,7 @@
 //! Phase P6: Counting Allocator Verification Gate.
 //! Asserts that native coordinate updates execute with strictly ZERO heap allocations during steady state.
 
-use sml_runtime::optim_kernels::{update_coordinates_f32, KernelUpdateParams};
+use sml_runtime::optim_kernels::{KernelUpdateParams, update_coordinates_f32};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 

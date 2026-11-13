@@ -267,7 +267,7 @@ pub fn cavi_gmm_step_auto(
                 });
                 compute_pass.set_pipeline(&pipeline);
                 compute_pass.set_bind_group(0, &bind_group, &[]);
-                let wg_x = ((n as u32) + 63) / 64;
+                let wg_x = (n as u32).div_ceil(64);
                 compute_pass.dispatch_workgroups(wg_x, 1, 1);
             }
 

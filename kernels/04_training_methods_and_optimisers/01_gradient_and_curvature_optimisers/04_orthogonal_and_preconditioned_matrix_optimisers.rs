@@ -198,10 +198,10 @@ pub fn muon_auto(
     let ortho = newton_schulz_quintic_cpu(&update_cand, m, n, ns_steps, 1e-7);
 
     #[cfg(feature = "wgpu")]
-    if let KernelDevice::Wgpu(ctx) = device {
-        if let Ok(res_p) = run_muon_wgpu(ctx, param, &ortho, lr, weight_decay) {
-            return (res_p, out_m);
-        }
+    if let KernelDevice::Wgpu(ctx) = device
+        && let Ok(res_p) = run_muon_wgpu(ctx, param, &ortho, lr, weight_decay)
+    {
+        return (res_p, out_m);
     }
 
     for i in 0..len {
@@ -223,7 +223,7 @@ fn run_muon_wgpu(
     use wgpu::util::DeviceExt;
 
     let n = param.len();
-    let size_bytes = (n * std::mem::size_of::<f32>()) as u64;
+    let size_bytes = std::mem::size_of_val(param) as u64;
 
     #[repr(C)]
     #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
@@ -379,7 +379,7 @@ fn run_muon_wgpu(
         });
         cpass.set_pipeline(&pipeline);
         cpass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = ((n as u32) + 63) / 64;
+        let workgroups = (n as u32).div_ceil(64);
         cpass.dispatch_workgroups(workgroups, 1, 1);
     }
 

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c09_causal_ai_and_evolutionary_search::t01_causal_discovery_notears_scm_and_instrumental_variables as topic;
+use sml_candle::c09_causal_ai_and_evolutionary_search::t01_causal_discovery_notears_scm_and_instrumental_variables as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_01_causal_discovery_notears_scm_and_instrumental_variables_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/01_causal_discovery_notears_scm_and_instrumental_variables.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/01_causal_discovery_notears_scm_and_instrumental_variables.safetensors",
+        ),
         &device,
     )?;
 

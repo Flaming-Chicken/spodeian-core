@@ -50,7 +50,7 @@ pub fn tome_bipartite_merge(
     let x_vec = x.flatten_all()?.to_vec1::<f32>()?;
     let s_vec = token_sizes.flatten_all()?.to_vec1::<f32>()?;
 
-    let len_a = (n + 1) / 2;
+    let len_a = n.div_ceil(2);
     let len_b = n / 2;
     let out_len = n - r_merge;
 

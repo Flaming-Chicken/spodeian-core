@@ -388,8 +388,8 @@ pub fn compute_rbf_kernel_auto(
                 });
                 pass.set_pipeline(&cp);
                 pass.set_bind_group(0, &bg, &[]);
-                let wg_x = ((n1 as u32) + 15) / 16;
-                let wg_y = ((n2 as u32) + 15) / 16;
+                let wg_x = (n1 as u32).div_ceil(16);
+                let wg_y = (n2 as u32).div_ceil(16);
                 pass.dispatch_workgroups(wg_x, wg_y, 1);
             }
 

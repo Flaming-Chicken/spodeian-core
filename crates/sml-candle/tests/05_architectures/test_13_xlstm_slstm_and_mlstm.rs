@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t13_xlstm_slstm_and_mlstm as xlstm;
+use sml_candle::c05_architectures::t13_xlstm_slstm_and_mlstm as xlstm;
 
 #[path = "../common/mod.rs"]
 mod common;

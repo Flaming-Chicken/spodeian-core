@@ -382,7 +382,7 @@ pub fn svgd_velocity_field_auto(
                 });
                 cpass.set_pipeline(&pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
-                let workgroups = ((m as u32) + 63) / 64;
+                let workgroups = (m as u32).div_ceil(64);
                 cpass.dispatch_workgroups(workgroups, 1, 1);
             }
 

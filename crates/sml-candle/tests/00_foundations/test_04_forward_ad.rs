@@ -1,7 +1,7 @@
 //! Integration test for Topic 04: Forward AD and Functional Transforms (Candle Track).
 
-use ai_candle::c00_foundations::t04_forward_ad_and_functional_transforms_torch_func::ForwardAdJvp;
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t04_forward_ad_and_functional_transforms_torch_func::ForwardAdJvp;
 
 #[path = "../common/mod.rs"]
 mod common;

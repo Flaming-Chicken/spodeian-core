@@ -15,3 +15,21 @@ serde_json = { workspace = true }
 [dev-dependencies]
 candle-core = { workspace = true }
 candle-nn = { workspace = true }
+
+# The candle/ track is reference code written to mirror the maths and the
+# PyTorch originals: explicit index loops, spelled-out terms such as
+# `0 * pad_w` or `15.0 / 15.0`, full-precision published constants, and the
+# original argument lists. These lints fight that style, so they're allowed
+# here; every other clippy lint stays on.
+[lints.clippy]
+needless_range_loop = "allow"
+too_many_arguments = "allow"
+excessive_precision = "allow"
+identity_op = "allow"
+erasing_op = "allow"
+eq_op = "allow"
+same_item_push = "allow"
+type_complexity = "allow"
+manual_memcpy = "allow"
+# Each tests/<category>.rs runner loads the shared tests/common helpers.
+duplicate_mod = "allow"

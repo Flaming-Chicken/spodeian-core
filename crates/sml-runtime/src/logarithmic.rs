@@ -11,6 +11,17 @@
 
 use serde::{Deserialize, Serialize};
 
+static LOG8_TO_F32_LUT: std::sync::LazyLock<[f32; 256]> = std::sync::LazyLock::new(|| {
+    let mut lut = [0.0f32; 256];
+    for b in 1..=255u8 {
+        let sign: f32 = if (b & 0x80) != 0 { -1.0 } else { 1.0 };
+        let biased_exp = (b & 0x7F) as i32;
+        let log2_val = (biased_exp - 64) as f32 / 4.0;
+        lut[b as usize] = sign * 2.0f32.powf(log2_val);
+    }
+    lut
+});
+
 /// 8-bit Logarithmic Float: 1 sign bit + 7 exponent bits (representing base-2 log with bias 64).
 /// Represents values $x = (-1)^s \cdot 2^{(e - 64) / 4.0}$.
 #[doc = "**Stability: Experimental** — API subject to change"]
@@ -34,17 +45,10 @@ impl Log8 {
         Self(sign_bit | biased_exp)
     }
 
-    /// Converts an 8-bit logarithmic scalar back to an f32.
+    /// Converts an 8-bit logarithmic scalar back to an f32 using a 1-cycle L1 lookup table.
+    #[inline(always)]
     pub fn to_f32(self) -> f32 {
-        if self.0 == 0 {
-            return 0.0;
-        }
-
-        let sign: f32 = if (self.0 & 0x80) != 0 { -1.0 } else { 1.0 };
-        let biased_exp = (self.0 & 0x7F) as i32;
-        let log2_val = (biased_exp - 64) as f32 / 4.0;
-
-        sign * 2.0f32.powf(log2_val)
+        LOG8_TO_F32_LUT[self.0 as usize]
     }
 
     /// Exact multiplication in logarithmic space (exponent addition, sign XOR).
@@ -156,8 +160,8 @@ impl Log32 {
 
         let sign_bit: u32 = if val < 0.0 { 0x8000_0000 } else { 0x0000_0000 };
         let log2_val = val.abs().log2();
-        let biased_exp = ((log2_val * Self::SCALE).round() as i64 + Self::BIAS)
-            .clamp(1, 0x7FFF_FFFF);
+        let biased_exp =
+            ((log2_val * Self::SCALE).round() as i64 + Self::BIAS).clamp(1, 0x7FFF_FFFF);
 
         Self(sign_bit | (biased_exp as u32))
     }
@@ -174,7 +178,11 @@ impl Log32 {
             return 0.0;
         }
 
-        let sign: f64 = if (self.0 & 0x8000_0000) != 0 { -1.0 } else { 1.0 };
+        let sign: f64 = if (self.0 & 0x8000_0000) != 0 {
+            -1.0
+        } else {
+            1.0
+        };
         let biased_exp = (self.0 & 0x7FFF_FFFF) as i64;
         let log2_val = (biased_exp - Self::BIAS) as f64 / Self::SCALE;
 
@@ -232,10 +240,14 @@ impl Log64 {
             return Self::ZERO;
         }
 
-        let sign_bit: u64 = if val < 0.0 { 0x8000_0000_0000_0000 } else { 0x0000_0000_0000_0000 };
+        let sign_bit: u64 = if val < 0.0 {
+            0x8000_0000_0000_0000
+        } else {
+            0x0000_0000_0000_0000
+        };
         let log2_val = val.abs().log2();
-        let biased_exp = ((log2_val * Self::SCALE).round() as i128 + Self::BIAS)
-            .clamp(1, 0x7FFF_FFFF_FFFF_FFFF);
+        let biased_exp =
+            ((log2_val * Self::SCALE).round() as i128 + Self::BIAS).clamp(1, 0x7FFF_FFFF_FFFF_FFFF);
 
         Self(sign_bit | (biased_exp as u64))
     }
@@ -246,7 +258,11 @@ impl Log64 {
             return 0.0;
         }
 
-        let sign: f64 = if (self.0 & 0x8000_0000_0000_0000) != 0 { -1.0 } else { 1.0 };
+        let sign: f64 = if (self.0 & 0x8000_0000_0000_0000) != 0 {
+            -1.0
+        } else {
+            1.0
+        };
         let biased_exp = (self.0 & 0x7FFF_FFFF_FFFF_FFFF) as i128;
         let log2_val = (biased_exp - Self::BIAS) as f64 / Self::SCALE;
 

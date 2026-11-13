@@ -1,15 +1,20 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
 
 #[test]
-fn test_11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers_parity(
-) -> Result<()> {
+fn test_11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers_parity()
+-> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("06_smooth_and_physics_informed_ai/11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "06_smooth_and_physics_informed_ai/11_optimisation_as_architecture_lista_admm_net_crate_and_mesa_optimizers.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

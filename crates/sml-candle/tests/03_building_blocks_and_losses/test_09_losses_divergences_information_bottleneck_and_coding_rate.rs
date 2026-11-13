@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 09: Losses Divergences, Information Bottleneck, and Coding Rate (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t09_losses_divergences_information_bottleneck_and_coding_rate::{
+use sml_candle::c03_building_blocks_and_losses::t09_losses_divergences_information_bottleneck_and_coding_rate::{
     itakura_saito_forward, jsd_forward, kl_forward, kl_reverse, mcr2_coding_rate_forward,
     renyi_divergence_forward, vib_kl_forward, LinearAnchor,
 };

@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t13_tractable_probabilistic_circuits_spn_copulas_evt_and_sbi as spn;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t13_tractable_probabilistic_circuits_spn_copulas_evt_and_sbi as spn;
 use std::path::PathBuf;
 
 #[test]

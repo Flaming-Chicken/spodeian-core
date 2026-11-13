@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t09_nested_ragged_and_specialized_sparse_tensors::ragged_mean_pool;
+//! use sml_candle::c00_foundations::t09_nested_ragged_and_specialized_sparse_tensors::ragged_mean_pool;
 //!
 //! let device = Device::Cpu;
 //! let values = Tensor::new(&[[1.0f32, 2.0], [3.0, 4.0], [5.0, 6.0]], &device).unwrap();

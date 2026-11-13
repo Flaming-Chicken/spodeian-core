@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t08_computation_spaces_latent_reasoning_and_jepa::rms_norm;
+//! use sml_candle::c01_paradigms_and_dichotomies::t08_computation_spaces_latent_reasoning_and_jepa::rms_norm;
 //!
 //! let device = Device::Cpu;
 //! let z = Tensor::new(&[[1.0f32, 2.0], [3.0, 4.0]], &device).unwrap();

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t02_mixture_of_experts_top_k_expert_choice_and_soft_moe as moe;
+use sml_candle::c05_architectures::t02_mixture_of_experts_top_k_expert_choice_and_soft_moe as moe;
 
 #[path = "../common/mod.rs"]
 mod common;

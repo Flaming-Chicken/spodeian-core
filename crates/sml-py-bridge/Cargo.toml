@@ -25,3 +25,5 @@ unsafe_op_in_unsafe_fn = "allow"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
+# PyO3 0.22's #[pyfunction] expansion trips this on PyResult returns.
+useless_conversion = "allow"

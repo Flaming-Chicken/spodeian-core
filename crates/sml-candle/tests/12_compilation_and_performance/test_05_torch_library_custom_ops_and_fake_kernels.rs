@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c12_compilation_and_performance::t05_torch_library_custom_ops_and_fake_kernels as topic;
+use sml_candle::c12_compilation_and_performance::t05_torch_library_custom_ops_and_fake_kernels as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_05_torch_library_custom_ops_and_fake_kernels_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/05_torch_library_custom_ops_and_fake_kernels.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/05_torch_library_custom_ops_and_fake_kernels.safetensors",
+        ),
         &device,
     )?;
 

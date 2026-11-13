@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t01_safe_serialization_weights_only_safetensors_and_mmap as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t01_safe_serialization_weights_only_safetensors_and_mmap as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_01_safe_serialization_weights_only_safetensors_and_mmap_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("17_deployment_low_level_and_capstones/01_safe_serialization_weights_only_safetensors_and_mmap.safetensors"),
+        common::get_weights_path(
+            "17_deployment_low_level_and_capstones/01_safe_serialization_weights_only_safetensors_and_mmap.safetensors",
+        ),
         &device,
     )?;
 

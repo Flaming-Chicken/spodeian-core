@@ -22,7 +22,7 @@ pub fn online_softmax_flash_attention(
     let d = q_dims[2];
 
     let s_len = k.dims()[1];
-    let num_blocks = (s_len + block_size - 1) / block_size;
+    let num_blocks = s_len.div_ceil(block_size);
 
     let mut out = Tensor::zeros((b_sz, t_len, d), candle_core::DType::F32, q.device())?;
     let mut m = (Tensor::ones((b_sz, t_len, 1), candle_core::DType::F32, q.device())? * (-1e9))?;

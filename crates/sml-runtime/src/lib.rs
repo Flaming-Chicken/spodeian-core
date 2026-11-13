@@ -27,11 +27,13 @@
 pub mod adaptation;
 pub mod ast;
 pub mod conversion;
+pub mod device;
 pub mod distribution;
 pub mod factors;
 pub mod format;
 pub mod gnn;
 pub mod heads;
+pub mod integrator;
 pub mod loader;
 pub mod logarithmic;
 pub mod loss;
@@ -39,12 +41,15 @@ pub mod lr_scheduler;
 pub mod optim;
 pub mod optim_kernels;
 pub mod optim_quantized;
+pub mod optimization;
+pub mod parity;
 pub mod precision;
 pub mod quantization;
 pub mod sampler;
 pub mod solvers;
 pub mod ssm;
 pub mod stability;
+pub mod streaming;
 pub mod surgery;
 pub mod train;
 pub mod trajectory;
@@ -57,6 +62,8 @@ pub use adaptation::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use ast::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
+pub use device::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub use distribution::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use factors::*;
@@ -67,6 +74,8 @@ pub use gnn::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use heads::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
+pub use integrator::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
 pub use loader::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use logarithmic::*;
@@ -76,6 +85,10 @@ pub use loss::*;
 pub use lr_scheduler::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use optim::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use optimization::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use parity::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use precision::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
@@ -88,6 +101,8 @@ pub use solvers::*;
 pub use ssm::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use stability::*;
+#[doc = "**Stability: Experimental** — API subject to change"]
+pub use streaming::*;
 #[doc = "**Stability: Experimental** — API subject to change"]
 pub use surgery::*;
 #[doc = "**Stability: Experimental** — API subject to change"]

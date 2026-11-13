@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c11_ai_safety_privacy_and_verification::t06_backdoor_trojan_and_poisoning_defense_neural_cleanse_and_spectral as topic;
+use sml_candle::c11_ai_safety_privacy_and_verification::t06_backdoor_trojan_and_poisoning_defense_neural_cleanse_and_spectral as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -10,7 +10,9 @@ fn test_06_backdoor_trojan_and_poisoning_defense_neural_cleanse_and_spectral_par
 {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/06_backdoor_trojan_and_poisoning_defense_neural_cleanse_and_spectral.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/06_backdoor_trojan_and_poisoning_defense_neural_cleanse_and_spectral.safetensors",
+        ),
         &device,
     )?;
 

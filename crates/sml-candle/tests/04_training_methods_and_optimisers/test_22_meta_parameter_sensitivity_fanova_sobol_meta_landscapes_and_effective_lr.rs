@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr::MetaSensitivityUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr::MetaSensitivityUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

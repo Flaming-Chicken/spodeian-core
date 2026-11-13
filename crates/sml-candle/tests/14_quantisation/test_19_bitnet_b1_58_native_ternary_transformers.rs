@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t19_bitnet_b1_58_native_ternary_transformers as topic;
+use sml_candle::c14_quantisation::t19_bitnet_b1_58_native_ternary_transformers as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_19_bitnet_b1_58_native_ternary_transformers_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/04_vector_lattice_qat_and_lowbit/05_bitnet_b1_58_native_ternary_transformers.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/04_vector_lattice_qat_and_lowbit/05_bitnet_b1_58_native_ternary_transformers.safetensors",
+        ),
         &device,
     )?;
 

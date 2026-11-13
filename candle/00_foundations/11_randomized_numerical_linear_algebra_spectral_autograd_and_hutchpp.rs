@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp::{
+//! use sml_candle::c00_foundations::t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp::{
 //!     modified_gram_schmidt_qr, lorentzian_broadened_f_matrix,
 //! };
 //!

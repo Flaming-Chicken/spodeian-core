@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t08_audio_dsp_spectrograms_conformer_ctc_and_vocoder as topic;
+use sml_candle::c07_domain_tasks::t08_audio_dsp_spectrograms_conformer_ctc_and_vocoder as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

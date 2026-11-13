@@ -261,7 +261,7 @@ pub async fn dyt_wgpu(
     dim: usize,
 ) -> Option<Vec<f32>> {
     let total_elements = (batch_size * dim) as u32;
-    let byte_size = (x.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(x) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("DyT Input Buffer"),
@@ -436,7 +436,7 @@ pub async fn dyt_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_elements + 63) / 64;
+        let workgroups = total_elements.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -470,7 +470,7 @@ pub async fn rmsnorm_wgpu(
     dim: usize,
     eps: f32,
 ) -> Option<Vec<f32>> {
-    let byte_size = (x.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(x) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("RMSNorm Input Buffer"),
@@ -607,7 +607,7 @@ pub async fn rmsnorm_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = ((batch_size as u32) + 63) / 64;
+        let workgroups = (batch_size as u32).div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -641,10 +641,10 @@ pub async fn dyt_auto(
     batch_size: usize,
     dim: usize,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = dyt_wgpu(&ctx.0, &ctx.1, x, alpha, gamma, beta, batch_size, dim).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = dyt_wgpu(&ctx.0, &ctx.1, x, alpha, gamma, beta, batch_size, dim).await
+    {
+        return res;
     }
     dyt_cpu(x, alpha, gamma, beta, batch_size, dim)
 }
@@ -658,10 +658,10 @@ pub async fn rmsnorm_auto(
     dim: usize,
     eps: f32,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = rmsnorm_wgpu(&ctx.0, &ctx.1, x, gamma, batch_size, dim, eps).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = rmsnorm_wgpu(&ctx.0, &ctx.1, x, gamma, batch_size, dim, eps).await
+    {
+        return res;
     }
     rmsnorm_cpu(x, gamma, batch_size, dim, eps)
 }

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t13_robotics_embodied_ai_diffusion_policy_and_act as topic;
+use sml_candle::c07_domain_tasks::t13_robotics_embodied_ai_diffusion_policy_and_act as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

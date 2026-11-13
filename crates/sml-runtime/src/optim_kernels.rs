@@ -110,7 +110,8 @@ pub fn update_coordinates_f32(
     flip_ema: &mut [f32],
     grads: &[f32],
 ) {
-    let n = y.len()
+    let n = y
+        .len()
         .min(z.len())
         .min(m.len())
         .min(v.len())
@@ -169,7 +170,8 @@ pub fn update_coordinates_f32(
                     let g_sq = g * g;
 
                     let g_prev = pg_c[i];
-                    let is_sign_flip = params.step > 0 && (g > 0.0) != (g_prev > 0.0) && g_prev != 0.0;
+                    let is_sign_flip =
+                        params.step > 0 && (g > 0.0) != (g_prev > 0.0) && g_prev != 0.0;
 
                     let residual_grad_factor = if is_sign_flip {
                         f_c[i] = gamma * f_c[i] + (1.0 - gamma);

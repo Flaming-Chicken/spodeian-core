@@ -53,7 +53,10 @@ pub enum DistributionMapMode {
     /// Discrete Lattice Coordinate: $k = \lfloor x / h \rfloor$
     DiscreteQuantize { grid_step: f64 },
     /// Umbral Rational Decomposition: $(N, P/Q)$ where $x \approx h(N + P/Q)$
-    UmbralDecomposition { grid_step: f64, residue_denominator: i32 },
+    UmbralDecomposition {
+        grid_step: f64,
+        residue_denominator: i32,
+    },
 }
 
 /// General distribution transformer capable of scalar, slice, and tensor mapping.
@@ -182,11 +185,7 @@ impl GeneralDistribution {
             }
             DistributionKind::Exponential { rate } => {
                 let r = rate.max(1e-15);
-                if x <= 0.0 {
-                    0.0
-                } else {
-                    1.0 - (-r * x).exp()
-                }
+                if x <= 0.0 { 0.0 } else { 1.0 - (-r * x).exp() }
             }
             DistributionKind::HalfNormal { scale } => {
                 let s = scale.max(1e-15);
@@ -244,11 +243,7 @@ impl GeneralDistribution {
             }
             DistributionKind::Exponential { rate } => {
                 let r = rate.max(1e-15);
-                if x < 0.0 {
-                    0.0
-                } else {
-                    r * (-r * x).exp()
-                }
+                if x < 0.0 { 0.0 } else { r * (-r * x).exp() }
             }
             DistributionKind::HalfNormal { scale } => {
                 let s = scale.max(1e-15);
@@ -274,7 +269,9 @@ impl GeneralDistribution {
                 let s = scale.max(1e-15);
                 let z = x / s;
                 let nu = df.max(1.0);
-                -s.ln() - 0.5 * (std::f64::consts::PI * nu).ln() - 0.5 * (nu + 1.0) * (1.0 + (z * z) / nu).ln()
+                -s.ln()
+                    - 0.5 * (std::f64::consts::PI * nu).ln()
+                    - 0.5 * (nu + 1.0) * (1.0 + (z * z) / nu).ln()
             }
             DistributionKind::Logistic { location, scale } => {
                 let s = scale.max(1e-15);
@@ -336,7 +333,10 @@ impl GeneralDistribution {
                 } else {
                     let z = std::f64::consts::SQRT_2 * inv_erf_approx(2.0 * u_clamped - 1.0);
                     let z2 = z * z;
-                    let t = z * (1.0 + (z2 + 1.0) / (4.0 * nu) + (5.0 * z2 * z2 + 16.0 * z2 + 3.0) / (96.0 * nu * nu));
+                    let t = z
+                        * (1.0
+                            + (z2 + 1.0) / (4.0 * nu)
+                            + (5.0 * z2 * z2 + 16.0 * z2 + 3.0) / (96.0 * nu * nu));
                     s * t
                 }
             }
@@ -348,9 +348,7 @@ impl GeneralDistribution {
                 let s = scale.max(1e-15);
                 location + s * (std::f64::consts::PI * (u_clamped - 0.5)).tan()
             }
-            DistributionKind::Uniform { lower, upper } => {
-                lower + u_clamped * (upper - lower)
-            }
+            DistributionKind::Uniform { lower, upper } => lower + u_clamped * (upper - lower),
             DistributionKind::Laplace { location, scale } => {
                 let b = scale.max(1e-15);
                 if u_clamped < 0.5 {
@@ -395,7 +393,12 @@ impl GeneralDistribution {
 
     /// Decomposes a continuous float $x$ into an exact integer lattice coordinate $N \in \mathbb{Z}$
     /// and a rational sub-grid residue $P/Q$, enabling zero-allocation umbral integer tracking.
-    pub fn umbral_decompose(&self, x: f64, grid_step: f64, residue_denominator: i32) -> (i32, RationalResidue) {
+    pub fn umbral_decompose(
+        &self,
+        x: f64,
+        grid_step: f64,
+        residue_denominator: i32,
+    ) -> (i32, RationalResidue) {
         let h = grid_step.abs().max(1e-8);
         let q = residue_denominator.max(1);
         let scaled = x / h;
@@ -435,7 +438,10 @@ impl GeneralDistribution {
                 let k = self.discrete_quantize(x, grid_step);
                 k as f64 * grid_step
             }
-            DistributionMapMode::UmbralDecomposition { grid_step, residue_denominator } => {
+            DistributionMapMode::UmbralDecomposition {
+                grid_step,
+                residue_denominator,
+            } => {
                 let (n, res) = self.umbral_decompose(x, grid_step, residue_denominator);
                 grid_step * (n as f64 + res.numerator as f64 / res.denominator as f64)
             }
@@ -502,7 +508,11 @@ pub struct DistributionFloat {
 
 impl DistributionFloat {
     /// Constructs a `DistributionFloat` from an analytical `DistributionKind` and bit-width $B \in [2, 8]$.
-    pub fn from_distribution(static_name: &'static str, kind: DistributionKind, bit_width: usize) -> Self {
+    pub fn from_distribution(
+        static_name: &'static str,
+        kind: DistributionKind,
+        bit_width: usize,
+    ) -> Self {
         let b = bit_width.clamp(2, 8);
         let k = 1usize << b;
         let dist = GeneralDistribution::new(kind);
@@ -616,7 +626,10 @@ impl DistributionFloat {
     pub fn gaussian(bit_width: usize) -> Self {
         Self::from_distribution(
             "DistributionFloat::Gaussian",
-            DistributionKind::Gaussian { mean: 0.0, std_dev: 1.0 },
+            DistributionKind::Gaussian {
+                mean: 0.0,
+                std_dev: 1.0,
+            },
             bit_width,
         )
     }
@@ -624,7 +637,10 @@ impl DistributionFloat {
     pub fn laplace(bit_width: usize, scale: f64) -> Self {
         Self::from_distribution(
             "DistributionFloat::Laplace",
-            DistributionKind::Laplace { location: 0.0, scale },
+            DistributionKind::Laplace {
+                location: 0.0,
+                scale,
+            },
             bit_width,
         )
     }
@@ -640,7 +656,10 @@ impl DistributionFloat {
     pub fn cauchy(bit_width: usize, scale: f64) -> Self {
         Self::from_distribution(
             "DistributionFloat::Cauchy",
-            DistributionKind::Cauchy { location: 0.0, scale },
+            DistributionKind::Cauchy {
+                location: 0.0,
+                scale,
+            },
             bit_width,
         )
     }
@@ -648,7 +667,10 @@ impl DistributionFloat {
     pub fn logistic(bit_width: usize, scale: f64) -> Self {
         Self::from_distribution(
             "DistributionFloat::Logistic",
-            DistributionKind::Logistic { location: 0.0, scale },
+            DistributionKind::Logistic {
+                location: 0.0,
+                scale,
+            },
             bit_width,
         )
     }
@@ -687,7 +709,10 @@ impl DistributionFloat {
         if val >= self.codebook[n - 1] {
             return n - 1;
         }
-        match self.codebook.binary_search_by(|v| v.partial_cmp(&val).unwrap_or(std::cmp::Ordering::Equal)) {
+        match self
+            .codebook
+            .binary_search_by(|v| v.partial_cmp(&val).unwrap_or(std::cmp::Ordering::Equal))
+        {
             Ok(idx) => idx,
             Err(idx) => {
                 let left = self.codebook[idx - 1];
@@ -722,7 +747,10 @@ impl DistributionFloat {
         if val >= self.codebook[n - 1] {
             return self.codebook[n - 1];
         }
-        match self.codebook.binary_search_by(|v| v.partial_cmp(&val).unwrap_or(std::cmp::Ordering::Equal)) {
+        match self
+            .codebook
+            .binary_search_by(|v| v.partial_cmp(&val).unwrap_or(std::cmp::Ordering::Equal))
+        {
             Ok(idx) => self.codebook[idx],
             Err(idx) => {
                 let left = self.codebook[idx - 1];
@@ -732,11 +760,7 @@ impl DistributionFloat {
                     left
                 } else {
                     let prob_right = (val - left) / diff;
-                    if rand_u < prob_right {
-                        right
-                    } else {
-                        left
-                    }
+                    if rand_u < prob_right { right } else { left }
                 }
             }
         }
@@ -767,7 +791,9 @@ impl DistributionFloat {
         let n = src.len().min(dst.len());
         let mut rng = seed.max(1);
         for i in 0..n {
-            rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            rng = rng
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
             let rand_u = ((rng >> 33) as f64) / ((1u64 << 31) as f64);
             dst[i] = self.quantize_stochastic(src[i], rand_u);
         }
@@ -840,7 +866,10 @@ impl crate::precision::NumericPrecision for DistributionFloat {
     }
 
     fn is_quantile_normal(&self) -> bool {
-        matches!(self.source, DistributionFloatSource::Parametric(DistributionKind::Gaussian { .. }))
+        matches!(
+            self.source,
+            DistributionFloatSource::Parametric(DistributionKind::Gaussian { .. })
+        )
     }
 
     fn machine_epsilon(&self, _val: Option<f64>) -> f64 {
@@ -1011,7 +1040,9 @@ mod tests {
         let mut src = Vec::with_capacity(n);
         let mut rng = 42u64;
         for _ in 0..n {
-            rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            rng = rng
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
             let u = ((rng >> 33) as f64) / ((1u64 << 31) as f64);
             // Non-symmetric offset [0.1, 0.9]
             src.push(0.1 + 0.8 * u);
@@ -1036,7 +1067,11 @@ mod tests {
         let comp_drift = (comp_sum - orig_sum).abs();
 
         // Compensated drift must be bounded by half step size (<= 0.5)
-        assert!(comp_drift <= 0.5, "Compensated drift {} exceeded 0.5", comp_drift);
+        assert!(
+            comp_drift <= 0.5,
+            "Compensated drift {} exceeded 0.5",
+            comp_drift
+        );
         assert!(
             comp_drift < nearest_drift * 0.1,
             "Compensated drift {} was not >= 10x smaller than nearest drift {}",
@@ -1053,7 +1088,9 @@ mod tests {
         let mut sum = 0.0f64;
         let mut rng = 99999u64;
         for _ in 0..trials {
-            rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            rng = rng
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
             let rand_u = ((rng >> 33) as f64) / ((1u64 << 31) as f64);
             sum += df.quantize_stochastic(target, rand_u);
         }

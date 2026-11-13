@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c16_distributed_and_scalable::t06_pipeline_parallelism_gpipe_1f1b_zero_bubble_and_dualpipe as topic;
+use sml_candle::c16_distributed_and_scalable::t06_pipeline_parallelism_gpipe_1f1b_zero_bubble_and_dualpipe as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_06_pipeline_parallelism_gpipe_1f1b_zero_bubble_and_dualpipe_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("16_distributed_and_scalable/06_pipeline_parallelism_gpipe_1f1b_zero_bubble_and_dualpipe.safetensors"),
+        common::get_weights_path(
+            "16_distributed_and_scalable/06_pipeline_parallelism_gpipe_1f1b_zero_bubble_and_dualpipe.safetensors",
+        ),
         &device,
     )?;
 
