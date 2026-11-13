@@ -39,6 +39,9 @@
 ## Quickstart
 
 ```bash
+# Build the Rust bridge (crates/sml-py-bridge) into the package; re-run after Rust changes
+uv run python scripts/build_bridge.py
+
 # Run test suite
 uv run pytest
 
