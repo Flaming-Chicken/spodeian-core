@@ -31,20 +31,12 @@ pub fn calculate_rolling_volatility(returns: &[f64], window: usize) -> Vec<f64> 
     if returns.is_empty() || window == 0 {
         return Vec::new();
     }
-    let annualization = 252.0_f64.sqrt();
+    let mut stats = crate::streaming::OnlineSlidingStats::new(window);
     let mut vol = Vec::with_capacity(returns.len());
 
-    for i in 0..returns.len() {
-        let start = i.saturating_sub(window.saturating_sub(1));
-        let slice = &returns[start..=i];
-        let n = slice.len() as f64;
-        if n < 2.0 {
-            vol.push(0.0);
-            continue;
-        }
-        let mean = slice.iter().sum::<f64>() / n;
-        let var = slice.iter().map(|&r| (r - mean).powi(2)).sum::<f64>() / (n - 1.0);
-        vol.push(var.sqrt() * annualization);
+    for &r in returns {
+        stats.push(r);
+        vol.push(stats.annualized_volatility());
     }
 
     vol

@@ -8,10 +8,6 @@ authors = [
     { name = "Liam", email = "6039896+Spodeian@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
-
-[project.urls]
-Homepage = "https://github.com/Flaming-Chicken/spodeian-ml-py"
-Repository = "https://github.com/Flaming-Chicken/spodeian-ml-py"
 dependencies = [
     "numpy>=2.5.3",
     "pyarrow>=25.0.1",
@@ -21,6 +17,10 @@ dependencies = [
     "torchaudio>=2.11.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Spodeian/spodeian-core"
+Repository = "https://github.com/Spodeian/spodeian-core"
+
 [project.scripts]
 spodeian-ml = "spodeian_ml:main"
 spodeian-ml-py = "spodeian_ml:main"
@@ -28,6 +28,10 @@ spodeian-ml-py = "spodeian_ml:main"
 [build-system]
 requires = ["uv_build>=0.12.19,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# The import package is spodeian_ml, not the distribution name spodeian_ml_py.
+module-name = "spodeian_ml"
 
 [dependency-groups]
 dev = [

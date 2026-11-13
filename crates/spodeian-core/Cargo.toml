@@ -32,8 +32,8 @@ export = ["dep:spodeian-export"]
 cache = ["dep:spodeian-cache"]
 web-utils = ["dep:spodeian-web-utils"]
 ui = ["dep:spodeian-ui"]
-lake = ["dep:spodeian-lake"]
-ml-utils = ["dep:spodeian-ml-utils"]
+lake = ["dep:sml-lake"]
+ml-utils = ["dep:sml-runtime"]
 
 [dependencies]
 spodeian-parallel = { workspace = true, optional = true }
@@ -43,5 +43,5 @@ spodeian-export = { workspace = true, optional = true }
 spodeian-cache = { workspace = true, optional = true }
 spodeian-web-utils = { workspace = true, optional = true }
 spodeian-ui = { workspace = true, optional = true }
-spodeian-lake = { workspace = true, optional = true }
-spodeian-ml-utils = { workspace = true, optional = true }
+sml-lake = { workspace = true, optional = true }
+sml-runtime = { workspace = true, optional = true }

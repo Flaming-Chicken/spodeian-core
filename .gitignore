@@ -1,3 +1,7 @@
 /target
 **/*.rs.bk
 *.pdb
+
+# Compiled Rust bridge (python/scripts/build_bridge.py builds it)
+python/src/spodeian_ml/spodeian_py_bridge.pyd
+python/src/spodeian_ml/spodeian_py_bridge.so

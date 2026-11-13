@@ -1,7 +1,7 @@
 # Fair Baseline Evaluation Protocol & Reference Conformity Standard
 
 ## 1. Objective and Anti-Bias Principles
-To prevent algorithmic handicap, hyperparameter bias, or unfair default parameter selection in comparative evaluation, all benchmark experiments in `spodeian-ml-rs` and `ai-tests/09_benchmarks` strictly adhere to this formal evaluation protocol.
+To prevent algorithmic handicap, hyperparameter bias, or unfair default parameter selection in comparative evaluation, all benchmark experiments in `spodeian-core` and `ai-tests/09_benchmarks` strictly adhere to this formal evaluation protocol.
 
 ---
 
