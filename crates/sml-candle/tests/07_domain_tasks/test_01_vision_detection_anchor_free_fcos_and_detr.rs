@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t01_vision_detection_anchor_free_fcos_and_detr as topic;
 

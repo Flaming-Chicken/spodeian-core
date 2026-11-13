@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t09_time_series_patchtst_nbeats_chronos_and_probabilistic as topic;
 

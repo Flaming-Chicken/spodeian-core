@@ -116,11 +116,7 @@ pub fn check_asha_promotion_cpu(rung_losses: &[f32], candidate_loss: f32, eta: u
     let k = (losses.len() / eta).max(1);
     losses.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     let cutoff = losses[k - 1];
-    if candidate_loss <= cutoff {
-        1.0
-    } else {
-        0.0
-    }
+    if candidate_loss <= cutoff { 1.0 } else { 0.0 }
 }
 
 /// Linear anchor forward pass: x @ w + b.

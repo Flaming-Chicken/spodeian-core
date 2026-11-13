@@ -11,7 +11,7 @@
 //! - Spatial Gating Unit: $\text{SGU}(Z) = Z_1 \odot (W_{\text{sgu}} Z_2 + b_{\text{sgu}})$ where $b_{\text{sgu}} \approx 1$
 //!   ensures identity initialization at step 0.
 
-use candle_core::{Result, Tensor, D};
+use candle_core::{D, Result, Tensor};
 
 /// Linear projection helper for 3D tensors: reshapes [D0, D1, D2] -> [D0*D1, D2] -> GEMM -> reshape back.
 pub fn linear_3d(x: &Tensor, weight_t: &Tensor, bias: Option<&Tensor>) -> Result<Tensor> {

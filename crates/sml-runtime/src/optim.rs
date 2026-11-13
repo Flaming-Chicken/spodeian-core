@@ -83,7 +83,13 @@ impl Sgd {
     }
 
     pub fn new_lr(vars: Vec<Var>, lr: f64) -> Self {
-        Self::new(vars, SgdConfig { lr, ..Default::default() })
+        Self::new(
+            vars,
+            SgdConfig {
+                lr,
+                ..Default::default()
+            },
+        )
     }
 }
 
@@ -135,12 +141,6 @@ impl Optimizer for Sgd {
         self.config.lr = lr;
     }
 }
-
-
-
-
-
-
 
 // ============================================================================
 // 2. Adam & AdamW
@@ -194,7 +194,13 @@ impl AdamW {
     }
 
     pub fn new_lr(vars: Vec<Var>, lr: f64) -> Self {
-        Self::new(vars, AdamWConfig { lr, ..Default::default() })
+        Self::new(
+            vars,
+            AdamWConfig {
+                lr,
+                ..Default::default()
+            },
+        )
     }
 
     pub fn adam(vars: Vec<Var>, lr: f64) -> Self {
@@ -225,7 +231,9 @@ impl Optimizer for AdamW {
                 let p = var.as_tensor();
 
                 // L2 regular weight decay vs Decoupled AdamW
-                let (grad, p_curr) = if !self.config.decoupled_weight_decay && self.config.weight_decay != 0.0 {
+                let (grad, p_curr) = if !self.config.decoupled_weight_decay
+                    && self.config.weight_decay != 0.0
+                {
                     let g_wd = (grad + (p * self.config.weight_decay)?)?;
                     (g_wd, p.clone())
                 } else if self.config.decoupled_weight_decay && self.config.weight_decay != 0.0 {
@@ -284,12 +292,6 @@ impl Optimizer for AdamW {
     }
 }
 
-
-
-
-
-
-
 // ============================================================================
 // 3. Lion (EvoLved Sign Momentum)
 // ============================================================================
@@ -330,7 +332,13 @@ impl Lion {
     }
 
     pub fn new_lr(vars: Vec<Var>, lr: f64) -> Self {
-        Self::new(vars, LionConfig { lr, ..Default::default() })
+        Self::new(
+            vars,
+            LionConfig {
+                lr,
+                ..Default::default()
+            },
+        )
     }
 }
 
@@ -384,12 +392,6 @@ impl Optimizer for Lion {
         self.config.lr = lr;
     }
 }
-
-
-
-
-
-
 
 // ============================================================================
 // 4. RMSprop
@@ -500,12 +502,6 @@ impl Optimizer for RMSprop {
         self.config.lr = lr;
     }
 }
-
-
-
-
-
-
 
 // ============================================================================
 // 5. Sophia-G (Second-Order Clipped Stochastic Curvature)
@@ -621,12 +617,6 @@ impl Optimizer for Sophia {
     }
 }
 
-
-
-
-
-
-
 // ============================================================================
 // 6. ScheduleFreeAdamW (Defazio et al., 2024)
 // ============================================================================
@@ -739,11 +729,6 @@ impl Optimizer for ScheduleFreeAdamW {
     }
 }
 
-
-
-
-
-
 // ============================================================================
 // 9. Muon (Momentum with Orthogonalized Updates via Newton-Schulz)
 // ============================================================================
@@ -845,11 +830,7 @@ impl Muon {
         }
 
         let transpose_needed = rows > cols;
-        let mut x = if transpose_needed {
-            g.t()?
-        } else {
-            g.clone()
-        };
+        let mut x = if transpose_needed { g.t()? } else { g.clone() };
 
         // Normalize initial spectral radius: X_0 = G / (||G||_F + eps) in native precision
         let frob_norm = tensor_sum_sq_f64(&x)?.sqrt() + 1e-12;
@@ -1303,10 +1284,6 @@ impl Optimizer for Muon {
     }
 }
 
-
-
-
-
 // ============================================================================
 // 10. Self-Optimizing Meta Optimizer (Information-Theoretic Natural Gradient + Primal-Dual Polyak Averaging)
 // ============================================================================
@@ -1686,7 +1663,10 @@ impl SelfOptimizingMeta {
     }
 
     /// Configures an arbitrary user-defined precision provider implementing `NumericPrecision`.
-    pub fn with_custom_precision(mut self, precision: std::sync::Arc<dyn crate::precision::NumericPrecision>) -> Self {
+    pub fn with_custom_precision(
+        mut self,
+        precision: std::sync::Arc<dyn crate::precision::NumericPrecision>,
+    ) -> Self {
         self.custom_precision = Some(precision);
         self
     }
@@ -1953,7 +1933,8 @@ impl SelfOptimizingMeta {
                 let eps = self.config.eps;
                 let k_warmup = (self.config.warmup_steps as f64).max(1.0);
 
-                let warmup_gate = (k * k + k_warmup * k) / (k * k + k_warmup * k + k_warmup * k_warmup);
+                let warmup_gate =
+                    (k * k + k_warmup * k) / (k * k + k_warmup * k + k_warmup * k_warmup);
                 let ck = if state.var_step == 1 {
                     1.0
                 } else {
@@ -2012,7 +1993,8 @@ impl SelfOptimizingMeta {
                     };
 
                     // Brownian noise variance adjusted by temporal directional correlation
-                    let noise_var = (sum_diff_sq / (2.0 * n as f64)) * (1.0 - rho_temporal).max(0.0);
+                    let noise_var =
+                        (sum_diff_sq / (2.0 * n as f64)) * (1.0 - rho_temporal).max(0.0);
                     let signal_power = sum_g_sq / (n as f64);
                     let instant_snr = (signal_power / (noise_var + 1e-12)).min(1e4);
 
@@ -2021,7 +2003,8 @@ impl SelfOptimizingMeta {
                         state.spatial_coupling = spatial_coupling;
                     } else {
                         state.temporal_snr = 0.85 * state.temporal_snr + 0.15 * instant_snr;
-                        state.spatial_coupling = 0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
+                        state.spatial_coupling =
+                            0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
                     }
 
                     let regime = if rho_temporal < -0.65 {
@@ -2038,7 +2021,8 @@ impl SelfOptimizingMeta {
                     let base_attenuation = if self.config.stochastic_variance_attenuation {
                         match regime {
                             DynamicalRegime::StochasticSde => {
-                                ((state.temporal_snr / (state.temporal_snr + 0.5)).powf(0.25)).clamp(0.4, 1.0)
+                                ((state.temporal_snr / (state.temporal_snr + 0.5)).powf(0.25))
+                                    .clamp(0.4, 1.0)
                             }
                             DynamicalRegime::CoupledPde if state.spatial_coupling > 2.8 => {
                                 1.0 / (1.0 + 0.25 * (state.spatial_coupling - 2.8))
@@ -2074,7 +2058,8 @@ impl SelfOptimizingMeta {
                         let opp_sq = opp_prod * opp_prod;
                         let norm_factor = (g_sq + g_prev * g_prev).powi(2) + 1e-12;
                         let z_gate = (opp_sq / (0.05 * norm_factor)).min(20.0);
-                        crate::solvers::apply_smooth_gate(z_gate as f32, self.config.gating_method) as f64
+                        crate::solvers::apply_smooth_gate(z_gate as f32, self.config.gating_method)
+                            as f64
                     } else {
                         0.0
                     };
@@ -2095,10 +2080,16 @@ impl SelfOptimizingMeta {
                     let flip_damping = 1.0 / (1.0 + 0.5 * flip_ema[i]);
                     let floor_scale = lr * self.config.min_step_scale;
                     let dynamic_scale = base_step_scale * flip_damping * snr_attenuation;
-                    let coord_step_scale = crate::solvers::apply_smooth_max(dynamic_scale as f32, floor_scale as f32, 1e-6, self.config.max_method) as f64;
+                    let coord_step_scale = crate::solvers::apply_smooth_max(
+                        dynamic_scale as f32,
+                        floor_scale as f32,
+                        1e-6,
+                        self.config.max_method,
+                    ) as f64;
 
                     let ito_drift = if (self.config.ito_drift_correction
-                        || (self.config.auto_dynamical_fingerprinting && detected_regime == DynamicalRegime::StochasticSde))
+                        || (self.config.auto_dynamical_fingerprinting
+                            && detected_regime == DynamicalRegime::StochasticSde))
                         && state.var_step > 1
                     {
                         let sde_weight = (1.0 / (1.0 + state.temporal_snr)).clamp(0.0, 1.0);
@@ -2192,7 +2183,8 @@ impl SelfOptimizingMeta {
                 let eps = self.config.eps as f32;
                 let k_warmup = (self.config.warmup_steps as f32).max(1.0);
 
-                let warmup_gate = (k * k + k_warmup * k) / (k * k + k_warmup * k + k_warmup * k_warmup);
+                let warmup_gate =
+                    (k * k + k_warmup * k) / (k * k + k_warmup * k + k_warmup * k_warmup);
                 let ck = if state.var_step == 1 {
                     1.0f32
                 } else {
@@ -2251,7 +2243,8 @@ impl SelfOptimizingMeta {
                         1.0
                     };
 
-                    let noise_var = (sum_diff_sq / (2.0f32 * n as f32)) * (1.0f32 - rho_temporal).max(0.0f32);
+                    let noise_var =
+                        (sum_diff_sq / (2.0f32 * n as f32)) * (1.0f32 - rho_temporal).max(0.0f32);
                     let signal_power = sum_g_sq_f32 / (n as f32);
                     let instant_snr = ((signal_power / (noise_var + 1e-12f32)).min(1e4f32)) as f64;
 
@@ -2260,7 +2253,8 @@ impl SelfOptimizingMeta {
                         state.spatial_coupling = spatial_coupling;
                     } else {
                         state.temporal_snr = 0.85 * state.temporal_snr + 0.15 * instant_snr;
-                        state.spatial_coupling = 0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
+                        state.spatial_coupling =
+                            0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
                     }
 
                     let regime = if rho_temporal < -0.65f32 {
@@ -2277,7 +2271,9 @@ impl SelfOptimizingMeta {
                     let base_attenuation = if self.config.stochastic_variance_attenuation {
                         match regime {
                             DynamicalRegime::StochasticSde => {
-                                ((state.temporal_snr / (state.temporal_snr + 0.5)).powf(0.25) as f32).clamp(0.4f32, 1.0f32)
+                                ((state.temporal_snr / (state.temporal_snr + 0.5)).powf(0.25)
+                                    as f32)
+                                    .clamp(0.4f32, 1.0f32)
                             }
                             DynamicalRegime::CoupledPde if state.spatial_coupling > 2.8 => {
                                 (1.0 / (1.0 + 0.25 * (state.spatial_coupling - 2.8))) as f32
@@ -2309,7 +2305,8 @@ impl SelfOptimizingMeta {
                     let opp_prod = -g * g_prev;
                     let s_cross = if state.var_step > 1 && opp_prod > 0.0f32 {
                         let opp_sq = opp_prod * opp_prod;
-                        let norm_factor = (g_sq + g_prev * g_prev) * (g_sq + g_prev * g_prev) + 1e-12f32;
+                        let norm_factor =
+                            (g_sq + g_prev * g_prev) * (g_sq + g_prev * g_prev) + 1e-12f32;
                         let z_gate = (opp_sq / (0.05f32 * norm_factor)).min(20.0f32);
                         crate::solvers::apply_smooth_gate(z_gate, self.config.gating_method)
                     } else {
@@ -2332,13 +2329,20 @@ impl SelfOptimizingMeta {
                     let flip_damping = 1.0f32 / (1.0f32 + 0.5f32 * flip_ema[i]);
                     let floor_scale = lr * self.config.min_step_scale as f32;
                     let dynamic_scale = base_step_scale * flip_damping * snr_attenuation;
-                    let coord_step_scale = crate::solvers::apply_smooth_max(dynamic_scale, floor_scale, 1e-6f32, self.config.max_method);
+                    let coord_step_scale = crate::solvers::apply_smooth_max(
+                        dynamic_scale,
+                        floor_scale,
+                        1e-6f32,
+                        self.config.max_method,
+                    );
 
                     let ito_drift = if (self.config.ito_drift_correction
-                        || (self.config.auto_dynamical_fingerprinting && detected_regime == DynamicalRegime::StochasticSde))
+                        || (self.config.auto_dynamical_fingerprinting
+                            && detected_regime == DynamicalRegime::StochasticSde))
                         && state.var_step > 1
                     {
-                        let sde_weight = (1.0f32 / (1.0f32 + state.temporal_snr as f32)).clamp(0.0f32, 1.0f32);
+                        let sde_weight =
+                            (1.0f32 / (1.0f32 + state.temporal_snr as f32)).clamp(0.0f32, 1.0f32);
                         0.5f32 * lr * sde_weight * (g - g_prev) * (g / (g.abs() + 1.0f32))
                     } else {
                         0.0f32
@@ -2466,8 +2470,11 @@ impl Optimizer for SelfOptimizingMeta {
                         let r_sq = r * r;
                         let r_pow4 = r_sq * r_sq;
                         let lambda = (gamma * (r_pow4 / (r_pow4 + HILL_K4))) as f32;
-                        let wd_factor =
-                            if wd > 0.0 { 1.0f32 - (lr * wd) as f32 } else { 1.0f32 };
+                        let wd_factor = if wd > 0.0 {
+                            1.0f32 - (lr * wd) as f32
+                        } else {
+                            1.0f32
+                        };
                         let eff_eps_f32 = eff_eps as f32;
                         let eff_eps_sq = eff_eps_f32 * eff_eps_f32;
 
@@ -2476,8 +2483,8 @@ impl Optimizer for SelfOptimizingMeta {
                             let coherent_scale = 1.0f32 / l_f32;
                             let aligned_scale = 1.0f32 + 1.0f32 / l_f32.sqrt();
                             let depth_gate = (km1 * km1) / (km1 * km1 + l_f32);
-                            let mlp_lr =
-                                lr_f32 * (coherent_scale + (aligned_scale - coherent_scale) * depth_gate);
+                            let mlp_lr = lr_f32
+                                * (coherent_scale + (aligned_scale - coherent_scale) * depth_gate);
                             let beta1 = 0.90f32;
                             let beta2_f32 = beta2 as f32;
                             let inno_2_f32 = innovation_rate_2 as f32;
@@ -2530,21 +2537,27 @@ impl Optimizer for SelfOptimizingMeta {
                                 } else {
                                     1.0
                                 };
-                                let noise_var = (sum_diff_sq / (2.0f32 * n as f32)) * (1.0f32 - rho_temporal).max(0.0f32);
+                                let noise_var = (sum_diff_sq / (2.0f32 * n as f32))
+                                    * (1.0f32 - rho_temporal).max(0.0f32);
                                 let signal_power = sum_g_sq / (n as f32);
-                                let instant_snr = ((signal_power / (noise_var + 1e-12f32)).min(1e4f32)) as f64;
+                                let instant_snr =
+                                    ((signal_power / (noise_var + 1e-12f32)).min(1e4f32)) as f64;
                                 if state.var_step <= 2 {
                                     state.temporal_snr = instant_snr;
                                     state.spatial_coupling = spatial_coupling;
                                 } else {
-                                    state.temporal_snr = 0.85 * state.temporal_snr + 0.15 * instant_snr;
-                                    state.spatial_coupling = 0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
+                                    state.temporal_snr =
+                                        0.85 * state.temporal_snr + 0.15 * instant_snr;
+                                    state.spatial_coupling =
+                                        0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
                                 }
                                 let regime = if rho_temporal < -0.65f32 {
                                     DynamicalRegime::DiscontinuousFilippov
                                 } else if state.temporal_snr <= 2.5 || rho_temporal < 0.15f32 {
                                     DynamicalRegime::StochasticSde
-                                } else if state.spatial_coupling < 0.20 || state.spatial_coupling > 3.2 {
+                                } else if state.spatial_coupling < 0.20
+                                    || state.spatial_coupling > 3.2
+                                {
                                     DynamicalRegime::CoupledPde
                                 } else {
                                     DynamicalRegime::DeterministicOde
@@ -2569,10 +2582,11 @@ impl Optimizer for SelfOptimizingMeta {
                                 let is_sign_flip = state.var_step > 1 && (g_i * g_prev_i < 0.0f32);
                                 let residual_grad_factor = if is_sign_flip {
                                     let v_hat_prev = v[i] / bias_corr_2_prev;
-                                    let is_anisotropic =
-                                        (g_sq_i - mean_g_sq as f32).abs() > 0.05f32 * mean_g_sq as f32;
+                                    let is_anisotropic = (g_sq_i - mean_g_sq as f32).abs()
+                                        > 0.05f32 * mean_g_sq as f32;
                                     let is_cusp_regime = is_anisotropic
-                                        && (500.0f32..1e7f32).contains(&(corrected_running_sq as f32));
+                                        && (500.0f32..1e7f32)
+                                            .contains(&(corrected_running_sq as f32));
                                     let energy_gate = if n <= 4 {
                                         if !is_cusp_regime {
                                             1.0f32
@@ -2582,7 +2596,8 @@ impl Optimizer for SelfOptimizingMeta {
                                             } else {
                                                 (g_sq_i + g_prev_sq_i) / (v_hat_prev + eff_eps_sq)
                                             };
-                                            (rho_flip * rho_flip) / (rho_flip * rho_flip + 0.0625f32)
+                                            (rho_flip * rho_flip)
+                                                / (rho_flip * rho_flip + 0.0625f32)
                                         }
                                     } else {
                                         let rho_flip = g_sq_i / (v_hat_prev + eff_eps_sq);
@@ -2623,9 +2638,13 @@ impl Optimizer for SelfOptimizingMeta {
                                     if curr_theta_i * g_i > 0.0f32 {
                                         let abs_theta = curr_theta_i.abs();
                                         if abs_theta > eff_eps_f32 && g_i.abs() > 100.0f32 {
-                                            let rayleigh_stiffness = g_i.abs() / (abs_theta + eff_eps_f32);
-                                            if rayleigh_stiffness > 100.0f32 && base_step_scale > abs_theta {
-                                                let ratio = base_step_scale / (abs_theta + eff_eps_f32);
+                                            let rayleigh_stiffness =
+                                                g_i.abs() / (abs_theta + eff_eps_f32);
+                                            if rayleigh_stiffness > 100.0f32
+                                                && base_step_scale > abs_theta
+                                            {
+                                                let ratio =
+                                                    base_step_scale / (abs_theta + eff_eps_f32);
                                                 let prior_v = g_sq_i * (ratio * ratio);
                                                 if prior_v > v[i] {
                                                     v[i] = prior_v;
@@ -2719,8 +2738,8 @@ impl Optimizer for SelfOptimizingMeta {
                             let coherent_scale = 1.0 / l_f64;
                             let aligned_scale = 1.0 + 1.0 / l_f64.sqrt();
                             let depth_gate = (km1 * km1) / (km1 * km1 + l_f64);
-                            let mlp_lr =
-                                lr * (coherent_scale + (aligned_scale - coherent_scale) * depth_gate);
+                            let mlp_lr = lr
+                                * (coherent_scale + (aligned_scale - coherent_scale) * depth_gate);
 
                             let beta1 = 0.90_f64;
                             let bias_corr_1 = 1.0 - beta1.powi(state.var_step as i32);
@@ -2739,8 +2758,7 @@ impl Optimizer for SelfOptimizingMeta {
                                 let v_hat_i = v[i] / bias_corr_2;
                                 let denom = (v_hat_i + lambda * g_sq_i + eff_eps_sq).sqrt();
 
-                                let next_theta_i =
-                                    z[i] * wd_factor - mlp_lr * (m_hat_i / denom);
+                                let next_theta_i = z[i] * wd_factor - mlp_lr * (m_hat_i / denom);
                                 z[i] = next_theta_i;
                                 y[i] = next_theta_i;
                                 self.scratch_theta[i] = next_theta_i;
@@ -2775,21 +2793,26 @@ impl Optimizer for SelfOptimizingMeta {
                                 } else {
                                     1.0
                                 };
-                                let noise_var = (sum_diff_sq / (2.0 * n as f64)) * (1.0 - rho_temporal).max(0.0);
+                                let noise_var = (sum_diff_sq / (2.0 * n as f64))
+                                    * (1.0 - rho_temporal).max(0.0);
                                 let signal_power = sum_g_sq / (n as f64);
                                 let instant_snr = (signal_power / (noise_var + 1e-12)).min(1e4);
                                 if state.var_step <= 2 {
                                     state.temporal_snr = instant_snr;
                                     state.spatial_coupling = spatial_coupling;
                                 } else {
-                                    state.temporal_snr = 0.85 * state.temporal_snr + 0.15 * instant_snr;
-                                    state.spatial_coupling = 0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
+                                    state.temporal_snr =
+                                        0.85 * state.temporal_snr + 0.15 * instant_snr;
+                                    state.spatial_coupling =
+                                        0.85 * state.spatial_coupling + 0.15 * spatial_coupling;
                                 }
                                 let regime = if rho_temporal < -0.65 {
                                     DynamicalRegime::DiscontinuousFilippov
                                 } else if state.temporal_snr <= 2.5 || rho_temporal < 0.15 {
                                     DynamicalRegime::StochasticSde
-                                } else if state.spatial_coupling < 0.20 || state.spatial_coupling > 3.2 {
+                                } else if state.spatial_coupling < 0.20
+                                    || state.spatial_coupling > 3.2
+                                {
                                     DynamicalRegime::CoupledPde
                                 } else {
                                     DynamicalRegime::DeterministicOde
@@ -2797,8 +2820,9 @@ impl Optimizer for SelfOptimizingMeta {
                                 state.detected_regime = regime;
                             }
 
-                            let bias_corr_2_prev =
-                                (1.0 - beta2.powi((state.var_step as i32 - 1).max(1))).max(innovation_rate_2);
+                            let bias_corr_2_prev = (1.0
+                                - beta2.powi((state.var_step as i32 - 1).max(1)))
+                            .max(innovation_rate_2);
 
                             for i in 0..n {
                                 let g_i = self.scratch_grad[i];
@@ -2842,8 +2866,8 @@ impl Optimizer for SelfOptimizingMeta {
                                     } else {
                                         raw_w_sec.clamp(1e-3, 0.999)
                                     };
-                                    let theta_root = prev_theta[i]
-                                        + w_sec * (curr_theta_i - prev_theta[i]);
+                                    let theta_root =
+                                        prev_theta[i] + w_sec * (curr_theta_i - prev_theta[i]);
 
                                     let kappa_sync = 0.85 * energy_gate;
                                     z[i] += kappa_sync * (theta_root - z[i]);
@@ -2868,8 +2892,11 @@ impl Optimizer for SelfOptimizingMeta {
                                     if curr_theta_i * g_i > 0.0 {
                                         let abs_theta = curr_theta_i.abs();
                                         if abs_theta > eff_eps && g_i.abs() > 100.0 {
-                                            let rayleigh_stiffness = g_i.abs() / (abs_theta + eff_eps);
-                                            if rayleigh_stiffness > 100.0 && base_step_scale > abs_theta {
+                                            let rayleigh_stiffness =
+                                                g_i.abs() / (abs_theta + eff_eps);
+                                            if rayleigh_stiffness > 100.0
+                                                && base_step_scale > abs_theta
+                                            {
                                                 let ratio = base_step_scale / (abs_theta + eff_eps);
                                                 let prior_v = g_sq_i * (ratio * ratio);
                                                 if prior_v > v[i] {
@@ -2889,8 +2916,8 @@ impl Optimizer for SelfOptimizingMeta {
                                 prev_theta[i] = curr_theta_i;
 
                                 let flip_damping = 1.0 / (1.0 + 0.5 * flip_ema[i]);
-                                let coord_step_scale =
-                                    (lr * self.config.min_step_scale).max(base_step_scale * flip_damping);
+                                let coord_step_scale = (lr * self.config.min_step_scale)
+                                    .max(base_step_scale * flip_damping);
 
                                 let z_next = z[i] * wd_factor - coord_step_scale * g_hat_i;
                                 z[i] = z_next;
@@ -2989,22 +3016,33 @@ mod tests {
     #[test]
     fn test_self_optimizing_meta_with_custom_precision() {
         let prec = Arc::new(CustomQuarterIntegerPrecision);
-        let var = Var::from_tensor(&Tensor::new(&[1.12f64, -0.63, 0.04], &candle_core::Device::Cpu).unwrap()).unwrap();
+        let var = Var::from_tensor(
+            &Tensor::new(&[1.12f64, -0.63, 0.04], &candle_core::Device::Cpu).unwrap(),
+        )
+        .unwrap();
         let mut opt = SelfOptimizingMeta::new(vec![var], SelfOptimizingMetaConfig::default())
             .with_custom_precision(prec.clone());
 
         assert!(opt.custom_precision.is_some());
-        assert_eq!(opt.custom_precision.as_ref().unwrap().name(), "custom_quarter_integer");
+        assert_eq!(
+            opt.custom_precision.as_ref().unwrap().name(),
+            "custom_quarter_integer"
+        );
 
         let mut theta = vec![1.12f64, -0.63, 0.04];
         let grad = vec![0.5f64, -0.5, 0.2];
 
-        opt.step_slice_with_precision(prec.as_ref(), 0, &grad, &mut theta).unwrap();
+        opt.step_slice_with_precision(prec.as_ref(), 0, &grad, &mut theta)
+            .unwrap();
 
         // All updated parameters must be exact multiples of 0.25
         for &val in &theta {
             let mult = (val * 4.0).round();
-            assert!((val - mult / 4.0).abs() < 1e-12, "val {} not quantized to 0.25 lattice", val);
+            assert!(
+                (val - mult / 4.0).abs() < 1e-12,
+                "val {} not quantized to 0.25 lattice",
+                val
+            );
         }
     }
 
@@ -3037,9 +3075,18 @@ mod tests {
             .with_max_method(crate::solvers::SmoothMaxMethod::LogSumExp)
             .with_ito_drift_correction(true);
 
-        assert_eq!(opt.config.gating_method, crate::solvers::SmoothGatingMethod::DirectionalReversal);
-        assert_eq!(opt.config.clamping_method, crate::solvers::SmoothClampingMethod::HermiteSmootherstep);
-        assert_eq!(opt.config.max_method, crate::solvers::SmoothMaxMethod::LogSumExp);
+        assert_eq!(
+            opt.config.gating_method,
+            crate::solvers::SmoothGatingMethod::DirectionalReversal
+        );
+        assert_eq!(
+            opt.config.clamping_method,
+            crate::solvers::SmoothClampingMethod::HermiteSmootherstep
+        );
+        assert_eq!(
+            opt.config.max_method,
+            crate::solvers::SmoothMaxMethod::LogSumExp
+        );
         assert!(opt.config.ito_drift_correction);
 
         // Run 50 steps on quadratic bowl f(theta) = 0.5 * theta^2 with stochastic Langevin noise
@@ -3052,8 +3099,16 @@ mod tests {
         }
 
         // Must contract toward origin under Itô drift compensation
-        assert!(theta[0].abs() < 10.0, "Theta[0] must contract, got {}", theta[0]);
-        assert!(theta[1].abs() < 8.0, "Theta[1] must contract, got {}", theta[1]);
+        assert!(
+            theta[0].abs() < 10.0,
+            "Theta[0] must contract, got {}",
+            theta[0]
+        );
+        assert!(
+            theta[1].abs() < 8.0,
+            "Theta[1] must contract, got {}",
+            theta[1]
+        );
     }
 
     #[test]
@@ -3063,14 +3118,31 @@ mod tests {
 
         // Deterministic quadratic flow: gradients are smooth, persistent, and directional
         for _ in 0..15 {
-            let grads = vec![theta[0] * 0.1, theta[1] * 0.1, theta[2] * 0.1, theta[3] * 0.1];
+            let grads = vec![
+                theta[0] * 0.1,
+                theta[1] * 0.1,
+                theta[2] * 0.1,
+                theta[3] * 0.1,
+            ];
             opt.step_slice_in_place(0, &grads, &mut theta).unwrap();
         }
 
-        let regime = opt.detected_dynamical_regime(0).expect("Regime should be detected");
-        assert_eq!(regime, DynamicalRegime::DeterministicOde, "Should detect DeterministicOde flow");
-        let snr = opt.temporal_snr(0).expect("Temporal SNR should be computed");
-        assert!(snr > 3.0, "Deterministic ODE must have high temporal SNR, got {}", snr);
+        let regime = opt
+            .detected_dynamical_regime(0)
+            .expect("Regime should be detected");
+        assert_eq!(
+            regime,
+            DynamicalRegime::DeterministicOde,
+            "Should detect DeterministicOde flow"
+        );
+        let snr = opt
+            .temporal_snr(0)
+            .expect("Temporal SNR should be computed");
+        assert!(
+            snr > 3.0,
+            "Deterministic ODE must have high temporal SNR, got {}",
+            snr
+        );
     }
 
     #[test]
@@ -3084,17 +3156,31 @@ mod tests {
             let mut grads = Vec::with_capacity(16);
             for _ in 0..16 {
                 // Simple LCG pseudo-random noise in [-1.5, 1.5]
-                rng_state = rng_state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                rng_state = rng_state
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(1442695040888963407);
                 let rand_val = ((rng_state >> 33) as f64) / ((1u64 << 31) as f64) - 0.5; // [-0.5, 0.5]
                 grads.push(rand_val * 3.0); // Dominant stochastic diffusion
             }
             opt.step_slice_in_place(0, &grads, &mut theta).unwrap();
         }
 
-        let regime = opt.detected_dynamical_regime(0).expect("Regime should be detected");
-        assert_eq!(regime, DynamicalRegime::StochasticSde, "Should detect StochasticSde diffusion");
-        let snr = opt.temporal_snr(0).expect("Temporal SNR should be computed");
-        assert!(snr <= 2.5, "Stochastic SDE must have low temporal SNR <= 2.5, got {}", snr);
+        let regime = opt
+            .detected_dynamical_regime(0)
+            .expect("Regime should be detected");
+        assert_eq!(
+            regime,
+            DynamicalRegime::StochasticSde,
+            "Should detect StochasticSde diffusion"
+        );
+        let snr = opt
+            .temporal_snr(0)
+            .expect("Temporal SNR should be computed");
+        assert!(
+            snr <= 2.5,
+            "Stochastic SDE must have low temporal SNR <= 2.5, got {}",
+            snr
+        );
     }
 
     #[test]
@@ -3110,10 +3196,22 @@ mod tests {
             opt.step_slice_in_place(0, &grads, &mut theta).unwrap();
         }
 
-        let regime = opt.detected_dynamical_regime(0).expect("Regime should be detected");
-        assert_eq!(regime, DynamicalRegime::CoupledPde, "Should detect CoupledPde spatial roughness");
-        let spatial_roughness = opt.spatial_coupling(0).expect("Spatial coupling should be computed");
-        assert!(spatial_roughness > 3.0, "High frequency spatial mode must have R_spatial > 3.0, got {}", spatial_roughness);
+        let regime = opt
+            .detected_dynamical_regime(0)
+            .expect("Regime should be detected");
+        assert_eq!(
+            regime,
+            DynamicalRegime::CoupledPde,
+            "Should detect CoupledPde spatial roughness"
+        );
+        let spatial_roughness = opt
+            .spatial_coupling(0)
+            .expect("Spatial coupling should be computed");
+        assert!(
+            spatial_roughness > 3.0,
+            "High frequency spatial mode must have R_spatial > 3.0, got {}",
+            spatial_roughness
+        );
     }
 
     #[test]
@@ -3128,11 +3226,13 @@ mod tests {
             opt.step_slice_in_place(0, &grads, &mut theta).unwrap();
         }
 
-        let regime = opt.detected_dynamical_regime(0).expect("Regime should be detected");
-        assert_eq!(regime, DynamicalRegime::DiscontinuousFilippov, "Should detect DiscontinuousFilippov sliding surface");
+        let regime = opt
+            .detected_dynamical_regime(0)
+            .expect("Regime should be detected");
+        assert_eq!(
+            regime,
+            DynamicalRegime::DiscontinuousFilippov,
+            "Should detect DiscontinuousFilippov sliding surface"
+        );
     }
 }
-
-
-
-

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t12_combinatorial_routing_and_constraint_satisfaction_neural_solvers as topic;
 

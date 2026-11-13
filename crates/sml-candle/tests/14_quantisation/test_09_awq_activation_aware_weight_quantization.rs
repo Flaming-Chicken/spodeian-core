@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t09_awq_activation_aware_weight_quantization as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_09_awq_activation_aware_weight_quantization_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/03_llm_ptq_algorithms/02_awq_activation_aware_weight_quantization.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/03_llm_ptq_algorithms/02_awq_activation_aware_weight_quantization.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
 use ai_candle::c04_training_methods_and_optimisers::t07_learning_rate_schedulers_and_lr_finder as opt;
 

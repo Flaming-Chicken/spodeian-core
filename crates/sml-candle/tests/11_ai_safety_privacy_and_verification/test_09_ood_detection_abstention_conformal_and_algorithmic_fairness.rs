@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t09_ood_detection_abstention_conformal_and_algorithmic_fairness as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_09_ood_detection_abstention_conformal_and_algorithmic_fairness_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/09_ood_detection_abstention_conformal_and_algorithmic_fairness.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/09_ood_detection_abstention_conformal_and_algorithmic_fairness.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c15_compression_peft_and_speculative_inference::t10_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_10_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/05_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/05_model_merging_slerp_task_arithmetic_ties_dare_and_evolutionary.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

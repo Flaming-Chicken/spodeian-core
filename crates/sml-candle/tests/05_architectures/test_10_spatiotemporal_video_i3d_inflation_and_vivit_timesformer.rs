@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer as video;
 

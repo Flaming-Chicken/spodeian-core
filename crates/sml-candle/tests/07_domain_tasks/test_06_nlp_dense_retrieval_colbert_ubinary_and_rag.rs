@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t06_nlp_dense_retrieval_colbert_ubinary_and_rag as topic;
 

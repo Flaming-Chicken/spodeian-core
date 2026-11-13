@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t16_linear_attention_rwkv_retnet_gla_deltanet_and_ttt as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_16_linear_attention_rwkv_retnet_gla_deltanet_and_ttt_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/03_recurrent_ssm_and_memory/05_linear_attention_rwkv_retnet_gla_deltanet_and_ttt.safetensors"),
+        common::get_weights_path(
+            "05_architectures/03_recurrent_ssm_and_memory/05_linear_attention_rwkv_retnet_gla_deltanet_and_ttt.safetensors",
+        ),
         &device,
     )?;
 

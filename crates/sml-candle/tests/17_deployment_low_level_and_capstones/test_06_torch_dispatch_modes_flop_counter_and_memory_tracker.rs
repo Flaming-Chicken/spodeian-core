@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c17_deployment_low_level_and_capstones::t06_torch_dispatch_modes_flop_counter_and_memory_tracker as topic;
 

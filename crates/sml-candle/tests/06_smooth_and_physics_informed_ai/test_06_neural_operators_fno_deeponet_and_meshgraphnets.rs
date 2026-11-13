@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c06_smooth_and_physics_informed_ai::t06_neural_operators_fno_deeponet_and_meshgraphnets as topic;
 

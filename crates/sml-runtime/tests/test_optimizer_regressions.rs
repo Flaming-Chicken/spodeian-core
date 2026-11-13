@@ -1,9 +1,7 @@
 //! Integration regression tests for SelfOptimizingMeta and optimizer special cases.
 
 use candle_core::{Device, Result, Tensor, Var};
-use sml_runtime::optim::{
-    Optimizer, SelfOptimizingMeta, SelfOptimizingMetaConfig,
-};
+use sml_runtime::optim::{Optimizer, SelfOptimizingMeta, SelfOptimizingMetaConfig};
 
 #[test]
 fn test_regression_ultra_stiff_ravine() -> Result<()> {
@@ -27,7 +25,6 @@ fn test_regression_ultra_stiff_ravine() -> Result<()> {
             ..Default::default()
         },
     );
-
 
     let calc_loss = |var: &Var| -> Result<f32> {
         let sq = var.as_tensor().sqr()?;
@@ -66,10 +63,7 @@ fn test_regression_smooth_operators_differentiability() -> Result<()> {
     let device = Device::Cpu;
     // Verify that zero or tiny gradients do not cause division by zero or NaN
     let x = Var::from_slice(&[0.0f32, 0.0f32, 0.0f32], (3,), &device)?;
-    let mut opt = SelfOptimizingMeta::new(
-        vec![x.clone()],
-        SelfOptimizingMetaConfig::default(),
-    );
+    let mut opt = SelfOptimizingMeta::new(vec![x.clone()], SelfOptimizingMetaConfig::default());
 
     let loss = x.as_tensor().sqr()?.sum_all()?;
     let grads = loss.backward()?;
@@ -77,8 +71,14 @@ fn test_regression_smooth_operators_differentiability() -> Result<()> {
 
     let updated = x.as_tensor().to_vec1::<f32>()?;
     for val in updated {
-        assert!(!val.is_nan() && !val.is_infinite(), "Encountered NaN in smooth zero gradient step");
-        assert_eq!(val, 0.0, "Zero gradient should yield zero displacement at origin");
+        assert!(
+            !val.is_nan() && !val.is_infinite(),
+            "Encountered NaN in smooth zero gradient step"
+        );
+        assert_eq!(
+            val, 0.0,
+            "Zero gradient should yield zero displacement at origin"
+        );
     }
     Ok(())
 }

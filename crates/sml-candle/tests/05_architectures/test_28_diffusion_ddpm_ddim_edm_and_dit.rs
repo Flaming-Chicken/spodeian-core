@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t28_diffusion_ddpm_ddim_edm_and_dit as topic;
 

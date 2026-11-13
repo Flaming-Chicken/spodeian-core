@@ -1,8 +1,8 @@
 //! Category 04 Training Methods & Optimisers Integration Test Suite for ai-kernel.
 
-use ai_kernel::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as t01;
 use ai_kernel::KernelDevice;
-use candle_core::{safetensors::load, Device, Result};
+use ai_kernel::c04_training_methods_and_optimisers::t01_first_order_and_adaptive_optimisers as t01;
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "common/mod.rs"]
 mod common;
@@ -1000,8 +1000,8 @@ fn test_09_multi_objective_pareto_mgda_tchebycheff_and_gradient_surgery_cpu_and_
 }
 
 #[test]
-fn test_10_coordinate_alternating_projections_and_majorization_minimization_cpu_and_auto(
-) -> Result<()> {
+fn test_10_coordinate_alternating_projections_and_majorization_minimization_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t10_coordinate_alternating_projections_and_majorization_minimization as t10;
 
     let kdev = KernelDevice::Cpu;
@@ -1107,8 +1107,8 @@ fn test_10_coordinate_alternating_projections_and_majorization_minimization_cpu_
 }
 
 #[test]
-fn test_11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn_cpu_and_auto(
-) -> Result<()> {
+fn test_11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn as t11;
 
     let kdev = KernelDevice::Cpu;
@@ -1209,8 +1209,8 @@ fn test_11_combinatorial_and_discrete_simulated_annealing_tempering_and_sinkhorn
 }
 
 #[test]
-fn test_12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed_cpu_and_auto(
-) -> Result<()> {
+fn test_12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed as t12;
 
     let kdev = KernelDevice::Cpu;
@@ -1435,8 +1435,8 @@ fn test_13_sharpness_aware_swad_and_weight_averaging_dynamics_cpu_and_auto() -> 
 }
 
 #[test]
-fn test_14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa_cpu_and_auto(
-) -> Result<()> {
+fn test_14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa as t14;
 
     let kdev = KernelDevice::Cpu;
@@ -1555,8 +1555,8 @@ fn test_14_minimax_saddle_point_extragradient_ogda_sga_and_trust_region_bobyqa_c
 }
 
 #[test]
-fn test_15_grokking_phase_transitions_edge_of_stability_and_implicit_bias_cpu_and_auto(
-) -> Result<()> {
+fn test_15_grokking_phase_transitions_edge_of_stability_and_implicit_bias_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t15_grokking_phase_transitions_edge_of_stability_and_implicit_bias as t15;
 
     let device = Device::Cpu;
@@ -1643,8 +1643,8 @@ fn test_15_grokking_phase_transitions_edge_of_stability_and_implicit_bias_cpu_an
 }
 
 #[test]
-fn test_16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity_cpu_and_auto(
-) -> Result<()> {
+fn test_16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plasticity as t16;
 
     let device = Device::Cpu;
@@ -1788,8 +1788,8 @@ fn test_16_training_optimisations_progressive_stacking_data_pruning_mrl_and_plas
 }
 
 #[test]
-fn test_17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting_cpu_and_auto(
-) -> Result<()> {
+fn test_17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting as t17;
 
     let device = Device::Cpu;
@@ -2146,8 +2146,8 @@ fn test_18_self_optimising_test_time_adaptation_tent_memo_star_and_spin_cpu_and_
 }
 
 #[test]
-fn test_19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian_cpu_and_auto(
-) -> Result<()> {
+fn test_19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t19_non_backprop_forward_forward_predictive_coding_eqprop_dfa_hebbian as t19;
 
     let device = Device::Cpu;
@@ -2616,8 +2616,8 @@ fn test_21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse_cpu_and_
 }
 
 #[test]
-fn test_22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr_cpu_and_auto(
-) -> Result<()> {
+fn test_22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr_cpu_and_auto()
+-> Result<()> {
     use ai_kernel::c04_training_methods_and_optimisers::t22_meta_parameter_sensitivity_fanova_sobol_meta_landscapes_and_effective_lr as t22;
 
     let device = Device::Cpu;

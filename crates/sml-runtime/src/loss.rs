@@ -64,12 +64,16 @@ pub fn cross_entropy(
 
     if label_smoothing <= 0.0 {
         // Standard NLL loss: -log_prob[target]
-        let target_log_probs = log_probs.gather(&flat_targets.unsqueeze(1)?, 1)?.squeeze(1)?;
+        let target_log_probs = log_probs
+            .gather(&flat_targets.unsqueeze(1)?, 1)?
+            .squeeze(1)?;
         let nll = target_log_probs.neg()?;
         apply_reduction(&nll, reduction)
     } else {
         // Label smoothing: (1 - eps) * nll + eps * mean(-log_probs)
-        let target_log_probs = log_probs.gather(&flat_targets.unsqueeze(1)?, 1)?.squeeze(1)?;
+        let target_log_probs = log_probs
+            .gather(&flat_targets.unsqueeze(1)?, 1)?
+            .squeeze(1)?;
         let nll = target_log_probs.neg()?;
         let smooth_loss = log_probs.mean_keepdim(1)?.squeeze(1)?.neg()?;
         let total = ((nll * (1.0 - label_smoothing))? + (smooth_loss * label_smoothing)?)?;
@@ -83,11 +87,7 @@ pub fn cross_entropy(
 
 /// Numerically stable Binary Cross-Entropy with Logits:
 /// loss = max(x, 0) - x * z + log(1 + exp(-|x|))
-pub fn bce_with_logits(
-    logits: &Tensor,
-    targets: &Tensor,
-    reduction: Reduction,
-) -> Result<Tensor> {
+pub fn bce_with_logits(logits: &Tensor, targets: &Tensor, reduction: Reduction) -> Result<Tensor> {
     let zeros = Tensor::zeros_like(logits)?;
     let max_val = logits.maximum(&zeros)?;
     let abs_logits = logits.abs()?;
@@ -223,7 +223,10 @@ pub fn vicreg_loss(
     let cov_loss_fn = |z: &Tensor| -> Result<Tensor> {
         let mean = z.mean_keepdim(0)?;
         let cent = z.broadcast_sub(&mean)?;
-        let cov = (cent.t()?.matmul(&cent)?.affine(1.0 / (b - 1).max(1) as f64, 0.0))?;
+        let cov = (cent
+            .t()?
+            .matmul(&cent)?
+            .affine(1.0 / (b - 1).max(1) as f64, 0.0))?;
         let cov_sqr = cov.sqr()?;
         // Total sum minus diagonal sum
         let total_sq = cov_sqr.sum_all()?.to_scalar::<f32>()? as f64;
@@ -238,7 +241,8 @@ pub fn vicreg_loss(
     let cov_loss = ((cov_loss_fn(z_a)? + cov_loss_fn(z_b)?)?.affine(0.5, 0.0))?;
 
     // Combined loss
-    let total = (((sim_loss.clone() * sim_coeff)? + (var_loss.clone() * var_coeff)?)? + (cov_loss.clone() * cov_coeff)?)?;
+    let total = (((sim_loss.clone() * sim_coeff)? + (var_loss.clone() * var_coeff)?)?
+        + (cov_loss.clone() * cov_coeff)?)?;
     Ok((total, sim_loss, var_loss, cov_loss))
 }
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t38_hypergraph_neural_networks_allset_combinatorial_complexes_and_exphormer as topic;
 
@@ -6,11 +6,13 @@ use ai_candle::c05_architectures::t38_hypergraph_neural_networks_allset_combinat
 mod common;
 
 #[test]
-fn test_38_hypergraph_neural_networks_allset_combinatorial_complexes_and_exphormer_parity(
-) -> Result<()> {
+fn test_38_hypergraph_neural_networks_allset_combinatorial_complexes_and_exphormer_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/06_graphs_geometric_and_inr/06_hypergraph_neural_networks_allset_combinatorial_complexes_and_exphormer.safetensors"),
+        common::get_weights_path(
+            "05_architectures/06_graphs_geometric_and_inr/06_hypergraph_neural_networks_allset_combinatorial_complexes_and_exphormer.safetensors",
+        ),
         &device,
     )?;
 

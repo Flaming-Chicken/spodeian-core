@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t05_mechanistic_interpretability_probing_lens_patching_and_sae as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_05_mechanistic_interpretability_probing_lens_patching_and_sae_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/05_mechanistic_interpretability_probing_lens_patching_and_sae.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/05_mechanistic_interpretability_probing_lens_patching_and_sae.safetensors",
+        ),
         &device,
     )?;
 

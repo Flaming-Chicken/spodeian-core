@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t04_abliteration_refusal_surgery_circuit_breakers_and_sleeper_agents as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_04_abliteration_refusal_surgery_circuit_breakers_and_sleeper_agents_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/04_abliteration_refusal_surgery_circuit_breakers_and_sleeper_agents.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/04_abliteration_refusal_surgery_circuit_breakers_and_sleeper_agents.safetensors",
+        ),
         &device,
     )?;
 

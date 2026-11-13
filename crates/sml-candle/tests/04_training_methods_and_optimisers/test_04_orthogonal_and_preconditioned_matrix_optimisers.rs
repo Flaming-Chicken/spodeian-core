@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c04_training_methods_and_optimisers::t04_orthogonal_and_preconditioned_matrix_optimisers as opt;
 

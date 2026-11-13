@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t02_formal_neural_verification_ibp_and_crown_bound_propagation as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_02_formal_neural_verification_ibp_and_crown_bound_propagation_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/02_formal_neural_verification_ibp_and_crown_bound_propagation.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/02_formal_neural_verification_ibp_and_crown_bound_propagation.safetensors",
+        ),
         &device,
     )?;
 

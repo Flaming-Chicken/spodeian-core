@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c13_precision_and_numerics::t03_automatic_mixed_precision_autocast_and_gradscaler as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_automatic_mixed_precision_autocast_and_gradscaler_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("13_precision_and_numerics/03_automatic_mixed_precision_autocast_and_gradscaler.safetensors"),
+        common::get_weights_path(
+            "13_precision_and_numerics/03_automatic_mixed_precision_autocast_and_gradscaler.safetensors",
+        ),
         &device,
     )?;
 

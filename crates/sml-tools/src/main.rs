@@ -17,7 +17,7 @@ use std::path::Path;
 use std::process::ExitCode;
 use std::time::Instant;
 
-use help::{print_cmd_help, USAGE};
+use help::{USAGE, print_cmd_help};
 use repo::{Repo, Scope};
 use report::{Format, Section};
 
@@ -502,7 +502,9 @@ fn cmd_scaffold(ctx: &mut Ctx, argv: &[String]) -> Result<bool, String> {
         println!("{} {c}", if dry_run { "would create" } else { "created" });
     }
     if !dry_run && !created.is_empty() {
-        println!("Next: implement, then `python pytorch2/<id>.py --export-golden` and `cargo aix test --topic {q}`.");
+        println!(
+            "Next: implement, then `python pytorch2/<id>.py --export-golden` and `cargo aix test --topic {q}`."
+        );
     }
     Ok(true)
 }
@@ -819,7 +821,7 @@ fn cmd_completions(_ctx: &Ctx, argv: &[String]) -> Result<bool, String> {
         other => {
             return Err(format!(
                 "unsupported shell '{other}' (expected bash, zsh, fish, or powershell)"
-            ))
+            ));
         }
     }
     Ok(true)

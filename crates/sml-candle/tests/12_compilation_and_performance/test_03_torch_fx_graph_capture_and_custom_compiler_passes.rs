@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c12_compilation_and_performance::t03_torch_fx_graph_capture_and_custom_compiler_passes as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_torch_fx_graph_capture_and_custom_compiler_passes_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/03_torch_fx_graph_capture_and_custom_compiler_passes.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/03_torch_fx_graph_capture_and_custom_compiler_passes.safetensors",
+        ),
         &device,
     )?;
 

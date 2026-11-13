@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t35_heterophilic_temporal_cellular_sheaves_and_kge as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_35_heterophilic_temporal_cellular_sheaves_and_kge_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/06_graphs_geometric_and_inr/03_heterophilic_temporal_cellular_sheaves_and_kge.safetensors"),
+        common::get_weights_path(
+            "05_architectures/06_graphs_geometric_and_inr/03_heterophilic_temporal_cellular_sheaves_and_kge.safetensors",
+        ),
         &device,
     )?;
 

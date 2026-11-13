@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t15_vector_product_and_additive_quantization_vq_pq_rvq_aqlm as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_15_vector_product_and_additive_quantization_vq_pq_rvq_aqlm_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/04_vector_lattice_qat_and_lowbit/01_vector_product_and_additive_quantization_vq_pq_rvq_aqlm.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/04_vector_lattice_qat_and_lowbit/01_vector_product_and_additive_quantization_vq_pq_rvq_aqlm.safetensors",
+        ),
         &device,
     )?;
 

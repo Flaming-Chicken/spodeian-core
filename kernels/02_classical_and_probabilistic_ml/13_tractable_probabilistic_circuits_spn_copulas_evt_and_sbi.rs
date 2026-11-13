@@ -146,7 +146,7 @@ pub fn copula_gpd_auto(
             return (
                 clayton_copula_cdf_cpu(u, v, theta),
                 gpd_tail_cdf_cpu(y, xi, sigma),
-            )
+            );
         }
     };
 

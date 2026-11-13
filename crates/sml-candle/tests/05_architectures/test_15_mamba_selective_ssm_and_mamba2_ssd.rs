@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t15_mamba_selective_ssm_and_mamba2_ssd as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_15_mamba_selective_ssm_and_mamba2_ssd_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/03_recurrent_ssm_and_memory/04_mamba_selective_ssm_and_mamba2_ssd.safetensors"),
+        common::get_weights_path(
+            "05_architectures/03_recurrent_ssm_and_memory/04_mamba_selective_ssm_and_mamba2_ssd.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
 use ai_candle::c14_quantisation::t25_hawq_mixed_precision_bit_allocation_and_numeric_debugging as topic;
 

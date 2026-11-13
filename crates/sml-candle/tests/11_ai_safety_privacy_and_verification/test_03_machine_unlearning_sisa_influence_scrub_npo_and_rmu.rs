@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t03_machine_unlearning_sisa_influence_scrub_npo_and_rmu as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_machine_unlearning_sisa_influence_scrub_npo_and_rmu_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/03_machine_unlearning_sisa_influence_scrub_npo_and_rmu.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/03_machine_unlearning_sisa_influence_scrub_npo_and_rmu.safetensors",
+        ),
         &device,
     )?;
 

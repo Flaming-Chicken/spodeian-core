@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c17_deployment_low_level_and_capstones::t09_custom_cpp_and_cpu_simd_extension_mechanics as topic;
 

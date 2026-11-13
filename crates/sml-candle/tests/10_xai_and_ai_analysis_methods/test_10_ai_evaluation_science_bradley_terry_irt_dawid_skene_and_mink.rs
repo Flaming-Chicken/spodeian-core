@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t10_ai_evaluation_science_bradley_terry_irt_dawid_skene_and_mink as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_10_ai_evaluation_science_bradley_terry_irt_dawid_skene_and_mink_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/10_ai_evaluation_science_bradley_terry_irt_dawid_skene_and_mink.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/10_ai_evaluation_science_bradley_terry_irt_dawid_skene_and_mink.safetensors",
+        ),
         &device,
     )?;
 

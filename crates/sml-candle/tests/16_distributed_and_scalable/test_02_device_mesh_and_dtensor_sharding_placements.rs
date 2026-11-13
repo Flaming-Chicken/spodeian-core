@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c16_distributed_and_scalable::t02_device_mesh_and_dtensor_sharding_placements as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_02_device_mesh_and_dtensor_sharding_placements_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("16_distributed_and_scalable/02_device_mesh_and_dtensor_sharding_placements.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "16_distributed_and_scalable/02_device_mesh_and_dtensor_sharding_placements.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t06_torchao_modern_api_and_affine_quantized_tensor as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_06_torchao_modern_api_and_affine_quantized_tensor_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/02_pt2e_torchao_and_bitpacking/02_torchao_modern_api_and_affine_quantized_tensor.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/02_pt2e_torchao_and_bitpacking/02_torchao_modern_api_and_affine_quantized_tensor.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

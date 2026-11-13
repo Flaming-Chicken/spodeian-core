@@ -1,5 +1,6 @@
 //! Category 02 Classical & Probabilistic ML Integration Test Suite for ai-kernel.
 
+use ai_kernel::KernelDevice;
 use ai_kernel::c02_classical_and_probabilistic_ml::t01_generalized_linear_models_and_proximal_lasso as t01;
 use ai_kernel::c02_classical_and_probabilistic_ml::t02_support_vector_machines_and_kernel_methods as t02;
 use ai_kernel::c02_classical_and_probabilistic_ml::t03_knn_prototype_and_locally_weighted_regression as t03;
@@ -13,8 +14,7 @@ use ai_kernel::c02_classical_and_probabilistic_ml::t10_survival_analysis_and_con
 use ai_kernel::c02_classical_and_probabilistic_ml::t11_probabilistic_graphical_models_factor_graphs_bp_and_cavi as t11;
 use ai_kernel::c02_classical_and_probabilistic_ml::t12_mcmc_hmc_sgld_and_stein_variational_gradient_descent_svgd as t12;
 use ai_kernel::c02_classical_and_probabilistic_ml::t13_tractable_probabilistic_circuits_spn_copulas_evt_and_sbi as t13;
-use ai_kernel::KernelDevice;
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "common/mod.rs"]
 mod common;

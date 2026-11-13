@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c13_precision_and_numerics::t05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4 as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("13_precision_and_numerics/05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "13_precision_and_numerics/05_block_floating_point_bfp_microscaling_mxfp_and_nvfp4.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t26_gans_dcgan_wgan_gp_and_stylegan_concepts as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_26_gans_dcgan_wgan_gp_and_stylegan_concepts_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("05_architectures/05_generative_models/03_gans_dcgan_wgan_gp_and_stylegan_concepts.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "05_architectures/05_generative_models/03_gans_dcgan_wgan_gp_and_stylegan_concepts.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

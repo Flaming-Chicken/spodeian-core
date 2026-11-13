@@ -134,9 +134,18 @@ fn test_dtype_precision_matrix_convergence() -> Result<()> {
             let grads = loss.backward()?;
             opt.step(&grads)?;
         }
-        let l = x.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
+        let l = x
+            .as_tensor()
+            .to_dtype(DType::F32)?
+            .sqr()?
+            .sum_all()?
+            .to_scalar::<f32>()?;
         assert!(l < 0.05, "BF16 failed convergence: {}", l);
-        assert_eq!(x.as_tensor().dtype(), DType::BF16, "BF16 dtype was mutated!");
+        assert_eq!(
+            x.as_tensor().dtype(),
+            DType::BF16,
+            "BF16 dtype was mutated!"
+        );
     }
 
     // 4. F16 Half Precision
@@ -152,7 +161,12 @@ fn test_dtype_precision_matrix_convergence() -> Result<()> {
             let grads = loss.backward()?;
             opt.step(&grads)?;
         }
-        let l = x.as_tensor().to_dtype(DType::F32)?.sqr()?.sum_all()?.to_scalar::<f32>()?;
+        let l = x
+            .as_tensor()
+            .to_dtype(DType::F32)?
+            .sqr()?
+            .sum_all()?
+            .to_scalar::<f32>()?;
         assert!(l < 0.05, "F16 failed convergence: {}", l);
         assert_eq!(x.as_tensor().dtype(), DType::F16, "F16 dtype was mutated!");
     }
@@ -306,7 +320,11 @@ fn test_numerical_edge_cases_robustness() -> Result<()> {
         let grads = loss.backward()?;
         opt.step(&grads)?;
         let p = x.as_tensor().to_vec1::<f64>()?;
-        assert_eq!(p, vec![0.0, 0.0], "Stationary point perturbed by zero grad!");
+        assert_eq!(
+            p,
+            vec![0.0, 0.0],
+            "Stationary point perturbed by zero grad!"
+        );
     }
 
     // Edge 2: Extreme Gradient Shock (10^8 gradient spike must be bounded by Hill gate)
@@ -321,7 +339,10 @@ fn test_numerical_edge_cases_robustness() -> Result<()> {
         let grads = shock_loss.backward()?;
         opt.step(&grads)?;
         let p = x.as_tensor().to_vec1::<f64>()?;
-        assert!(p[0].is_finite() && p[1].is_finite(), "Shock produced non-finite values!");
+        assert!(
+            p[0].is_finite() && p[1].is_finite(),
+            "Shock produced non-finite values!"
+        );
         assert!(
             p[0].abs() < 10.0 && p[1].abs() < 10.0,
             "Hill gate failed to bound 10^8 gradient shock: {:?}",
@@ -343,7 +364,11 @@ fn test_numerical_edge_cases_robustness() -> Result<()> {
             opt.step(&grads)?;
         }
         let val = x.as_tensor().to_vec1::<f64>()?[0];
-        assert!(val.abs() < initial_val * 0.05, "Scalar 1D optimization failed: {}", val);
+        assert!(
+            val.abs() < initial_val * 0.05,
+            "Scalar 1D optimization failed: {}",
+            val
+        );
     }
 
     Ok(())
@@ -378,7 +403,8 @@ fn test_long_horizon_kepler_energy_conservation() {
 
     // 1. Test unprojected Störmer-Verlet over 1,000 steps: bounded secular drift
     for _ in 0..1000 {
-        let (next_q, next_p, energy) = symp.step_unprojected_f64(&q_unproj, &p_unproj, h, kepler_force, kepler_hamiltonian);
+        let (next_q, next_p, energy) =
+            symp.step_unprojected_f64(&q_unproj, &p_unproj, h, kepler_force, kepler_hamiltonian);
         q_unproj = next_q;
         p_unproj = next_p;
         let drift = (energy - target_energy).abs();
@@ -387,7 +413,10 @@ fn test_long_horizon_kepler_energy_conservation() {
         }
     }
 
-    println!("Kepler 1000-step unprojected f64 max energy drift: {:.2e}", max_unprojected_drift);
+    println!(
+        "Kepler 1000-step unprojected f64 max energy drift: {:.2e}",
+        max_unprojected_drift
+    );
     assert!(
         max_unprojected_drift < 5e-3,
         "Symplectic area-preservation failed: unprojected drift = {:.2e}",
@@ -399,7 +428,14 @@ fn test_long_horizon_kepler_energy_conservation() {
     let mut p_proj = vec![0.0, ((1.0 + e) / (1.0 - e)).sqrt()];
     let mut max_projected_drift = 0.0f64;
     for _ in 0..1000 {
-        let (next_q, next_p, energy) = symp.step_f64(&q_proj, &p_proj, h, target_energy, kepler_force, kepler_hamiltonian);
+        let (next_q, next_p, energy) = symp.step_f64(
+            &q_proj,
+            &p_proj,
+            h,
+            target_energy,
+            kepler_force,
+            kepler_hamiltonian,
+        );
         q_proj = next_q;
         p_proj = next_p;
         let drift = (energy - target_energy).abs();
@@ -408,7 +444,10 @@ fn test_long_horizon_kepler_energy_conservation() {
         }
     }
 
-    println!("Kepler 1000-step projected f64 max energy drift: {:.2e}", max_projected_drift);
+    println!(
+        "Kepler 1000-step projected f64 max energy drift: {:.2e}",
+        max_projected_drift
+    );
     assert!(
         max_projected_drift < 1e-4,
         "Projected symplectic drift too high: {:.2e}",

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t15_successor_representations_forward_backward_zero_shot_rl_and_diayn as topic;
 
@@ -10,7 +10,9 @@ fn test_15_successor_representations_forward_backward_zero_shot_rl_and_diayn_par
 {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/08_successor_representations_forward_backward_zero_shot_rl_and_diayn.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/08_successor_representations_forward_backward_zero_shot_rl_and_diayn.safetensors",
+        ),
         &device,
     )?;
 

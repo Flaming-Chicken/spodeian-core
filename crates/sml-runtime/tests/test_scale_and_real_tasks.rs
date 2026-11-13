@@ -164,7 +164,10 @@ fn test_real_multiclass_classification_task() -> Result<()> {
         diff.sqr()?.sum_all()?.to_vec0::<f32>()? / train_samples as f32
     };
 
-    println!("Classification Task - Initial Train MSE Loss: {:.4}", initial_loss);
+    println!(
+        "Classification Task - Initial Train MSE Loss: {:.4}",
+        initial_loss
+    );
 
     for _ in 0..120 {
         let h = x_train.matmul(w1.as_tensor())?.relu()?;
@@ -182,7 +185,10 @@ fn test_real_multiclass_classification_task() -> Result<()> {
         diff.sqr()?.sum_all()?.to_vec0::<f32>()? / train_samples as f32
     };
 
-    println!("Classification Task - Final Train MSE Loss: {:.4}", final_loss);
+    println!(
+        "Classification Task - Final Train MSE Loss: {:.4}",
+        final_loss
+    );
     assert!(
         final_loss < initial_loss * 0.35,
         "Multiclass classification failed to converge: initial = {:.4}, final = {:.4}",

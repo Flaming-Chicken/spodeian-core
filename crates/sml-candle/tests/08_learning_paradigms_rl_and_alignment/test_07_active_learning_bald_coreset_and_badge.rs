@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t07_active_learning_bald_coreset_and_badge as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_07_active_learning_bald_coreset_and_badge_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/07_active_learning_bald_coreset_and_badge.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/07_active_learning_bald_coreset_and_badge.safetensors",
+        ),
         &device,
     )?;
 

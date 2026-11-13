@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c09_causal_ai_and_evolutionary_search::t07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr as topic;
 
@@ -6,11 +6,13 @@ use ai_candle::c09_causal_ai_and_evolutionary_search::t07_causal_representation_
 mod common;
 
 #[test]
-fn test_07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr_parity(
-) -> Result<()> {
+fn test_07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/07_causal_representation_identifiability_ivae_synthetic_control_and_symbolic_sr.safetensors",
+        ),
         &device,
     )?;
 

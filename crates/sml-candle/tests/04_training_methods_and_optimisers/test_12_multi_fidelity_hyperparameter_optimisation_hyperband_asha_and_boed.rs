@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
 use ai_candle::c04_training_methods_and_optimisers::t12_multi_fidelity_hyperparameter_optimisation_hyperband_asha_and_boed as opt;
 

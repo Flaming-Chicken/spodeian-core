@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t12_rotation_and_incoherence_ptq_quarot_spinquant_and_quip_sharp as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_12_rotation_and_incoherence_ptq_quarot_spinquant_and_quip_sharp_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/03_llm_ptq_algorithms/05_rotation_and_incoherence_ptq_quarot_spinquant_and_quip_sharp.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/03_llm_ptq_algorithms/05_rotation_and_incoherence_ptq_quarot_spinquant_and_quip_sharp.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

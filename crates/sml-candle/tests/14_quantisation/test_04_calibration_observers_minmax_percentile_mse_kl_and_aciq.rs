@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t04_calibration_observers_minmax_percentile_mse_kl_and_aciq as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_04_calibration_observers_minmax_percentile_mse_kl_and_aciq_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/01_foundations_formats_and_observers/04_calibration_observers_minmax_percentile_mse_kl_and_aciq.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/01_foundations_formats_and_observers/04_calibration_observers_minmax_percentile_mse_kl_and_aciq.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

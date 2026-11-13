@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c06_smooth_and_physics_informed_ai::t07_numerical_integration_pcec_rk45_neural_ode_ltc_and_sde as topic;
 

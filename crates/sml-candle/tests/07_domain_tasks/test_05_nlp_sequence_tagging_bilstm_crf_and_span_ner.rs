@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t05_nlp_sequence_tagging_bilstm_crf_and_span_ner as topic;
 

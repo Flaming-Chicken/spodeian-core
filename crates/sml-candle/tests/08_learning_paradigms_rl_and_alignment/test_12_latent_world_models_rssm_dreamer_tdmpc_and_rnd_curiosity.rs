@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t12_latent_world_models_rssm_dreamer_tdmpc_and_rnd_curiosity as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_12_latent_world_models_rssm_dreamer_tdmpc_and_rnd_curiosity_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/05_latent_world_models_rssm_dreamer_tdmpc_and_rnd_curiosity.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/05_latent_world_models_rssm_dreamer_tdmpc_and_rnd_curiosity.safetensors",
+        ),
         &device,
     )?;
 

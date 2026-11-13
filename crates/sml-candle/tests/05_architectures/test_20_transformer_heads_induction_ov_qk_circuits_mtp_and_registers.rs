@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t20_transformer_heads_induction_ov_qk_circuits_mtp_and_registers as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_20_transformer_heads_induction_ov_qk_circuits_mtp_and_registers_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/04_transformers_and_heads/02_transformer_heads_induction_ov_qk_circuits_mtp_and_registers.safetensors"),
+        common::get_weights_path(
+            "05_architectures/04_transformers_and_heads/02_transformer_heads_induction_ov_qk_circuits_mtp_and_registers.safetensors",
+        ),
         &device,
     )?;
 

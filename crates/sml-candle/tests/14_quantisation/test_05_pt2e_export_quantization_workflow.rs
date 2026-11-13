@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t05_pt2e_export_quantization_workflow as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_05_pt2e_export_quantization_workflow_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/02_pt2e_torchao_and_bitpacking/01_pt2e_export_quantization_workflow.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/02_pt2e_torchao_and_bitpacking/01_pt2e_export_quantization_workflow.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

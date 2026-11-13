@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t41_spiking_neural_networks_lif_surrogate_gradients_and_capsules as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_41_spiking_neural_networks_lif_surrogate_gradients_and_capsules_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("05_architectures/07_multimodal_neuro_symbolic_and_neuromorphic/03_spiking_neural_networks_lif_surrogate_gradients_and_capsules.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "05_architectures/07_multimodal_neuro_symbolic_and_neuromorphic/03_spiking_neural_networks_lif_surrogate_gradients_and_capsules.safetensors",
+        ),
+        &device,
+    )?;
 
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;
     common::assert_max_diff(&y, &w["test_output"], 1e-5)?;

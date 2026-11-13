@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c16_distributed_and_scalable::t03_zero_stages_1_2_3_and_fsdp2_fully_shard as topic;
 

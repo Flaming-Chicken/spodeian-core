@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t18_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_18_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/04_vector_lattice_qat_and_lowbit/04_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/04_vector_lattice_qat_and_lowbit/04_binary_sub1bit_and_ternary_bnn_xnor_billm_onebit_twn_ttq.safetensors",
+        ),
         &device,
     )?;
 

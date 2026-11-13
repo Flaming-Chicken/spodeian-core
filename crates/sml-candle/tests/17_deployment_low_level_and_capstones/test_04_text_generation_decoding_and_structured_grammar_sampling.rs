@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c17_deployment_low_level_and_capstones::t04_text_generation_decoding_and_structured_grammar_sampling as topic;
 

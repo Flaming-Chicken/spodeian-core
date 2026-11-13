@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t21_kv_cache_quantization_kivi_and_kvquant as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_21_kv_cache_quantization_kivi_and_kvquant_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/05_kv_attention_optim_and_benchmarks/01_kv_cache_quantization_kivi_and_kvquant.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/05_kv_attention_optim_and_benchmarks/01_kv_cache_quantization_kivi_and_kvquant.safetensors",
+        ),
         &device,
     )?;
 

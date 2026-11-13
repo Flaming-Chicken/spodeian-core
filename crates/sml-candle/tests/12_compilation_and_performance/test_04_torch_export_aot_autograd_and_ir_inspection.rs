@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c12_compilation_and_performance::t04_torch_export_aot_autograd_and_ir_inspection as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_04_torch_export_aot_autograd_and_ir_inspection_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/04_torch_export_aot_autograd_and_ir_inspection.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/04_torch_export_aot_autograd_and_ir_inspection.safetensors",
+        ),
         &device,
     )?;
 

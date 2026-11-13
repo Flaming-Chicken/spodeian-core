@@ -11,9 +11,9 @@
 //! 4. **α-Equivalence Invariance (Wang et al., ICLR 2020)**:
 //!    Pre-order variable anonymization indices guarantee invariance to variable renaming.
 
-use smallvec::SmallVec;
-use serde::{Deserialize, Serialize};
 use crate::loader::LoadedModelWeights;
+use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 
 /// Operator classifications for mathematical AST nodes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

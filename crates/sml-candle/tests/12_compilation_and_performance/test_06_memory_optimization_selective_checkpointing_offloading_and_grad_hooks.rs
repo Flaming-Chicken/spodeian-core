@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c12_compilation_and_performance::t06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks as topic;
 
@@ -6,11 +6,13 @@ use ai_candle::c12_compilation_and_performance::t06_memory_optimization_selectiv
 mod common;
 
 #[test]
-fn test_06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks_parity(
-) -> Result<()> {
+fn test_06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/06_memory_optimization_selective_checkpointing_offloading_and_grad_hooks.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/02_non_contrastive_and_masked_ssl_byol_dino_vicreg_mae_jepa.safetensors",
+        ),
         &device,
     )?;
 

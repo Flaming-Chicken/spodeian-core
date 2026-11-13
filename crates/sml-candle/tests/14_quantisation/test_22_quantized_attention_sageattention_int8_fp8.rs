@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t22_quantized_attention_sageattention_int8_fp8 as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_22_quantized_attention_sageattention_int8_fp8_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/05_kv_attention_optim_and_benchmarks/02_quantized_attention_sageattention_int8_fp8.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/05_kv_attention_optim_and_benchmarks/02_quantized_attention_sageattention_int8_fp8.safetensors",
+        ),
         &device,
     )?;
 

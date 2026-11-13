@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t08_ai_watermarking_ai_detection_and_model_obfuscation as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_08_ai_watermarking_ai_detection_and_model_obfuscation_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/08_ai_watermarking_ai_detection_and_model_obfuscation.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/08_ai_watermarking_ai_detection_and_model_obfuscation.safetensors",
+        ),
         &device,
     )?;
 

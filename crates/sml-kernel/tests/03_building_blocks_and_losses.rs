@@ -1,7 +1,7 @@
 //! Category 03 Building Blocks & Losses Integration Test Suite for ai-kernel.
 
 use ai_kernel::c03_building_blocks_and_losses::t01_activation_functions_zoo as t01;
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "common/mod.rs"]
 mod common;
@@ -1694,8 +1694,8 @@ fn test_11_losses_proper_scoring_evidential_and_differentiable_ranking_cpu_and_a
 use ai_kernel::c03_building_blocks_and_losses::t12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting as t12;
 
 #[test]
-fn test_12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting_cpu_and_auto(
-) -> Result<()> {
+fn test_12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting_cpu_and_auto()
+-> Result<()> {
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
         "03_building_blocks_and_losses/12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting.safetensors",

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/02_xai_gradient_propagation_ig_lrp_deeplift_gradcam_and_attention.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c06_smooth_and_physics_informed_ai::t09_differentiable_optimization_optnet_kkt_implicit_layers as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_09_differentiable_optimization_optnet_kkt_implicit_layers_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("06_smooth_and_physics_informed_ai/09_differentiable_optimization_optnet_kkt_implicit_layers.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "06_smooth_and_physics_informed_ai/09_differentiable_optimization_optnet_kkt_implicit_layers.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

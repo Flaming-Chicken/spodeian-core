@@ -3,10 +3,10 @@
 
 use std::fs;
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
-use crate::curriculum::{Readme, Topic, README};
-use crate::repo::{file_name, parent, relative, strip_num, Repo, TRACKS};
+use crate::curriculum::{README, Readme, Topic};
+use crate::repo::{Repo, TRACKS, file_name, parent, relative, strip_num};
 use crate::sync;
 
 fn src_lines(text: &str) -> Value {
@@ -462,7 +462,9 @@ pub fn notebook_tool(
             }
             return Err(msg);
         }
-        return Ok(format!("[PASS] {nb_rel} satisfies all 8-cell layout, output stripping, and semantic contract rules."));
+        return Ok(format!(
+            "[PASS] {nb_rel} satisfies all 8-cell layout, output stripping, and semantic contract rules."
+        ));
     }
 
     if let Some(out_path) = export_file {

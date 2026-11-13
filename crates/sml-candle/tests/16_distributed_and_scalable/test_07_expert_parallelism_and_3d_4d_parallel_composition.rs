@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c16_distributed_and_scalable::t07_expert_parallelism_and_3d_4d_parallel_composition as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_07_expert_parallelism_and_3d_4d_parallel_composition_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("16_distributed_and_scalable/07_expert_parallelism_and_3d_4d_parallel_composition.safetensors"),
+        common::get_weights_path(
+            "16_distributed_and_scalable/07_expert_parallelism_and_3d_4d_parallel_composition.safetensors",
+        ),
         &device,
     )?;
 

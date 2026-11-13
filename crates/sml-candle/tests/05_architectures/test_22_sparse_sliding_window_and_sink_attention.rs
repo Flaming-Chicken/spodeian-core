@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t22_sparse_sliding_window_and_sink_attention as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_22_sparse_sliding_window_and_sink_attention_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/04_transformers_and_heads/04_sparse_sliding_window_and_sink_attention.safetensors"),
+        common::get_weights_path(
+            "05_architectures/04_transformers_and_heads/04_sparse_sliding_window_and_sink_attention.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c12_compilation_and_performance::t01_torch_compile_modes_backends_and_graph_breaks as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_01_torch_compile_modes_backends_and_graph_breaks_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/01_torch_compile_modes_backends_and_graph_breaks.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/01_torch_compile_modes_backends_and_graph_breaks.safetensors",
+        ),
         &device,
     )?;
 

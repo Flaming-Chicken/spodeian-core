@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim as topic;
 
@@ -6,11 +6,13 @@ use ai_candle::c10_xai_and_ai_analysis_methods::t07_ai_analysis_representation_s
 mod common;
 
 #[test]
-fn test_07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim_parity(
-) -> Result<()> {
+fn test_07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/07_ai_analysis_representation_similarity_cka_svcca_rsa_and_intrinsic_dim.safetensors",
+        ),
         &device,
     )?;
 

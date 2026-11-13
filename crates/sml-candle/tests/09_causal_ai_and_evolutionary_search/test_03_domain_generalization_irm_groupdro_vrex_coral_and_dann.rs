@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c09_causal_ai_and_evolutionary_search::t03_domain_generalization_irm_groupdro_vrex_coral_and_dann as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_domain_generalization_irm_groupdro_vrex_coral_and_dann_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/03_domain_generalization_irm_groupdro_vrex_coral_and_dann.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/03_domain_generalization_irm_groupdro_vrex_coral_and_dann.safetensors",
+        ),
         &device,
     )?;
 

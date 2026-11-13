@@ -276,7 +276,11 @@ impl LRScheduler for MultiStepLR {
     }
 
     fn get_lr(&self) -> f64 {
-        let count = self.milestones.iter().filter(|&&m| self.current_step >= m).count();
+        let count = self
+            .milestones
+            .iter()
+            .filter(|&&m| self.current_step >= m)
+            .count();
         self.initial_lr * self.gamma.powi(count as i32)
     }
 
@@ -307,7 +311,11 @@ impl ReduceLROnPlateau {
             factor: factor.clamp(0.01, 0.99),
             patience,
             min_lr,
-            best_metric: if minimize { f64::INFINITY } else { f64::NEG_INFINITY },
+            best_metric: if minimize {
+                f64::INFINITY
+            } else {
+                f64::NEG_INFINITY
+            },
             bad_epochs: 0,
             current_step: 0,
             minimize,

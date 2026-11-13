@@ -1,5 +1,5 @@
 use ai_candle::c00_foundations::t02_tensors_views_strides_and_memory_layouts::MemoryLayout;
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t37_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_37_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/06_graphs_geometric_and_inr/05_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs.safetensors"),
+        common::get_weights_path(
+            "05_architectures/06_graphs_geometric_and_inr/05_implicit_neural_representations_siren_instant_ngp_nerf_and_3dgs.safetensors",
+        ),
         &device,
     )?;
 

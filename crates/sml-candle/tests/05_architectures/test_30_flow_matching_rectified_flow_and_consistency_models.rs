@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t30_flow_matching_rectified_flow_and_consistency_models as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_30_flow_matching_rectified_flow_and_consistency_models_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/05_generative_models/07_flow_matching_rectified_flow_and_consistency_models.safetensors"),
+        common::get_weights_path(
+            "05_architectures/05_generative_models/07_flow_matching_rectified_flow_and_consistency_models.safetensors",
+        ),
         &device,
     )?;
 

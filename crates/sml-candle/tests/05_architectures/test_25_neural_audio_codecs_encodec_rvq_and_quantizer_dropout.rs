@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t25_neural_audio_codecs_encodec_rvq_and_quantizer_dropout as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_25_neural_audio_codecs_encodec_rvq_and_quantizer_dropout_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("05_architectures/05_generative_models/02_neural_audio_codecs_encodec_rvq_and_quantizer_dropout.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "05_architectures/05_generative_models/02_neural_audio_codecs_encodec_rvq_and_quantizer_dropout.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

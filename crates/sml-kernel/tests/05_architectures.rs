@@ -1,7 +1,7 @@
 //! Category 05 Architectures Integration Test Suite for ai-kernel.
 
 use ai_kernel::c05_architectures::t01_residual_mlp_mlp_mixer_and_gmlp as t01;
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "common/mod.rs"]
 mod common;
@@ -297,8 +297,8 @@ fn test_05_kolmogorov_arnold_networks_kan_cpu_and_auto() -> Result<()> {
 use ai_kernel::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as t06;
 
 #[test]
-fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth_cpu_and_auto(
-) -> Result<()> {
+fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth_cpu_and_auto()
+-> Result<()> {
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
         "05_architectures/01_mlp_moe_soups_and_kan/06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth.safetensors",
@@ -562,8 +562,8 @@ fn test_10_spatiotemporal_video_i3d_inflation_and_vivit_timesformer_cpu_and_auto
 use ai_kernel::c05_architectures::t11_wavelet_scattering_wtconv_steerable_and_morphological_networks as t11;
 
 #[test]
-fn test_11_wavelet_scattering_wtconv_steerable_and_morphological_networks_cpu_and_auto(
-) -> Result<()> {
+fn test_11_wavelet_scattering_wtconv_steerable_and_morphological_networks_cpu_and_auto()
+-> Result<()> {
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
         "05_architectures/02_convolutional_and_spatiotemporal/05_wavelet_scattering_wtconv_steerable_and_morphological_networks.safetensors",

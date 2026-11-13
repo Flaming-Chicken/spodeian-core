@@ -205,22 +205,24 @@ pub fn run_notebooks(repo: &Repo, opts: &NbOptions) -> bool {
     thread::scope(|s| {
         for _ in 0..jobs {
             let (queue, results, py) = (Arc::clone(&queue), Arc::clone(&results), py.clone());
-            s.spawn(move || loop {
-                let Some(rel) = queue.lock().ok().and_then(|mut q| q.pop_front()) else {
-                    break;
-                };
-                let r = run_one(repo, &py, &rel, opts);
-                if r.ok {
-                    println!("[PASS] {} ({:.2}s)", r.rel, r.elapsed);
-                    if opts.verbose {
-                        println!("{}", indent(&r.output));
+            s.spawn(move || {
+                loop {
+                    let Some(rel) = queue.lock().ok().and_then(|mut q| q.pop_front()) else {
+                        break;
+                    };
+                    let r = run_one(repo, &py, &rel, opts);
+                    if r.ok {
+                        println!("[PASS] {} ({:.2}s)", r.rel, r.elapsed);
+                        if opts.verbose {
+                            println!("{}", indent(&r.output));
+                        }
+                    } else {
+                        println!("[FAIL] {} - {}", r.rel, r.error);
+                        println!("{}", indent(tail(&r.output, 25)));
                     }
-                } else {
-                    println!("[FAIL] {} - {}", r.rel, r.error);
-                    println!("{}", indent(tail(&r.output, 25)));
-                }
-                if let Ok(mut v) = results.lock() {
-                    v.push(r);
+                    if let Ok(mut v) = results.lock() {
+                        v.push(r);
+                    }
                 }
             });
         }

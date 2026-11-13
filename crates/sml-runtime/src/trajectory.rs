@@ -391,7 +391,8 @@ impl<T: IntegratorScalar> CompressedTrajectory<T> {
 
     /// Returns exact heap memory consumed in bytes.
     pub fn memory_footprint_bytes(&self) -> usize {
-        let keyframe_bytes = self.keyframes.len() * (std::mem::size_of::<usize>() + self.dim * std::mem::size_of::<T>());
+        let keyframe_bytes = self.keyframes.len()
+            * (std::mem::size_of::<usize>() + self.dim * std::mem::size_of::<T>());
         let scale_bytes = self.residual_scales.len() * std::mem::size_of::<T>();
         let residual_bytes = self.quantized_residuals.len() * self.dim; // 1 byte per i8
         keyframe_bytes + scale_bytes + residual_bytes + std::mem::size_of::<Self>()
@@ -414,12 +415,7 @@ impl<T: IntegratorScalar> CompressedTrajectory<T> {
 /// Prevents step rejections and numerical explosions:
 ///
 /// $$h_{\max} \le \frac{\beta_{\text{stability}}}{\hat{\rho}(J) + \epsilon}$$
-pub fn estimate_jacobian_spectral_radius<T, F>(
-    x: &[T],
-    t: T,
-    base_v: &[T],
-    mut velocity_fn: F,
-) -> T
+pub fn estimate_jacobian_spectral_radius<T, F>(x: &[T], t: T, base_v: &[T], mut velocity_fn: F) -> T
 where
     T: IntegratorScalar,
     F: FnMut(&[T], T) -> Vec<T>,

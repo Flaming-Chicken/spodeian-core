@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap as topic;
 
@@ -10,7 +10,9 @@ fn test_11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap_par
 {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/11_statistical_model_comparison_bayesian_rope_friedman_and_bootstrap.safetensors",
+        ),
         &device,
     )?;
 

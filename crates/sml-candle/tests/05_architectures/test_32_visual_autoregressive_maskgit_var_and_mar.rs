@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t32_visual_autoregressive_maskgit_var_and_mar as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_32_visual_autoregressive_maskgit_var_and_mar_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/05_generative_models/09_visual_autoregressive_maskgit_var_and_mar.safetensors"),
+        common::get_weights_path(
+            "05_architectures/05_generative_models/09_visual_autoregressive_maskgit_var_and_mar.safetensors",
+        ),
         &device,
     )?;
 

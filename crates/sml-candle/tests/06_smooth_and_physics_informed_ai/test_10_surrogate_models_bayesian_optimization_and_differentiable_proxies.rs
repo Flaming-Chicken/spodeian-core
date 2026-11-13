@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c06_smooth_and_physics_informed_ai::t10_surrogate_models_bayesian_optimization_and_differentiable_proxies as topic;
 
@@ -9,7 +9,12 @@ mod common;
 fn test_10_surrogate_models_bayesian_optimization_and_differentiable_proxies_parity() -> Result<()>
 {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("06_smooth_and_physics_informed_ai/10_surrogate_models_bayesian_optimization_and_differentiable_proxies.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "06_smooth_and_physics_informed_ai/10_surrogate_models_bayesian_optimization_and_differentiable_proxies.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

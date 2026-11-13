@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c07_domain_tasks::t10_tabular_ft_transformer_tabnet_ple_and_tabpfn_in_context as topic;
 

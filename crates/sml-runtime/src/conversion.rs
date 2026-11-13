@@ -20,7 +20,7 @@ use candle_core::{DType, Result, Tensor};
 use serde::{Deserialize, Serialize};
 
 use crate::distribution::DistributionFloat;
-use crate::precision::{get_precision, NumericPrecision, NumericType};
+use crate::precision::{NumericPrecision, NumericType, get_precision};
 
 /// Conversion operational mode controlling drift minimization strategy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -66,7 +66,11 @@ impl FormatConverter {
     }
 
     /// Converts a single scalar between two arbitrary `NumericPrecision` providers.
-    pub fn convert_scalar_precision(val: f64, from: &dyn NumericPrecision, to: &dyn NumericPrecision) -> f64 {
+    pub fn convert_scalar_precision(
+        val: f64,
+        from: &dyn NumericPrecision,
+        to: &dyn NumericPrecision,
+    ) -> f64 {
         let quantized_source = from.quantize(val);
         to.quantize(quantized_source)
     }
@@ -132,7 +136,9 @@ impl FormatConverter {
                 let mut rng = seed.max(1);
                 for i in 0..n {
                     let x = from.quantize(src[i]);
-                    rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                    rng = rng
+                        .wrapping_mul(6364136223846793005)
+                        .wrapping_add(1442695040888963407);
                     let rand_u = ((rng >> 33) as f64) / ((1u64 << 31) as f64);
 
                     let eps = to.machine_epsilon(Some(x)).max(1e-15);
@@ -237,7 +243,10 @@ impl FormatConverter {
         mode: ConversionMode,
     ) -> Result<(Tensor, ConversionReport)> {
         let orig_dtype = tensor.dtype();
-        let flat_f64 = tensor.to_dtype(DType::F64)?.flatten_all()?.to_vec1::<f64>()?;
+        let flat_f64 = tensor
+            .to_dtype(DType::F64)?
+            .flatten_all()?
+            .to_vec1::<f64>()?;
         let mut converted_f64 = vec![0.0f64; flat_f64.len()];
 
         let report = Self::convert_slice(&flat_f64, &mut converted_f64, from, to, mode);
@@ -247,7 +256,12 @@ impl FormatConverter {
     }
 
     /// Helper computing comprehensive conversion error metrics.
-    fn calculate_report(src: &[f64], dst: &[f64], from_name: &str, to_name: &str) -> ConversionReport {
+    fn calculate_report(
+        src: &[f64],
+        dst: &[f64],
+        from_name: &str,
+        to_name: &str,
+    ) -> ConversionReport {
         let n = src.len().min(dst.len());
         if n == 0 {
             return ConversionReport {
@@ -301,7 +315,11 @@ impl FormatConverter {
             10.0 * (energy_src / sum_diff_sq).max(1e-12).log10()
         };
         let conservation_error = (sum_src - sum_dst).abs();
-        let energy_ratio = if energy_src > 1e-15 { energy_dst / energy_src } else { 1.0 };
+        let energy_ratio = if energy_src > 1e-15 {
+            energy_dst / energy_src
+        } else {
+            1.0
+        };
 
         ConversionReport {
             from_type: from_name.to_string(),
@@ -398,7 +416,13 @@ mod tests {
 
         for &from in &types {
             for &to in &types {
-                let report = FormatConverter::convert_slice(&src, &mut dst, from, to, ConversionMode::Compensated);
+                let report = FormatConverter::convert_slice(
+                    &src,
+                    &mut dst,
+                    from,
+                    to,
+                    ConversionMode::Compensated,
+                );
                 assert_eq!(report.num_elements, 5);
                 assert!(dst.iter().all(|v| v.is_finite()));
             }

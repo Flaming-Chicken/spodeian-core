@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t03_semi_supervised_fixmatch_mean_teacher_and_nnpu_learning as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_semi_supervised_fixmatch_mean_teacher_and_nnpu_learning_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/03_semi_supervised_fixmatch_mean_teacher_and_nnpu_learning.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/03_semi_supervised_fixmatch_mean_teacher_and_nnpu_learning.safetensors",
+        ),
         &device,
     )?;
 

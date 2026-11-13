@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t14_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_14_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/07_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/02_reinforcement_learning_and_world_models/07_multi_agent_rl_qmix_mappo_cfr_and_agentic_reasoning_loops.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c11_ai_safety_privacy_and_verification::t07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("11_ai_safety_privacy_and_verification/07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia.safetensors"),
+        common::get_weights_path(
+            "11_ai_safety_privacy_and_verification/07_privacy_dp_sgd_pate_gradient_inversion_dlg_and_mia.safetensors",
+        ),
         &device,
     )?;
 

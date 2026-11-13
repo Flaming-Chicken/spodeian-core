@@ -1,9 +1,9 @@
 //! Integration test for Category 03 Topic 04: Positional and Structural Encodings (Candle Track).
 
 use ai_candle::c03_building_blocks_and_losses::t04_positional_and_structural_encodings::{
-    alibi_forward, rope_forward, rwpe_forward, sinusoidal_pe_forward, LinearAnchor,
+    LinearAnchor, alibi_forward, rope_forward, rwpe_forward, sinusoidal_pe_forward,
 };
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

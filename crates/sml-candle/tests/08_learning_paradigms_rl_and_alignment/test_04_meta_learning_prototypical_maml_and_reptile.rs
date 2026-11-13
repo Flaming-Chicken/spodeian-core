@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c08_learning_paradigms_rl_and_alignment::t04_meta_learning_prototypical_maml_and_reptile as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_04_meta_learning_prototypical_maml_and_reptile_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/04_meta_learning_prototypical_maml_and_reptile.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/04_meta_learning_prototypical_maml_and_reptile.safetensors",
+        ),
         &device,
     )?;
 

@@ -3,7 +3,7 @@
 use ai_candle::c01_paradigms_and_dichotomies::t02_tree_vs_kernel_vs_neural_inductive_biases::{
     MLPClassifier, RBFKernelRidge, SoftDecisionTree,
 };
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

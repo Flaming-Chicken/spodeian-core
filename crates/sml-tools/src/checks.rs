@@ -6,9 +6,9 @@ use std::io::Read;
 
 use serde_json::Value;
 
-use crate::curriculum::{Readme, Status, README};
+use crate::curriculum::{README, Readme, Status};
 use crate::repo::{
-    file_name, is_numbered, join_rel, parent, relative, track_ext, Repo, Scope, CATEGORIES, TRACKS,
+    CATEGORIES, Repo, Scope, TRACKS, file_name, is_numbered, join_rel, parent, relative, track_ext,
 };
 use crate::report::{Diag, Level};
 use crate::sync;
@@ -573,11 +573,7 @@ pub fn links(repo: &Repo, readme: &Readme, scope: &Scope, fix: bool) -> Vec<Diag
                         None => msg,
                     },
                 );
-                if cell.is_none() {
-                    d.at(line)
-                } else {
-                    d
-                }
+                if cell.is_none() { d.at(line) } else { d }
             };
             let Some(resolved) = join_rel(&base, &decoded) else {
                 out.push(mk(format!("link '{href}' escapes the repository root")));

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c15_compression_peft_and_speculative_inference::t08_speculative_decoding_lossless_rejection_sampling_and_drafting as topic;
 
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_08_speculative_decoding_lossless_rejection_sampling_and_drafting_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/03_speculative_decoding_lossless_rejection_sampling_and_drafting.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/02_adaptive_kv_speculative_and_merging/03_speculative_decoding_lossless_rejection_sampling_and_drafting.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

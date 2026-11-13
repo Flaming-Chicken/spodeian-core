@@ -24,8 +24,14 @@ impl ModelSurgery {
         positive_activations: &[Tensor],
         negative_activations: &[Tensor],
     ) -> Result<Tensor> {
-        assert!(!positive_activations.is_empty(), "Positive activations cannot be empty");
-        assert!(!negative_activations.is_empty(), "Negative activations cannot be empty");
+        assert!(
+            !positive_activations.is_empty(),
+            "Positive activations cannot be empty"
+        );
+        assert!(
+            !negative_activations.is_empty(),
+            "Negative activations cannot be empty"
+        );
 
         let mut mean_pos = positive_activations[0].to_dtype(DType::F32)?;
         for act in positive_activations.iter().skip(1) {
@@ -100,8 +106,18 @@ impl ModelSurgery {
         let d_flat = direction.to_dtype(DType::F32)?.flatten_all()?;
 
         let dot = (&a_flat * &d_flat)?.sum_all()?.to_scalar::<f32>()?;
-        let norm_a = a_flat.sqr()?.sum_all()?.to_scalar::<f32>()?.sqrt().max(1e-8);
-        let norm_d = d_flat.sqr()?.sum_all()?.to_scalar::<f32>()?.sqrt().max(1e-8);
+        let norm_a = a_flat
+            .sqr()?
+            .sum_all()?
+            .to_scalar::<f32>()?
+            .sqrt()
+            .max(1e-8);
+        let norm_d = d_flat
+            .sqr()?
+            .sum_all()?
+            .to_scalar::<f32>()?
+            .sqrt()
+            .max(1e-8);
 
         Ok(dot / (norm_a * norm_d))
     }

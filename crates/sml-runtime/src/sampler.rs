@@ -152,17 +152,15 @@ pub fn apply_repetition_penalties(
             } else {
                 l * rep_penalty
             };
-            logits[tok] = penalized - (count as f32 * freq_penalty) - (if count > 0 { pres_penalty } else { 0.0 });
+            logits[tok] = penalized
+                - (count as f32 * freq_penalty)
+                - (if count > 0 { pres_penalty } else { 0.0 });
         }
     }
 }
 
 /// Applies Dry Sampling (n-gram sequence matching penalty).
-pub fn apply_dry_sampling(
-    logits: &mut [f32],
-    history: &[usize],
-    config: &DrySamplingConfig,
-) {
+pub fn apply_dry_sampling(logits: &mut [f32], history: &[usize], config: &DrySamplingConfig) {
     let hist_len = history.len();
     if hist_len <= config.allowed_length {
         return;
@@ -317,12 +315,7 @@ pub fn apply_tfs(probs: &mut Vec<(usize, f32)>, z: f32) {
 }
 
 /// Applies XTC (Exclude Top Choices): suppresses top token if dominant.
-pub fn apply_xtc(
-    probs: &mut Vec<(usize, f32)>,
-    threshold: f32,
-    probability: f32,
-    random_val: f32,
-) {
+pub fn apply_xtc(probs: &mut Vec<(usize, f32)>, threshold: f32, probability: f32, random_val: f32) {
     if probs.len() < 2 || threshold <= 0.0 || probability <= 0.0 {
         return;
     }
@@ -375,7 +368,10 @@ pub fn sample_token(
     }
 
     // 4. Softmax to Probabilities
-    let max_l = working_logits.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
+    let max_l = working_logits
+        .iter()
+        .cloned()
+        .fold(f32::NEG_INFINITY, f32::max);
     let mut exp_sum = 0.0f32;
     let mut probs: Vec<(usize, f32)> = working_logits
         .iter()
@@ -418,7 +414,11 @@ pub fn sample_token(
             }
 
             let sampled_idx = sample_from_probs(&probs, random_uniform);
-            let selected_p = probs.iter().find(|(tok, _)| *tok == sampled_idx).map(|(_, p)| *p).unwrap_or(1e-4);
+            let selected_p = probs
+                .iter()
+                .find(|(tok, _)| *tok == sampled_idx)
+                .map(|(_, p)| *p)
+                .unwrap_or(1e-4);
 
             // Update Mirostat state
             let surprise = -selected_p.log2();
@@ -431,7 +431,12 @@ pub fn sample_token(
 
     // 6. XTC
     if config.xtc_threshold > 0.0 {
-        apply_xtc(&mut probs, config.xtc_threshold, config.xtc_probability, random_uniform);
+        apply_xtc(
+            &mut probs,
+            config.xtc_threshold,
+            config.xtc_probability,
+            random_uniform,
+        );
     }
 
     // 7. Top-K

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t17_memory_architectures_ntm_pkm_peer_infini_and_titans as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_17_memory_architectures_ntm_pkm_peer_infini_and_titans_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/03_recurrent_ssm_and_memory/06_memory_architectures_ntm_pkm_peer_infini_and_titans.safetensors"),
+        common::get_weights_path(
+            "05_architectures/03_recurrent_ssm_and_memory/06_memory_architectures_ntm_pkm_peer_infini_and_titans.safetensors",
+        ),
         &device,
     )?;
 

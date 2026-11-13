@@ -3,7 +3,7 @@
 use ai_candle::c01_paradigms_and_dichotomies::t01_generative_vs_discriminative_classifiers::{
     DiscriminativeClassifier, GaussianDiscriminantAnalysis,
 };
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 #[path = "../common/mod.rs"]
 mod common;

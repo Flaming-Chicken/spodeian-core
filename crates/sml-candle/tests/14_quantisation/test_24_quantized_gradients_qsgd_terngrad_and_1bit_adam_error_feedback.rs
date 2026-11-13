@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c14_quantisation::t24_quantized_gradients_qsgd_terngrad_and_1bit_adam_error_feedback as topic;
 

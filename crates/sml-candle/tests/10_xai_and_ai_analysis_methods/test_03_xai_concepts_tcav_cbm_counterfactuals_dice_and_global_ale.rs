@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c10_xai_and_ai_analysis_methods::t03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("10_xai_and_ai_analysis_methods/03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale.safetensors"),
+        common::get_weights_path(
+            "10_xai_and_ai_analysis_methods/03_xai_concepts_tcav_cbm_counterfactuals_dice_and_global_ale.safetensors",
+        ),
         &device,
     )?;
 

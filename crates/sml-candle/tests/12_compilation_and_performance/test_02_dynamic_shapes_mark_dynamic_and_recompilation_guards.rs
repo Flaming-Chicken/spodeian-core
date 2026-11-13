@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c12_compilation_and_performance::t02_dynamic_shapes_mark_dynamic_and_recompilation_guards as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_02_dynamic_shapes_mark_dynamic_and_recompilation_guards_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("12_compilation_and_performance/02_dynamic_shapes_mark_dynamic_and_recompilation_guards.safetensors"),
+        common::get_weights_path(
+            "12_compilation_and_performance/02_dynamic_shapes_mark_dynamic_and_recompilation_guards.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t21_flash_attention_online_softmax_and_flex_attention as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_21_flash_attention_online_softmax_and_flex_attention_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/04_transformers_and_heads/03_flash_attention_online_softmax_and_flex_attention.safetensors"),
+        common::get_weights_path(
+            "05_architectures/04_transformers_and_heads/03_flash_attention_online_softmax_and_flex_attention.safetensors",
+        ),
         &device,
     )?;
 

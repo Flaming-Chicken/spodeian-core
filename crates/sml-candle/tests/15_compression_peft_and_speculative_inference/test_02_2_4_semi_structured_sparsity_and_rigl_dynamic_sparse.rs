@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c15_compression_peft_and_speculative_inference::t02_2_4_semi_structured_sparsity_and_rigl_dynamic_sparse as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_02_2_4_semi_structured_sparsity_and_rigl_dynamic_sparse_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/02_2_4_semi_structured_sparsity_and_rigl_dynamic_sparse.safetensors"),
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/02_2_4_semi_structured_sparsity_and_rigl_dynamic_sparse.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth as rev;
 
@@ -6,8 +6,8 @@ use ai_candle::c05_architectures::t06_lossless_deliberation_reversible_revnet_hy
 mod common;
 
 #[test]
-fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth_parity(
-) -> Result<()> {
+fn test_06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(
         "05_architectures/01_mlp_moe_soups_and_kan/06_lossless_deliberation_reversible_revnet_hyper_connections_and_looped_depth.safetensors",

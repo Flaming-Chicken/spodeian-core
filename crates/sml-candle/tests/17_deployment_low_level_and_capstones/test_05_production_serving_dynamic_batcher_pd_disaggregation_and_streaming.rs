@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c17_deployment_low_level_and_capstones::t05_production_serving_dynamic_batcher_pd_disaggregation_and_streaming as topic;
 

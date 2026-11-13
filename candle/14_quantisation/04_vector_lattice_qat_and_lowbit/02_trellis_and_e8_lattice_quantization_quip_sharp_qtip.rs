@@ -56,11 +56,7 @@ pub fn project_e8_slice(x: &[f32]) -> [f32; 8] {
         dist1 += d1 * d1;
     }
 
-    if dist0 <= dist1 {
-        p0
-    } else {
-        p1
-    }
+    if dist0 <= dist1 { p0 } else { p1 }
 }
 
 /// Quantize vectors in R^8 onto scaled E8 lattice.

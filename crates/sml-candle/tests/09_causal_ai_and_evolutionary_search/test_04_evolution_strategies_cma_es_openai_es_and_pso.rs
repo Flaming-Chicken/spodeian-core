@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c09_causal_ai_and_evolutionary_search::t04_evolution_strategies_cma_es_openai_es_and_pso as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_04_evolution_strategies_cma_es_openai_es_and_pso_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("09_causal_ai_and_evolutionary_search/04_evolution_strategies_cma_es_openai_es_and_pso.safetensors"),
+        common::get_weights_path(
+            "09_causal_ai_and_evolutionary_search/04_evolution_strategies_cma_es_openai_es_and_pso.safetensors",
+        ),
         &device,
     )?;
 

@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t31_discrete_diffusion_d3pm_mdlm_and_sedd as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_31_discrete_diffusion_d3pm_mdlm_and_sedd_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/05_generative_models/08_discrete_diffusion_d3pm_mdlm_and_sedd.safetensors"),
+        common::get_weights_path(
+            "05_architectures/05_generative_models/08_discrete_diffusion_d3pm_mdlm_and_sedd.safetensors",
+        ),
         &device,
     )?;
 

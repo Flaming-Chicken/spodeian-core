@@ -1,4 +1,4 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
 use ai_candle::c05_architectures::t34_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring as topic;
 
@@ -9,7 +9,9 @@ mod common;
 fn test_34_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/06_graphs_geometric_and_inr/02_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring.safetensors"),
+        common::get_weights_path(
+            "05_architectures/06_graphs_geometric_and_inr/02_graph_neural_networks_gcn_gat_gin_graphormer_and_sdrf_rewiring.safetensors",
+        ),
         &device,
     )?;
 
