@@ -56,11 +56,7 @@ pub fn fused_simd_fma_leaky_relu_cpu(
         .zip(b.iter())
         .map(|((&xi, &wi), &bi)| {
             let z = xi * wi + bi;
-            if z >= 0.0 {
-                z
-            } else {
-                z * negative_slope
-            }
+            if z >= 0.0 { z } else { z * negative_slope }
         })
         .collect()
 }

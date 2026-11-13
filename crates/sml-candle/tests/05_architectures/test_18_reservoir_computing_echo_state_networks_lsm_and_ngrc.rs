@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t18_reservoir_computing_echo_state_networks_lsm_and_ngrc as topic;
+use sml_candle::c05_architectures::t18_reservoir_computing_echo_state_networks_lsm_and_ngrc as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_18_reservoir_computing_echo_state_networks_lsm_and_ngrc_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/03_recurrent_ssm_and_memory/07_reservoir_computing_echo_state_networks_lsm_and_ngrc.safetensors"),
+        common::get_weights_path(
+            "05_architectures/03_recurrent_ssm_and_memory/07_reservoir_computing_echo_state_networks_lsm_and_ngrc.safetensors",
+        ),
         &device,
     )?;
 

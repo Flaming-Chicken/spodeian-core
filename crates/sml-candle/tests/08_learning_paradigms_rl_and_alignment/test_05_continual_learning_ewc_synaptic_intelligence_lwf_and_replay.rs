@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/01_self_semi_meta_continual_federated/05_continual_learning_ewc_synaptic_intelligence_lwf_and_replay.safetensors",
+        ),
         &device,
     )?;
 

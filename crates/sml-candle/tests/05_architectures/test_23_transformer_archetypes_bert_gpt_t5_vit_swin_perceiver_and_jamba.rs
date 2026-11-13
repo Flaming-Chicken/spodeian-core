@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t23_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba as topic;
+use sml_candle::c05_architectures::t23_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_23_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/04_transformers_and_heads/05_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba.safetensors"),
+        common::get_weights_path(
+            "05_architectures/04_transformers_and_heads/05_transformer_archetypes_bert_gpt_t5_vit_swin_perceiver_and_jamba.safetensors",
+        ),
         &device,
     )?;
 

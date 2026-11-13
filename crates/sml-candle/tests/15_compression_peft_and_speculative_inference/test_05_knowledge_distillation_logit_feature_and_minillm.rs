@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result, Tensor};
+use candle_core::{Device, Result, Tensor, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t05_knowledge_distillation_logit_feature_and_minillm as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t05_knowledge_distillation_logit_feature_and_minillm as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_05_knowledge_distillation_logit_feature_and_minillm_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/05_knowledge_distillation_logit_feature_and_minillm.safetensors"),
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/05_knowledge_distillation_logit_feature_and_minillm.safetensors",
+        ),
         &device,
     )?;
 

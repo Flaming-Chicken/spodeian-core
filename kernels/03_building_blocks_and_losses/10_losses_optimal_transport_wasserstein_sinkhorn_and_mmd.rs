@@ -397,8 +397,8 @@ pub fn mmd_kernel_wgpu(
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups_x = ((n as u32) + 7) / 8;
-        let workgroups_y = ((m as u32) + 7) / 8;
+        let workgroups_x = (n as u32).div_ceil(8);
+        let workgroups_y = (m as u32).div_ceil(8);
         pass.dispatch_workgroups(workgroups_x, workgroups_y, 1);
     }
 
@@ -433,17 +433,17 @@ pub fn mmd_auto(
     d: usize,
     sigmas: &[f32],
 ) -> f32 {
-    if let Some(ctx) = context {
-        if let (Some(k_xx), Some(k_yy), Some(k_xy)) = (
+    if let Some(ctx) = context
+        && let (Some(k_xx), Some(k_yy), Some(k_xy)) = (
             mmd_kernel_wgpu(ctx, x, x, n, n, d),
             mmd_kernel_wgpu(ctx, y, y, m, m, d),
             mmd_kernel_wgpu(ctx, x, y, n, m, d),
-        ) {
-            let mean_xx = k_xx.iter().sum::<f32>() / (k_xx.len() as f32);
-            let mean_yy = k_yy.iter().sum::<f32>() / (k_yy.len() as f32);
-            let mean_xy = k_xy.iter().sum::<f32>() / (k_xy.len() as f32);
-            return mean_xx + mean_yy - 2.0f32 * mean_xy;
-        }
+        )
+    {
+        let mean_xx = k_xx.iter().sum::<f32>() / (k_xx.len() as f32);
+        let mean_yy = k_yy.iter().sum::<f32>() / (k_yy.len() as f32);
+        let mean_xy = k_xy.iter().sum::<f32>() / (k_xy.len() as f32);
+        return mean_xx + mean_yy - 2.0f32 * mean_xy;
     }
     mmd_cpu(x, y, n, m, d, sigmas)
 }

@@ -5,7 +5,7 @@
 //! llama.cpp, and Hugging Face.
 
 use super::ggml::GgmlModel;
-use super::gguf::{write_gguf_string, GgufModel, GGUF_DEFAULT_ALIGNMENT, GGUF_MAGIC, GGUF_VERSION};
+use super::gguf::{GGUF_DEFAULT_ALIGNMENT, GGUF_MAGIC, GGUF_VERSION, GgufModel, write_gguf_string};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use candle_core::{DType, Device, Tensor};
 use std::collections::HashMap;
@@ -85,13 +85,37 @@ pub fn convert_safetensors_to_gguf<P1: AsRef<Path>, P2: AsRef<Path>>(
     let tensor_count = tensors.len() as u64;
     let mut metadata_kvs: Vec<(String, u32, Vec<u8>)> = Vec::new();
 
-    push_gguf_str(&mut metadata_kvs, "general.architecture", &arch_meta.architecture);
+    push_gguf_str(
+        &mut metadata_kvs,
+        "general.architecture",
+        &arch_meta.architecture,
+    );
     let arch = &arch_meta.architecture;
-    push_gguf_u32(&mut metadata_kvs, format!("{arch}.context_length"), arch_meta.context_length as u32);
-    push_gguf_u32(&mut metadata_kvs, format!("{arch}.embedding_length"), arch_meta.embedding_length as u32);
-    push_gguf_u32(&mut metadata_kvs, format!("{arch}.block_count"), arch_meta.block_count as u32);
-    push_gguf_u32(&mut metadata_kvs, format!("{arch}.attention.head_count"), arch_meta.head_count as u32);
-    push_gguf_u32(&mut metadata_kvs, format!("{arch}.attention.head_count_kv"), arch_meta.head_count_kv as u32);
+    push_gguf_u32(
+        &mut metadata_kvs,
+        format!("{arch}.context_length"),
+        arch_meta.context_length as u32,
+    );
+    push_gguf_u32(
+        &mut metadata_kvs,
+        format!("{arch}.embedding_length"),
+        arch_meta.embedding_length as u32,
+    );
+    push_gguf_u32(
+        &mut metadata_kvs,
+        format!("{arch}.block_count"),
+        arch_meta.block_count as u32,
+    );
+    push_gguf_u32(
+        &mut metadata_kvs,
+        format!("{arch}.attention.head_count"),
+        arch_meta.head_count as u32,
+    );
+    push_gguf_u32(
+        &mut metadata_kvs,
+        format!("{arch}.attention.head_count_kv"),
+        arch_meta.head_count_kv as u32,
+    );
 
     writer.write_u64::<LittleEndian>(tensor_count)?;
     writer.write_u64::<LittleEndian>(metadata_kvs.len() as u64)?;
@@ -105,7 +129,8 @@ pub fn convert_safetensors_to_gguf<P1: AsRef<Path>, P2: AsRef<Path>>(
 
     // 3. Prepare tensor data offsets
     let mut tensor_data_payloads: Vec<Vec<u8>> = Vec::with_capacity(tensors.len());
-    let mut tensor_descriptors: Vec<(String, Vec<usize>, u32, u64)> = Vec::with_capacity(tensors.len());
+    let mut tensor_descriptors: Vec<(String, Vec<usize>, u32, u64)> =
+        Vec::with_capacity(tensors.len());
     let mut current_offset: u64 = 0;
 
     for (name, tensor) in &tensors {

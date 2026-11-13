@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t02_tree_vs_kernel_vs_neural_inductive_biases::SoftDecisionTree;
+//! use sml_candle::c01_paradigms_and_dichotomies::t02_tree_vs_kernel_vs_neural_inductive_biases::SoftDecisionTree;
 //!
 //! let device = Device::Cpu;
 //! let w_route = Tensor::new(&[[1.0f32, 0.0], [0.0, 1.0], [1.0, 0.0]], &device).unwrap();

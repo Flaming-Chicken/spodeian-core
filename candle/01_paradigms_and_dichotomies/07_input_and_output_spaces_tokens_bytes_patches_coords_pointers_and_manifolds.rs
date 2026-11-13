@@ -17,7 +17,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds::rotation_6d_to_matrix;
+//! use sml_candle::c01_paradigms_and_dichotomies::t07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds::rotation_6d_to_matrix;
 //!
 //! let device = Device::Cpu;
 //! let d6 = Tensor::new(&[[1.0f32, 0.0, 0.0, 0.0, 1.0, 0.0]], &device).unwrap();

@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t18_self_optimising_test_time_adaptation_tent_memo_star_and_spin::TestTimeAdaptationUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t18_self_optimising_test_time_adaptation_tent_memo_star_and_spin::TestTimeAdaptationUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

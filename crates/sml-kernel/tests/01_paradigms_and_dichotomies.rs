@@ -1,4 +1,6 @@
-use ai_kernel::{
+use candle_core::{Device, safetensors::load};
+use sml_kernel::{
+    KernelDevice,
     c01_paradigms_and_dichotomies::{
         t01_generative_vs_discriminative_classifiers as t01,
         t02_tree_vs_kernel_vs_neural_inductive_biases as t02,
@@ -13,9 +15,7 @@ use ai_kernel::{
         t11_statistical_inference_bayesian_frequentist_likelihoodist_mdl_and_pac_bayes as t11,
         t12_inductive_vs_transductive_and_online_regret_vs_batch_iid as t12,
     },
-    KernelDevice,
 };
-use candle_core::{safetensors::load, Device};
 
 mod common;
 
@@ -314,7 +314,9 @@ fn test_02_tree_vs_kernel_vs_neural_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_03_discrete_vs_continuous_latents_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/03_discrete_vs_continuous_latents_and_gradient_estimators.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/03_discrete_vs_continuous_latents_and_gradient_estimators.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -478,7 +480,9 @@ fn test_03_discrete_vs_continuous_latents_cpu_and_auto() -> candle_core::Result<
 #[test]
 fn test_04_deterministic_vs_stochastic_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/04_deterministic_vs_stochastic_and_mixture_density_networks.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/04_deterministic_vs_stochastic_and_mixture_density_networks.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -644,7 +648,9 @@ fn test_04_deterministic_vs_stochastic_cpu_and_auto() -> candle_core::Result<()>
 #[test]
 fn test_05_parametric_vs_nonparametric_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/05_parametric_vs_nonparametric_and_neural_processes.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/05_parametric_vs_nonparametric_and_neural_processes.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -753,7 +759,9 @@ fn test_05_parametric_vs_nonparametric_cpu_and_auto() -> candle_core::Result<()>
 #[test]
 fn test_06_ai_by_purpose_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -957,7 +965,9 @@ fn test_06_ai_by_purpose_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_07_input_output_spaces_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/07_input_and_output_spaces_tokens_bytes_patches_coords_pointers_and_manifolds.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -1298,7 +1308,9 @@ fn test_08_computation_spaces_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_09_non_euclidean_geometries_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -1510,7 +1522,9 @@ fn test_09_non_euclidean_geometries_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_10_decision_hierarchy_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/10_levels_of_decision_making_bayes_risk_bandits_mdp_pomdp_and_games.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/10_levels_of_decision_making_bayes_risk_bandits_mdp_pomdp_and_games.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     // 1. Level 0 Bayes Risk on CPU
@@ -1717,7 +1731,9 @@ fn test_10_decision_hierarchy_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_11_statistical_inference_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/11_statistical_inference_bayesian_frequentist_likelihoodist_mdl_and_pac_bayes.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/11_statistical_inference_bayesian_frequentist_likelihoodist_mdl_and_pac_bayes.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     // 1. Frequentist Fisher & Cramér-Rao on CPU
@@ -1878,7 +1894,9 @@ fn test_11_statistical_inference_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_12_inductive_vs_transductive_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("01_paradigms_and_dichotomies/12_inductive_vs_transductive_and_online_regret_vs_batch_iid.safetensors");
+    let path = common::get_weights_path(
+        "01_paradigms_and_dichotomies/12_inductive_vs_transductive_and_online_regret_vs_batch_iid.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     // 1. Transductive Label Spreading on CPU
@@ -2029,7 +2047,7 @@ fn test_12_inductive_vs_transductive_cpu_and_auto() -> candle_core::Result<()> {
 
 #[test]
 fn test_13_information_geometry_cpu_and_auto() -> candle_core::Result<()> {
-    use ai_kernel::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy as t13;
+    use sml_kernel::c01_paradigms_and_dichotomies::t13_information_geometry_solomonoff_mdl_and_maxent_free_energy as t13;
 
     let device = Device::Cpu;
     let weights_path = common::get_weights_path(

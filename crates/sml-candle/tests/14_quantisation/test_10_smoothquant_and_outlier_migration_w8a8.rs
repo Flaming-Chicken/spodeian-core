@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t10_smoothquant_and_outlier_migration_w8a8 as topic;
+use sml_candle::c14_quantisation::t10_smoothquant_and_outlier_migration_w8a8 as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_10_smoothquant_and_outlier_migration_w8a8_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/03_llm_ptq_algorithms/03_smoothquant_and_outlier_migration_w8a8.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/03_llm_ptq_algorithms/03_smoothquant_and_outlier_migration_w8a8.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

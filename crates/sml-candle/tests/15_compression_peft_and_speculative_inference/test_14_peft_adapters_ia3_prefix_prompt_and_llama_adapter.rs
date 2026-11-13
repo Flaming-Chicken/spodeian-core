@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t14_peft_adapters_ia3_prefix_prompt_and_llama_adapter as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t14_peft_adapters_ia3_prefix_prompt_and_llama_adapter as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_14_peft_adapters_ia3_prefix_prompt_and_llama_adapter_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("15_compression_peft_and_speculative_inference/03_parameter_efficient_finetuning_peft/04_peft_adapters_ia3_prefix_prompt_and_llama_adapter.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/03_parameter_efficient_finetuning_peft/04_peft_adapters_ia3_prefix_prompt_and_llama_adapter.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

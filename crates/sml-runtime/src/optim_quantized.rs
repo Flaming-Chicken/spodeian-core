@@ -8,11 +8,11 @@
 //! - Component-level policy customization (weights, Polyak delta, momentum, Fisher, sign-flip, step).
 //! - Clean compilation on both native CPU (with SIMD/Rayon) and `wasm32-unknown-unknown`.
 
-use crate::logarithmic::{Log16, Log8};
+use crate::logarithmic::{Log8, Log16};
 use crate::quantization::{
-    decode_bf16, decode_fp16, decode_fp8_e4m3, decode_fp8_e5m2, decode_posit16, decode_posit8,
-    decode_tf32, encode_bf16, encode_fp16, encode_fp8_e4m3, encode_fp8_e5m2, encode_posit16,
-    encode_posit8, encode_tf32, QuantizedFormat,
+    QuantizedFormat, decode_bf16, decode_fp8_e4m3, decode_fp8_e5m2, decode_fp16, decode_posit8,
+    decode_posit16, decode_tf32, encode_bf16, encode_fp8_e4m3, encode_fp8_e5m2, encode_fp16,
+    encode_posit8, encode_posit16, encode_tf32,
 };
 use serde::{Deserialize, Serialize};
 
@@ -317,12 +317,19 @@ impl QuantizedStateBuffer {
             Self::BlockInt8 { bytes, scales, .. } => {
                 let bs = Self::BLOCK_SIZE;
                 for (b_idx, chunk) in values[..n].chunks(bs).enumerate() {
-                    let max_abs = chunk.iter().fold(0.0f32, |acc, &x| acc.max(x.abs())).max(1e-12);
+                    let max_abs = chunk
+                        .iter()
+                        .fold(0.0f32, |acc, &x| acc.max(x.abs()))
+                        .max(1e-12);
                     let scale = max_abs / 127.0f32;
                     scales[b_idx] = scale;
                     let inv_scale = 1.0f32 / scale;
                     for (c_idx, &val) in chunk.iter().enumerate() {
-                        let jitter = if stochastic { stochastic_jitter(&mut rng) } else { 0.0 };
+                        let jitter = if stochastic {
+                            stochastic_jitter(&mut rng)
+                        } else {
+                            0.0
+                        };
                         let q = ((val * inv_scale) + jitter).round().clamp(-127.0, 127.0) as i8;
                         bytes[b_idx * bs + c_idx] = q;
                     }
@@ -335,7 +342,10 @@ impl QuantizedStateBuffer {
             } => {
                 let bs = Self::BLOCK_SIZE;
                 for (b_idx, chunk) in values[..n].chunks(bs).enumerate() {
-                    let max_abs = chunk.iter().fold(0.0f32, |acc, &x| acc.max(x.abs())).max(1e-12);
+                    let max_abs = chunk
+                        .iter()
+                        .fold(0.0f32, |acc, &x| acc.max(x.abs()))
+                        .max(1e-12);
                     scales[b_idx] = max_abs;
                     let inv_scale = 1.0f32 / max_abs;
                     let base_out = (b_idx * bs) / 2;
@@ -343,7 +353,11 @@ impl QuantizedStateBuffer {
                         let i0 = pair_idx * 2;
                         let i1 = i0 + 1;
                         let v0 = chunk[i0] * inv_scale;
-                        let v1 = if i1 < chunk.len() { chunk[i1] * inv_scale } else { 0.0 };
+                        let v1 = if i1 < chunk.len() {
+                            chunk[i1] * inv_scale
+                        } else {
+                            0.0
+                        };
                         let nib0 = encode_nf4_nibble(v0);
                         let nib1 = encode_nf4_nibble(v1);
                         packed_bytes[base_out + pair_idx] = (nib1 << 4) | (nib0 & 0x0F);
@@ -357,7 +371,10 @@ impl QuantizedStateBuffer {
             } => {
                 let bs = Self::BLOCK_SIZE;
                 for (b_idx, chunk) in values[..n].chunks(bs).enumerate() {
-                    let max_abs = chunk.iter().fold(0.0f32, |acc, &x| acc.max(x.abs())).max(1e-12);
+                    let max_abs = chunk
+                        .iter()
+                        .fold(0.0f32, |acc, &x| acc.max(x.abs()))
+                        .max(1e-12);
                     let scale = max_abs / 7.0f32;
                     scales[b_idx] = scale;
                     let inv_scale = 1.0f32 / scale;
@@ -384,8 +401,10 @@ impl QuantizedStateBuffer {
             } => {
                 let bs = Self::BLOCK_SIZE;
                 for (b_idx, chunk) in values[..n].chunks(bs).enumerate() {
-                    let mean_abs =
-                        chunk.iter().fold(0.0f32, |acc, &x| acc.max(x.abs())).max(1e-12);
+                    let mean_abs = chunk
+                        .iter()
+                        .fold(0.0f32, |acc, &x| acc.max(x.abs()))
+                        .max(1e-12);
                     scales[b_idx] = mean_abs;
                     let threshold = 0.5f32 * mean_abs;
                     let base_out = (b_idx * bs) / 4;
@@ -512,7 +531,11 @@ impl QuantizedStateBuffer {
                     let base_in = (b_idx * bs) / 2;
                     for (c_idx, val) in chunk.iter_mut().enumerate() {
                         let byte = packed_bytes[base_in + c_idx / 2];
-                        let nibble = if c_idx % 2 == 0 { byte & 0x0F } else { byte >> 4 };
+                        let nibble = if c_idx % 2 == 0 {
+                            byte & 0x0F
+                        } else {
+                            byte >> 4
+                        };
                         *val = decode_nf4_nibble(nibble) * scale;
                     }
                 }
@@ -528,7 +551,11 @@ impl QuantizedStateBuffer {
                     let base_in = (b_idx * bs) / 2;
                     for (c_idx, val) in chunk.iter_mut().enumerate() {
                         let byte = packed_bytes[base_in + c_idx / 2];
-                        let raw_nib = if c_idx % 2 == 0 { byte & 0x0F } else { byte >> 4 };
+                        let raw_nib = if c_idx % 2 == 0 {
+                            byte & 0x0F
+                        } else {
+                            byte >> 4
+                        };
                         // Sign extend 4-bit two's complement
                         let signed_val = if (raw_nib & 0x08) != 0 {
                             (raw_nib as i8) | !0x0Fi8

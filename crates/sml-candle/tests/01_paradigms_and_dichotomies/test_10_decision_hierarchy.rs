@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 10: Levels of Decision Making (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t10_levels_of_decision_making_bayes_risk_bandits_mdp_pomdp_and_games::{
+use sml_candle::c01_paradigms_and_dichotomies::t10_levels_of_decision_making_bayes_risk_bandits_mdp_pomdp_and_games::{
     bandits_ope, bayes_decision_rule, differentiable_auction, mdp_bellman_operator,
     pomdp_belief_filter,
 };

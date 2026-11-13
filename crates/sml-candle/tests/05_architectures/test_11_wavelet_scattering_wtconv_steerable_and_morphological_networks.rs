@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t11_wavelet_scattering_wtconv_steerable_and_morphological_networks as wt;
+use sml_candle::c05_architectures::t11_wavelet_scattering_wtconv_steerable_and_morphological_networks as wt;
 
 #[path = "../common/mod.rs"]
 mod common;

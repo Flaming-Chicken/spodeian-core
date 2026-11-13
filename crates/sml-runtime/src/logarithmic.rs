@@ -156,8 +156,8 @@ impl Log32 {
 
         let sign_bit: u32 = if val < 0.0 { 0x8000_0000 } else { 0x0000_0000 };
         let log2_val = val.abs().log2();
-        let biased_exp = ((log2_val * Self::SCALE).round() as i64 + Self::BIAS)
-            .clamp(1, 0x7FFF_FFFF);
+        let biased_exp =
+            ((log2_val * Self::SCALE).round() as i64 + Self::BIAS).clamp(1, 0x7FFF_FFFF);
 
         Self(sign_bit | (biased_exp as u32))
     }
@@ -174,7 +174,11 @@ impl Log32 {
             return 0.0;
         }
 
-        let sign: f64 = if (self.0 & 0x8000_0000) != 0 { -1.0 } else { 1.0 };
+        let sign: f64 = if (self.0 & 0x8000_0000) != 0 {
+            -1.0
+        } else {
+            1.0
+        };
         let biased_exp = (self.0 & 0x7FFF_FFFF) as i64;
         let log2_val = (biased_exp - Self::BIAS) as f64 / Self::SCALE;
 
@@ -232,10 +236,14 @@ impl Log64 {
             return Self::ZERO;
         }
 
-        let sign_bit: u64 = if val < 0.0 { 0x8000_0000_0000_0000 } else { 0x0000_0000_0000_0000 };
+        let sign_bit: u64 = if val < 0.0 {
+            0x8000_0000_0000_0000
+        } else {
+            0x0000_0000_0000_0000
+        };
         let log2_val = val.abs().log2();
-        let biased_exp = ((log2_val * Self::SCALE).round() as i128 + Self::BIAS)
-            .clamp(1, 0x7FFF_FFFF_FFFF_FFFF);
+        let biased_exp =
+            ((log2_val * Self::SCALE).round() as i128 + Self::BIAS).clamp(1, 0x7FFF_FFFF_FFFF_FFFF);
 
         Self(sign_bit | (biased_exp as u64))
     }
@@ -246,7 +254,11 @@ impl Log64 {
             return 0.0;
         }
 
-        let sign: f64 = if (self.0 & 0x8000_0000_0000_0000) != 0 { -1.0 } else { 1.0 };
+        let sign: f64 = if (self.0 & 0x8000_0000_0000_0000) != 0 {
+            -1.0
+        } else {
+            1.0
+        };
         let biased_exp = (self.0 & 0x7FFF_FFFF_FFFF_FFFF) as i128;
         let log2_val = (biased_exp - Self::BIAS) as f64 / Self::SCALE;
 

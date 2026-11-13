@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t01_generative_vs_discriminative_classifiers::{
+//! use sml_candle::c01_paradigms_and_dichotomies::t01_generative_vs_discriminative_classifiers::{
 //!     DiscriminativeClassifier, GaussianDiscriminantAnalysis,
 //! };
 //!

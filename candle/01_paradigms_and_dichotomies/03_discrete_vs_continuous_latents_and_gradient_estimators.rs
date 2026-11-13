@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t03_discrete_vs_continuous_latents_and_gradient_estimators::GaussianReparameterization;
+//! use sml_candle::c01_paradigms_and_dichotomies::t03_discrete_vs_continuous_latents_and_gradient_estimators::GaussianReparameterization;
 //!
 //! let device = Device::Cpu;
 //! let w_mu = Tensor::zeros((2, 2), candle_core::DType::F32, &device).unwrap();

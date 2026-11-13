@@ -8,7 +8,7 @@
 //! 5. QK-Norm: Query-Key head-wise RMS normalization (Dehghani et al. 2023).
 //! 6. Scaled Weight Standardization: Linear weight standardization across fan-in (Brock et al. 2021).
 
-use candle_core::{Result, Tensor, D};
+use candle_core::{D, Result, Tensor};
 
 /// Linear anchor forward.
 pub struct LinearAnchor {

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t18_direct_preference_dpo_ipo_kto_simpo_dno_and_spo as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t18_direct_preference_dpo_ipo_kto_simpo_dno_and_spo as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_18_direct_preference_dpo_ipo_kto_simpo_dno_and_spo_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/03_direct_preference_dpo_ipo_kto_simpo_dno_and_spo.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/03_direct_preference_dpo_ipo_kto_simpo_dno_and_spo.safetensors",
+        ),
         &device,
     )?;
 

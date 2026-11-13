@@ -1,10 +1,10 @@
 //! Integration test for Category 03 Topic 02: Normalization Layers Complete (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t02_normalization_layers_complete::{
-    adaln_zero_forward, dyt_forward, layernorm_forward, qknorm_forward, rmsnorm_forward,
-    weight_standardization_forward, LinearAnchor,
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c03_building_blocks_and_losses::t02_normalization_layers_complete::{
+    LinearAnchor, adaln_zero_forward, dyt_forward, layernorm_forward, qknorm_forward,
+    rmsnorm_forward, weight_standardization_forward,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

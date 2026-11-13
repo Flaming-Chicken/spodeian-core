@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t01_residual_mlp_mlp_mixer_and_gmlp as arch;
+use sml_candle::c05_architectures::t01_residual_mlp_mlp_mixer_and_gmlp as arch;
 
 #[path = "../common/mod.rs"]
 mod common;

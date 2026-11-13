@@ -3,7 +3,7 @@
 
 use serde::Deserialize;
 
-use crate::repo::{is_numbered, parent, track_ext, Repo};
+use crate::repo::{Repo, is_numbered, parent, track_ext};
 
 pub const README: &str = "README.md";
 

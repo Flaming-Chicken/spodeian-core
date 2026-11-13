@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c04_training_methods_and_optimisers::t13_sharpness_aware_swad_and_weight_averaging_dynamics as opt;
+use sml_candle::c04_training_methods_and_optimisers::t13_sharpness_aware_swad_and_weight_averaging_dynamics as opt;
 
 #[path = "../common/mod.rs"]
 mod common;

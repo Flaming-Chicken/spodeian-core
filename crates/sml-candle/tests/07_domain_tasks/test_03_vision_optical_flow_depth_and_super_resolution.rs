@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t03_vision_optical_flow_depth_and_super_resolution as topic;
+use sml_candle::c07_domain_tasks::t03_vision_optical_flow_depth_and_super_resolution as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

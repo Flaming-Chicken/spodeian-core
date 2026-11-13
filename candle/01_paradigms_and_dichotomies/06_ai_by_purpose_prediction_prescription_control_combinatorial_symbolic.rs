@@ -14,7 +14,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic::CostPredictor;
+//! use sml_candle::c01_paradigms_and_dichotomies::t06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic::CostPredictor;
 //!
 //! let device = Device::Cpu;
 //! let w1 = Tensor::zeros((4, 4), candle_core::DType::F32, &device).unwrap();

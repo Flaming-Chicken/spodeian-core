@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 12: Latent Decision Gates (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting::{
+use sml_candle::c03_building_blocks_and_losses::t12_latent_decision_gates_highway_hard_concrete_entmax_and_ponder_halting::{
     film_forward, glu_forward, hard_concrete_forward, highway_forward, pondernet_halting_forward,
     sparsemax_forward, LinearAnchor,
 };

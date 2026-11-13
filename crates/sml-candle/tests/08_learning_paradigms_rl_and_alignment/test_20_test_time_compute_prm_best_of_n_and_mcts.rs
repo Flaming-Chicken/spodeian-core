@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t20_test_time_compute_prm_best_of_n_and_mcts as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t20_test_time_compute_prm_best_of_n_and_mcts as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_20_test_time_compute_prm_best_of_n_and_mcts_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/05_test_time_compute_prm_best_of_n_and_mcts.safetensors"),
+        common::get_weights_path(
+            "08_learning_paradigms_rl_and_alignment/03_llm_alignment_and_reasoning/05_test_time_compute_prm_best_of_n_and_mcts.safetensors",
+        ),
         &device,
     )?;
 

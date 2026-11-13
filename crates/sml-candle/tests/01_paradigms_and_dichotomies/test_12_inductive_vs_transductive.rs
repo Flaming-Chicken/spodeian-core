@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 12: Inductive vs. Transductive (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t12_inductive_vs_transductive_and_online_regret_vs_batch_iid::{
+use sml_candle::c01_paradigms_and_dichotomies::t12_inductive_vs_transductive_and_online_regret_vs_batch_iid::{
     ftrl_proximal_step, inductive_linear_predictor, page_hinkley_cusum, transductive_label_spreading,
 };
 use candle_core::{safetensors::load, Device, Result};

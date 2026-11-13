@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t19_attention_variants_mha_mqa_gqa_mla_and_diffattn as topic;
+use sml_candle::c05_architectures::t19_attention_variants_mha_mqa_gqa_mla_and_diffattn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_19_attention_variants_mha_mqa_gqa_mla_and_diffattn_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/04_transformers_and_heads/01_attention_variants_mha_mqa_gqa_mla_and_diffattn.safetensors"),
+        common::get_weights_path(
+            "05_architectures/04_transformers_and_heads/01_attention_variants_mha_mqa_gqa_mla_and_diffattn.safetensors",
+        ),
         &device,
     )?;
 

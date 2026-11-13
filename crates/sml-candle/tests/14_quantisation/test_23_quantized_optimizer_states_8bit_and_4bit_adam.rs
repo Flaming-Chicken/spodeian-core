@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t23_quantized_optimizer_states_8bit_and_4bit_adam as topic;
+use sml_candle::c14_quantisation::t23_quantized_optimizer_states_8bit_and_4bit_adam as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_23_quantized_optimizer_states_8bit_and_4bit_adam_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("14_quantisation/05_kv_attention_optim_and_benchmarks/03_quantized_optimizer_states_8bit_and_4bit_adam.safetensors"),
+        common::get_weights_path(
+            "14_quantisation/05_kv_attention_optim_and_benchmarks/03_quantized_optimizer_states_8bit_and_4bit_adam.safetensors",
+        ),
         &device,
     )?;
 

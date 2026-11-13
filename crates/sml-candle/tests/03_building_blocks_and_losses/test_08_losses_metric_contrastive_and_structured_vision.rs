@@ -1,6 +1,6 @@
 //! Integration test for Category 03 Topic 08: Losses Metric, Contrastive, and Structured Vision (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t08_losses_metric_contrastive_and_structured_vision::{
+use sml_candle::c03_building_blocks_and_losses::t08_losses_metric_contrastive_and_structured_vision::{
     arcface_loss_forward, giou_loss_forward, infonce_loss_forward, siglip_loss_forward,
     soft_dice_loss_forward, LinearAnchor,
 };

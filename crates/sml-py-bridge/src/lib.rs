@@ -73,10 +73,14 @@ fn py_flow_matching_loss(v_pred: Vec<f32>, v_target: Vec<f32>) -> PyResult<f32> 
     use sml_runtime::candle_core::{Device, Tensor};
     let dev = Device::Cpu;
     let n = v_pred.len();
-    let p = Tensor::from_vec(v_pred, (n,), &dev).map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    let t = Tensor::from_vec(v_target, (n,), &dev).map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    let loss = sml_runtime::loss::flow_matching_loss(&p, &t).map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    loss.to_scalar::<f32>().map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    let p = Tensor::from_vec(v_pred, (n,), &dev)
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    let t = Tensor::from_vec(v_target, (n,), &dev)
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    let loss = sml_runtime::loss::flow_matching_loss(&p, &t)
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    loss.to_scalar::<f32>()
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
 }
 
 #[pyfunction]
@@ -89,11 +93,15 @@ fn py_cross_entropy_loss(
     use sml_runtime::candle_core::{Device, Tensor};
     let dev = Device::Cpu;
     let b = targets.len();
-    let l = Tensor::from_vec(logits, (b, num_classes), &dev).map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    let t = Tensor::from_vec(targets, (b,), &dev).map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    let loss = sml_runtime::loss::cross_entropy(&l, &t, smoothing, sml_runtime::loss::Reduction::Mean)
+    let l = Tensor::from_vec(logits, (b, num_classes), &dev)
         .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-    loss.to_scalar::<f32>().map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
+    let t = Tensor::from_vec(targets, (b,), &dev)
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    let loss =
+        sml_runtime::loss::cross_entropy(&l, &t, smoothing, sml_runtime::loss::Reduction::Mean)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+    loss.to_scalar::<f32>()
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
 }
 
 /// Spodeian PyO3 Python Module

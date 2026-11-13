@@ -95,11 +95,7 @@ pub fn h2o_evict_mask_cpu(
     heavy_budget: usize,
 ) -> Vec<f32> {
     let mut mask = vec![0.0f32; batch * seq_len];
-    let recent_start = if seq_len > local_window {
-        seq_len - local_window
-    } else {
-        0
-    };
+    let recent_start = seq_len.saturating_sub(local_window);
 
     for b in 0..batch {
         let b_offset = b * seq_len;

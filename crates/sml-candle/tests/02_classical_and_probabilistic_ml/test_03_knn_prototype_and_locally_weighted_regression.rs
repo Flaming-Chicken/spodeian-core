@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t03_knn_prototype_and_locally_weighted_regression as knn;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t03_knn_prototype_and_locally_weighted_regression as knn;
 use std::path::PathBuf;
 
 #[test]

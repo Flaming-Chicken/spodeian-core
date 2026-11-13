@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t11_llm_int8_mixed_precision_outlier_decomposition as topic;
+use sml_candle::c14_quantisation::t11_llm_int8_mixed_precision_outlier_decomposition as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_11_llm_int8_mixed_precision_outlier_decomposition_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/03_llm_ptq_algorithms/04_llm_int8_mixed_precision_outlier_decomposition.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/03_llm_ptq_algorithms/04_llm_int8_mixed_precision_outlier_decomposition.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

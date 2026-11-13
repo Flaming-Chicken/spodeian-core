@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as bayes;
 use candle_core::{Device, Result, Tensor};
+use sml_candle::c02_classical_and_probabilistic_ml::t06_naive_bayes_bayesian_regression_and_gaussian_processes as bayes;
 use std::path::PathBuf;
 
 #[test]
@@ -103,6 +103,8 @@ fn test_06_naive_bayes_bayesian_regression_and_gaussian_processes() -> Result<()
     assert_eq!(svgp_dummy.dims1()?, 32);
     assert_eq!(golden_svgp_diag.dims1()?, 32);
 
-    println!("Candle Topic 06: Naive Bayes, Bayesian Regression & GP tests passed with machine precision!");
+    println!(
+        "Candle Topic 06: Naive Bayes, Bayesian Regression & GP tests passed with machine precision!"
+    );
     Ok(())
 }

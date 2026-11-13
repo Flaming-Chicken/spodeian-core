@@ -91,7 +91,8 @@ impl TemporalSpilloverGraph {
     /// Register a new node in the temporal graph.
     pub fn add_node(&mut self, symbol: impl Into<String>) -> usize {
         let id = self.nodes.len();
-        self.nodes.push(TgnNodeMemory::new(id, symbol, self.memory_dim));
+        self.nodes
+            .push(TgnNodeMemory::new(id, symbol, self.memory_dim));
         id
     }
 

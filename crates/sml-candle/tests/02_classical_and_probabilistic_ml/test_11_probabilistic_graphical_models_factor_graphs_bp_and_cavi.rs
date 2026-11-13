@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t11_probabilistic_graphical_models_factor_graphs_bp_and_cavi as bp;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t11_probabilistic_graphical_models_factor_graphs_bp_and_cavi as bp;
 use std::path::PathBuf;
 
 #[test]

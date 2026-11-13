@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c08_learning_paradigms_rl_and_alignment::t01_contrastive_ssl_simclr_moco_and_clip_siglip as topic;
+use sml_candle::c08_learning_paradigms_rl_and_alignment::t01_contrastive_ssl_simclr_moco_and_clip_siglip as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

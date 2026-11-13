@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting::HypergradientsUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t17_self_optimising_hypergradients_learned_optimisers_and_meta_reweighting::HypergradientsUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

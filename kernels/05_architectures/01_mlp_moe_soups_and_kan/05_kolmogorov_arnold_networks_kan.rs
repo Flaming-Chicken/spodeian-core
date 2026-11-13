@@ -246,7 +246,7 @@ pub fn chebyshev_basis_wgpu(ctx: &WgpuContext, x: &[f32], degree: usize) -> Opti
         });
         pass.set_pipeline(&pipeline);
         pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (num_elements as u32 + 63) / 64;
+        let workgroups = (num_elements as u32).div_ceil(64);
         pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -274,10 +274,10 @@ pub fn chebyshev_basis_wgpu(ctx: &WgpuContext, x: &[f32], degree: usize) -> Opti
 
 /// Automatically dispatches Chebyshev basis computation: runs WGPU if available, falls back to CPU.
 pub fn chebyshev_basis_auto(ctx: Option<&WgpuContext>, x: &[f32], degree: usize) -> Vec<f32> {
-    if let Some(c) = ctx {
-        if let Some(gpu_out) = chebyshev_basis_wgpu(c, x, degree) {
-            return gpu_out;
-        }
+    if let Some(c) = ctx
+        && let Some(gpu_out) = chebyshev_basis_wgpu(c, x, degree)
+    {
+        return gpu_out;
     }
     chebyshev_basis_cpu(x, degree)
 }

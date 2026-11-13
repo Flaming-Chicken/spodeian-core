@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t06_stochastic_rounding_and_master_weight_free_bf16_training as topic;
+use sml_candle::c13_precision_and_numerics::t06_stochastic_rounding_and_master_weight_free_bf16_training as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_06_stochastic_rounding_and_master_weight_free_bf16_training_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("13_precision_and_numerics/06_stochastic_rounding_and_master_weight_free_bf16_training.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "13_precision_and_numerics/06_stochastic_rounding_and_master_weight_free_bf16_training.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

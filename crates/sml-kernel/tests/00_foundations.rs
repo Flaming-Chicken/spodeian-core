@@ -1,4 +1,6 @@
-use ai_kernel::{
+use candle_core::{Device, safetensors::load};
+use sml_kernel::{
+    KernelDevice,
     c00_foundations::{
         t01_linear_neuron_and_invertible_transforms as t01,
         t02_tensors_views_strides_and_memory_layouts as t02,
@@ -12,9 +14,7 @@ use ai_kernel::{
         t10_floating_point_arithmetic_conditioning_and_numerical_stability as t10,
         t11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp as t11,
     },
-    KernelDevice,
 };
-use candle_core::{safetensors::load, Device};
 
 mod common;
 
@@ -666,7 +666,9 @@ fn test_09_ragged_sparse_cpu_and_auto() -> candle_core::Result<()> {
 #[test]
 fn test_10_numerical_stability_welford_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("00_foundations/10_floating_point_arithmetic_conditioning_and_numerical_stability.safetensors");
+    let path = common::get_weights_path(
+        "00_foundations/10_floating_point_arithmetic_conditioning_and_numerical_stability.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors
@@ -744,7 +746,9 @@ fn test_10_numerical_stability_welford_cpu_and_auto() -> candle_core::Result<()>
 #[test]
 fn test_11_spectral_hutchpp_cpu_and_auto() -> candle_core::Result<()> {
     let device = Device::Cpu;
-    let path = common::get_weights_path("00_foundations/11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp.safetensors");
+    let path = common::get_weights_path(
+        "00_foundations/11_randomized_numerical_linear_algebra_spectral_autograd_and_hutchpp.safetensors",
+    );
     let tensors = load(path, &device)?;
 
     let x = tensors

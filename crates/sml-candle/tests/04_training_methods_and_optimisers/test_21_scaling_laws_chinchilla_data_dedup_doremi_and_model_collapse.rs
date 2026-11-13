@@ -1,4 +1,4 @@
-use ai_candle::c04_training_methods_and_optimisers::t21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse::ScalingLawsUnifiedModule;
+use sml_candle::c04_training_methods_and_optimisers::t21_scaling_laws_chinchilla_data_dedup_doremi_and_model_collapse::ScalingLawsUnifiedModule;
 use candle_core::Result;
 use std::path::PathBuf;
 

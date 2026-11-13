@@ -19,7 +19,7 @@
 //!
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c01_paradigms_and_dichotomies::t09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd::spherical_alignment;
+//! use sml_candle::c01_paradigms_and_dichotomies::t09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd::spherical_alignment;
 //!
 //! let device = Device::Cpu;
 //! let p = Tensor::new(&[[1.0f32, 0.0], [0.0, 1.0]], &device).unwrap();

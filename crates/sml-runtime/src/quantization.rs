@@ -188,21 +188,21 @@ pub static NF4_QUANTILES: [f32; 16] = NF4_CENTROIDS;
 
 /// Exact Voronoi decision midpoints between adjacent NF4 centroids: T_i = (C_i + C_{i+1}) / 2.
 pub const NF4_MIDPOINTS: [f32; 15] = [
-    (-1.0 + -0.6961928) / 2.0,                  // T0  = -0.8480964
-    (-0.6961928 + -0.52507305) / 2.0,           // T1  = -0.6106329
-    (-0.52507305 + -0.3949175) / 2.0,           // T2  = -0.45999527
-    (-0.3949175 + -0.28444138) / 2.0,           // T3  = -0.33967945
-    (-0.28444138 + -0.18477343) / 2.0,          // T4  = -0.2346074
-    (-0.18477343 + -0.09105004) / 2.0,          // T5  = -0.13791173
-    (-0.09105004 + 0.0) / 2.0,                  // T6  = -0.04552502
-    (0.0 + 0.0795803) / 2.0,                    // T7  =  0.03979015
-    (0.0795803 + 0.1609302) / 2.0,              // T8  =  0.12025525
-    (0.1609302 + 0.2461123) / 2.0,              // T9  =  0.20352125
-    (0.2461123 + 0.33791524) / 2.0,             // T10 =  0.29201376
-    (0.33791524 + 0.44070983) / 2.0,            // T11 =  0.38931254
-    (0.44070983 + 0.562617) / 2.0,              // T12 =  0.5016634
-    (0.562617 + 0.72295684) / 2.0,              // T13 =  0.6427869
-    (0.72295684 + 1.0) / 2.0,                   // T14 =  0.8614784
+    (-1.0 + -0.6961928) / 2.0,         // T0  = -0.8480964
+    (-0.6961928 + -0.52507305) / 2.0,  // T1  = -0.6106329
+    (-0.52507305 + -0.3949175) / 2.0,  // T2  = -0.45999527
+    (-0.3949175 + -0.28444138) / 2.0,  // T3  = -0.33967945
+    (-0.28444138 + -0.18477343) / 2.0, // T4  = -0.2346074
+    (-0.18477343 + -0.09105004) / 2.0, // T5  = -0.13791173
+    (-0.09105004 + 0.0) / 2.0,         // T6  = -0.04552502
+    (0.0 + 0.0795803) / 2.0,           // T7  =  0.03979015
+    (0.0795803 + 0.1609302) / 2.0,     // T8  =  0.12025525
+    (0.1609302 + 0.2461123) / 2.0,     // T9  =  0.20352125
+    (0.2461123 + 0.33791524) / 2.0,    // T10 =  0.29201376
+    (0.33791524 + 0.44070983) / 2.0,   // T11 =  0.38931254
+    (0.44070983 + 0.562617) / 2.0,     // T12 =  0.5016634
+    (0.562617 + 0.72295684) / 2.0,     // T13 =  0.6427869
+    (0.72295684 + 1.0) / 2.0,          // T14 =  0.8614784
 ];
 
 /// Encodes a normalized float into 4-bit NF4 in O(1) time using branchless binary decision thresholds.
@@ -210,8 +210,16 @@ pub const NF4_MIDPOINTS: [f32; 15] = [
 pub fn quantize_to_nf4(val: f32) -> u8 {
     let b3 = if val >= NF4_MIDPOINTS[7] { 8 } else { 0 };
     let b2 = if val >= NF4_MIDPOINTS[b3 + 3] { 4 } else { 0 };
-    let b1 = if val >= NF4_MIDPOINTS[b3 + b2 + 1] { 2 } else { 0 };
-    let b0 = if val >= NF4_MIDPOINTS[b3 + b2 + b1] { 1 } else { 0 };
+    let b1 = if val >= NF4_MIDPOINTS[b3 + b2 + 1] {
+        2
+    } else {
+        0
+    };
+    let b0 = if val >= NF4_MIDPOINTS[b3 + b2 + b1] {
+        1
+    } else {
+        0
+    };
     (b3 | b2 | b1 | b0) as u8
 }
 
@@ -284,7 +292,11 @@ impl PositDecoder {
             return f32::NAN;
         }
         let is_neg = (byte >> 7) == 1;
-        let u = if is_neg { (!byte).wrapping_add(1) } else { byte };
+        let u = if is_neg {
+            (!byte).wrapping_add(1)
+        } else {
+            byte
+        };
         let r = (u >> 6) & 1;
         let mut bit_pos = 5i32;
         let mut run_len = 1;
@@ -361,7 +373,9 @@ pub fn encode_posit8(val: f32) -> u8 {
     let mut bit_pos = 6i32;
 
     for _ in 0..run_len {
-        if bit_pos < 0 { break; }
+        if bit_pos < 0 {
+            break;
+        }
         if r_bit == 1 {
             u |= 1 << bit_pos;
         }
@@ -386,15 +400,13 @@ pub fn encode_posit8(val: f32) -> u8 {
         let scale = 2.0f32.powi(2 * k + e as i32);
         let frac = (x / scale) - 1.0;
         let num_frac_bits = (bit_pos + 1) as u32;
-        let frac_val = (frac * (1 << num_frac_bits) as f32).round().clamp(0.0, ((1 << num_frac_bits) - 1) as f32) as u8;
+        let frac_val = (frac * (1 << num_frac_bits) as f32)
+            .round()
+            .clamp(0.0, ((1 << num_frac_bits) - 1) as f32) as u8;
         u |= frac_val;
     }
 
-    if is_neg {
-        (!u).wrapping_add(1)
-    } else {
-        u
-    }
+    if is_neg { (!u).wrapping_add(1) } else { u }
 }
 
 /// Decodes a 16-bit Posit16 <16, 1> value.
@@ -428,7 +440,9 @@ pub fn encode_posit16(val: f32) -> u16 {
     let mut bit_pos = 14i32;
 
     for _ in 0..run_len {
-        if bit_pos < 0 { break; }
+        if bit_pos < 0 {
+            break;
+        }
         if r_bit == 1 {
             u |= 1 << bit_pos;
         }
@@ -453,15 +467,13 @@ pub fn encode_posit16(val: f32) -> u16 {
         let scale = 2.0f32.powi(2 * k + e as i32);
         let frac = (x / scale) - 1.0;
         let num_frac_bits = (bit_pos + 1) as u32;
-        let frac_val = (frac * (1 << num_frac_bits) as f32).round().clamp(0.0, ((1 << num_frac_bits) - 1) as f32) as u16;
+        let frac_val = (frac * (1 << num_frac_bits) as f32)
+            .round()
+            .clamp(0.0, ((1 << num_frac_bits) - 1) as f32) as u16;
         u |= frac_val;
     }
 
-    if is_neg {
-        (!u).wrapping_add(1)
-    } else {
-        u
-    }
+    if is_neg { (!u).wrapping_add(1) } else { u }
 }
 
 // ============================================================================
@@ -560,7 +572,11 @@ pub fn encode_fp8_e4m3(val: f32) -> u8 {
     if val.is_nan() {
         return 0x7F;
     }
-    let sign = if val.is_sign_negative() { 0x80u8 } else { 0x00u8 };
+    let sign = if val.is_sign_negative() {
+        0x80u8
+    } else {
+        0x00u8
+    };
     let abs_val = val.abs();
     if abs_val < 2.0f32.powi(-9) {
         return sign;
@@ -609,7 +625,11 @@ pub fn encode_fp8_e5m2(val: f32) -> u8 {
     if val.is_infinite() {
         return if val.is_sign_negative() { 0xFC } else { 0x7C };
     }
-    let sign = if val.is_sign_negative() { 0x80u8 } else { 0x00u8 };
+    let sign = if val.is_sign_negative() {
+        0x80u8
+    } else {
+        0x00u8
+    };
     let abs_val = val.abs();
     if abs_val < 2.0f32.powi(-16) {
         return sign;

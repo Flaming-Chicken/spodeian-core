@@ -1,9 +1,9 @@
 //! Integration test for Category 03 Topic 03: Weight Initialization and muP Scaling (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t03_weight_initialization_and_mup_scaling::{
-    layerscale_forward, mup_readout_forward, residual_scale_forward, rezero_forward, LinearAnchor,
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c03_building_blocks_and_losses::t03_weight_initialization_and_mup_scaling::{
+    LinearAnchor, layerscale_forward, mup_readout_forward, residual_scale_forward, rezero_forward,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

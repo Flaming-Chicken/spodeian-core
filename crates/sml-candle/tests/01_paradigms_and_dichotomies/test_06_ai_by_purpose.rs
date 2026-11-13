@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 06: AI by Purpose (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic::{
+use sml_candle::c01_paradigms_and_dichotomies::t06_ai_by_purpose_prediction_prescription_control_combinatorial_symbolic::{
     CausalUpliftEstimator, CostPredictor, SPOPlusEstimator, SymbolicEquationLearner,
 };
 use candle_core::{safetensors::load, Device, Result};

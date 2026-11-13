@@ -2,18 +2,21 @@
 
 use candle_core::{Device, Tensor, Var};
 use sml_runtime::loss::{
-    bce_with_logits, cross_entropy, flow_matching_loss, focal_loss, info_nce_loss,
-    smooth_l1_loss, Reduction,
+    Reduction, bce_with_logits, cross_entropy, flow_matching_loss, focal_loss, info_nce_loss,
+    smooth_l1_loss,
 };
 use sml_runtime::lr_scheduler::{
     CosineAnnealingLR, ExponentialLR, LRScheduler, LinearWarmupCosineAnnealing, MultiStepLR,
     OneCycleLR, StepLR,
 };
-use sml_runtime::optim::{AdamW, Lion, Muon, MuonConfig, Optimizer, ScheduleFreeAdamW, Sgd, SgdConfig, Sophia, SophiaConfig};
-use sml_runtime::solvers::{ContinuousFlowSolver, SelfOptimizingMetaIntegrator, TrainedPcecIntegrator};
-use sml_runtime::train::{
-    clip_grad_norm, DataLoader, GradScaler, ModelEMA, TensorDataset,
+use sml_runtime::optim::{
+    AdamW, Lion, Muon, MuonConfig, Optimizer, ScheduleFreeAdamW, Sgd, SgdConfig, Sophia,
+    SophiaConfig,
 };
+use sml_runtime::solvers::{
+    ContinuousFlowSolver, SelfOptimizingMetaIntegrator, TrainedPcecIntegrator,
+};
+use sml_runtime::train::{DataLoader, GradScaler, ModelEMA, TensorDataset, clip_grad_norm};
 
 #[test]
 fn test_sgd_momentum_and_nesterov() -> candle_core::Result<()> {
@@ -81,7 +84,13 @@ fn test_lion_optimizer() -> candle_core::Result<()> {
 fn test_sophia_optimizer() -> candle_core::Result<()> {
     let device = Device::Cpu;
     let var = Var::new(&[4.0f32, -4.0], &device)?;
-    let mut opt = Sophia::new(vec![var.clone()], SophiaConfig { lr: 0.05, ..Default::default() });
+    let mut opt = Sophia::new(
+        vec![var.clone()],
+        SophiaConfig {
+            lr: 0.05,
+            ..Default::default()
+        },
+    );
 
     for _ in 0..20 {
         let loss = var.as_tensor().sqr()?.sum_all()?;
@@ -246,13 +255,25 @@ fn test_model_ema_and_dataloader() -> candle_core::Result<()> {
     let shadow = ema.shadow_weights()[0].to_vec1::<f32>()?;
     println!("EMA shadow values: {:?}", shadow);
     // 0.9 * 1.0 + 0.1 * 3.0 = 1.2
-    assert!((shadow[0] - 1.2).abs() < 1e-4, "Expected shadow[0] ~ 1.2, got {}", shadow[0]);
+    assert!(
+        (shadow[0] - 1.2).abs() < 1e-4,
+        "Expected shadow[0] ~ 1.2, got {}",
+        shadow[0]
+    );
     // 0.9 * 2.0 + 0.1 * 4.0 = 2.2
     assert!((shadow[1] - 2.2).abs() < 1e-5);
 
     // Test TensorDataset & DataLoader
-    let inputs = Tensor::from_vec((0..100).map(|x| x as f32).collect::<Vec<_>>(), (50, 2), &device)?;
-    let targets = Tensor::from_vec((0..50).map(|x| x as u32).collect::<Vec<_>>(), (50,), &device)?;
+    let inputs = Tensor::from_vec(
+        (0..100).map(|x| x as f32).collect::<Vec<_>>(),
+        (50, 2),
+        &device,
+    )?;
+    let targets = Tensor::from_vec(
+        (0..50).map(|x| x as u32).collect::<Vec<_>>(),
+        (50,),
+        &device,
+    )?;
     let dataset = TensorDataset::new(inputs, Some(targets))?;
     let loader = DataLoader::new(&dataset, 16, true, false);
 
@@ -273,12 +294,15 @@ fn test_model_ema_and_dataloader() -> candle_core::Result<()> {
 fn test_muon_convergence() -> candle_core::Result<()> {
     let device = Device::Cpu;
     // 2D weight matrix: (4, 4)
-    let var = Var::new(&[
-        [2.0f32, 1.0, 0.5, -0.5],
-        [1.0, 3.0, -1.0, 0.2],
-        [0.5, -1.0, 2.5, 0.0],
-        [-0.5, 0.2, 0.0, 1.5],
-    ], &device)?;
+    let var = Var::new(
+        &[
+            [2.0f32, 1.0, 0.5, -0.5],
+            [1.0, 3.0, -1.0, 0.2],
+            [0.5, -1.0, 2.5, 0.0],
+            [-0.5, 0.2, 0.0, 1.5],
+        ],
+        &device,
+    )?;
 
     let mut opt = Muon::new(
         vec![var.clone()],
@@ -299,8 +323,16 @@ fn test_muon_convergence() -> candle_core::Result<()> {
     }
 
     let final_loss = var.as_tensor().sqr()?.sum_all()?.to_scalar::<f32>()?;
-    assert!(final_loss < initial_loss, "Muon failed to reduce loss: {} -> {}", initial_loss, final_loss);
-    println!("Muon convergence test passed: loss reduced from {:.4} to {:.4}", initial_loss, final_loss);
+    assert!(
+        final_loss < initial_loss,
+        "Muon failed to reduce loss: {} -> {}",
+        initial_loss,
+        final_loss
+    );
+    println!(
+        "Muon convergence test passed: loss reduced from {:.4} to {:.4}",
+        initial_loss, final_loss
+    );
     Ok(())
 }
 
@@ -308,9 +340,8 @@ fn test_muon_convergence() -> candle_core::Result<()> {
 fn test_trained_pcec_solver() {
     let x0 = vec![1.0f32, 2.0f32, -1.0f32];
     let solver = TrainedPcecIntegrator::default();
-    let mut velocity_fn = |x: &[f32], t: f32| -> Vec<f32> {
-        x.iter().map(|&v| -v * (1.0 - t)).collect()
-    };
+    let mut velocity_fn =
+        |x: &[f32], t: f32| -> Vec<f32> { x.iter().map(|&v| -v * (1.0 - t)).collect() };
 
     let result = solver.solve_flow(&x0, 20, &mut velocity_fn);
     assert_eq!(result.len(), 3);
@@ -326,9 +357,8 @@ fn test_trained_pcec_solver() {
 fn test_self_optimizing_meta_integrator() {
     let x0 = vec![2.0f32, -1.5f32, 0.5f32];
     let auto_solver = SelfOptimizingMetaIntegrator::default();
-    let mut velocity_fn = |x: &[f32], t: f32| -> Vec<f32> {
-        x.iter().map(|&v| -v.tanh() * (1.0 - t)).collect()
-    };
+    let mut velocity_fn =
+        |x: &[f32], t: f32| -> Vec<f32> { x.iter().map(|&v| -v.tanh() * (1.0 - t)).collect() };
 
     let (res, diags, nfe) = auto_solver.solve_auto(&x0, &mut velocity_fn);
     assert_eq!(res.len(), 3);
@@ -340,5 +370,9 @@ fn test_self_optimizing_meta_integrator() {
     }
     // Result converged towards origin
     assert!(res[0].abs() < x0[0].abs());
-    println!("Self-Optimizing Meta-Integrator test passed: {} steps, {} NFE", diags.len(), nfe);
+    println!(
+        "Self-Optimizing Meta-Integrator test passed: {} steps, {} NFE",
+        diags.len(),
+        nfe
+    );
 }

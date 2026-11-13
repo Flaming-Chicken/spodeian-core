@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c06_smooth_and_physics_informed_ai::t02_input_convex_icnn_brenier_ot_and_certified_monotonic as topic;
+use sml_candle::c06_smooth_and_physics_informed_ai::t02_input_convex_icnn_brenier_ot_and_certified_monotonic as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_02_input_convex_icnn_brenier_ot_and_certified_monotonic_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("06_smooth_and_physics_informed_ai/02_input_convex_icnn_brenier_ot_and_certified_monotonic.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "06_smooth_and_physics_informed_ai/02_input_convex_icnn_brenier_ot_and_certified_monotonic.safetensors",
+        ),
+        &device,
+    )?;
 
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;
     common::assert_max_diff(&y, &w["test_output"], 1e-5)?;

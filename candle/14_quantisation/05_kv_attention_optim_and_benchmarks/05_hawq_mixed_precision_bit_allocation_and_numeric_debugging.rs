@@ -74,18 +74,18 @@ pub fn greedy_hawq_bit_allocation(
 
         for l in 0..alloc.len() {
             let cur_b = alloc[l];
-            if let Some(idx) = candidate_bits.iter().position(|&x| x == cur_b) {
-                if idx + 1 < candidate_bits.len() {
-                    let next_b = candidate_bits[idx + 1];
-                    let delta_cost = ((next_b - cur_b) * numels[l]) as f64;
-                    if current_total_bits(&alloc) + delta_cost <= max_total_bits {
-                        let gain = sensitivities[l][&cur_b] - sensitivities[l][&next_b];
-                        let ratio = gain / delta_cost;
-                        if ratio > best_gain_ratio {
-                            best_gain_ratio = ratio;
-                            best_layer = Some(l);
-                            best_next_bit = Some(next_b);
-                        }
+            if let Some(idx) = candidate_bits.iter().position(|&x| x == cur_b)
+                && idx + 1 < candidate_bits.len()
+            {
+                let next_b = candidate_bits[idx + 1];
+                let delta_cost = ((next_b - cur_b) * numels[l]) as f64;
+                if current_total_bits(&alloc) + delta_cost <= max_total_bits {
+                    let gain = sensitivities[l][&cur_b] - sensitivities[l][&next_b];
+                    let ratio = gain / delta_cost;
+                    if ratio > best_gain_ratio {
+                        best_gain_ratio = ratio;
+                        best_layer = Some(l);
+                        best_next_bit = Some(next_b);
                     }
                 }
             }

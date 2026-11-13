@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 05: Parametric vs Non-Parametric & Neural Processes (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t05_parametric_vs_nonparametric_and_neural_processes::{
+use sml_candle::c01_paradigms_and_dichotomies::t05_parametric_vs_nonparametric_and_neural_processes::{
     AttentiveNeuralProcess, ConditionalNeuralProcess, ExactGaussianProcess, ParametricMLP,
 };
 use candle_core::{safetensors::load, Device, Result, Tensor};

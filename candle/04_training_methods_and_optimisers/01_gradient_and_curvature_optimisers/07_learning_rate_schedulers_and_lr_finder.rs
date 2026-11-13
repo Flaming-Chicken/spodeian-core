@@ -367,7 +367,7 @@ impl LRSchedulersUnifiedModule {
             0.01,
             1e-8,
         )?;
-        let err_cg = max_abs_diff(&clipped_grad_ref(&clipped_g), &self.golden_clipped_grad)?;
+        let err_cg = max_abs_diff(clipped_grad_ref(&clipped_g), &self.golden_clipped_grad)?;
         let err_p_ac = max_abs_diff(&p_ac, &self.golden_param_autoclip)?;
         let err_ac = err_cg.max(err_p_ac);
         if err_ac >= atol {

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t15_peft_representation_finetuning_loreft as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t15_peft_representation_finetuning_loreft as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_15_peft_representation_finetuning_loreft_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("15_compression_peft_and_speculative_inference/03_parameter_efficient_finetuning_peft/05_peft_representation_finetuning_loreft.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/03_parameter_efficient_finetuning_peft/05_peft_representation_finetuning_loreft.safetensors",
+        ),
+        &device,
+    )?;
 
     // Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

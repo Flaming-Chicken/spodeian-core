@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic as topic;
+use sml_candle::c14_quantisation::t01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("14_quantisation/01_foundations_formats_and_observers/01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "14_quantisation/01_foundations_formats_and_observers/01_int_uint_fixed_point_q_format_dyadic_and_rns_arithmetic.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

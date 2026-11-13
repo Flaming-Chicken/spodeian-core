@@ -1,13 +1,13 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t14_bioinformatics_alphafold_ipa_triangle_attention_and_selfies_chemistry as topic;
+use sml_candle::c07_domain_tasks::t14_bioinformatics_alphafold_ipa_triangle_attention_and_selfies_chemistry as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
 
 #[test]
-fn test_14_bioinformatics_alphafold_ipa_triangle_attention_and_selfies_chemistry_parity(
-) -> Result<()> {
+fn test_14_bioinformatics_alphafold_ipa_triangle_attention_and_selfies_chemistry_parity()
+-> Result<()> {
     let device = Device::Cpu;
     let w = load(
         common::get_weights_path(

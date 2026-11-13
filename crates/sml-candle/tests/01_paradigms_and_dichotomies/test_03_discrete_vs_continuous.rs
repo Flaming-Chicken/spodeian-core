@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 03: Discrete vs Continuous Latents & Gradient Estimators (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t03_discrete_vs_continuous_latents_and_gradient_estimators::{
+use sml_candle::c01_paradigms_and_dichotomies::t03_discrete_vs_continuous_latents_and_gradient_estimators::{
     GaussianReparameterization, GumbelSoftmaxRelaxation,
 };
 use candle_core::{safetensors::load, Device, Result, Tensor};

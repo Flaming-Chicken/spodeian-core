@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t36_equivariant_topological_and_point_cloud_networks_egnn_mpsn as topic;
+use sml_candle::c05_architectures::t36_equivariant_topological_and_point_cloud_networks_egnn_mpsn as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_36_equivariant_topological_and_point_cloud_networks_egnn_mpsn_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("05_architectures/06_graphs_geometric_and_inr/04_equivariant_topological_and_point_cloud_networks_egnn_mpsn.safetensors"),
+        common::get_weights_path(
+            "05_architectures/06_graphs_geometric_and_inr/04_equivariant_topological_and_point_cloud_networks_egnn_mpsn.safetensors",
+        ),
         &device,
     )?;
 

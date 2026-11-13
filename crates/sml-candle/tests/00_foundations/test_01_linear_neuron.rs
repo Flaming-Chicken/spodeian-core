@@ -1,7 +1,7 @@
-use ai_candle::c00_foundations::t01_linear_neuron_and_invertible_transforms::{
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t01_linear_neuron_and_invertible_transforms::{
     CoordinateTransforms, LinearNeuron,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

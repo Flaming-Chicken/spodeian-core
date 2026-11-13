@@ -22,11 +22,7 @@ use std::time::Instant;
 ///
 /// Returns the pre-clipped global norm. If norm exceeds `max_norm`, returns
 /// a new `GradStore` with scaled gradients: g_new = g * (max_norm / (total_norm + 1e-6)).
-pub fn clip_grad_norm(
-    vars: &[Var],
-    grads: &GradStore,
-    max_norm: f64,
-) -> Result<(f64, GradStore)> {
+pub fn clip_grad_norm(vars: &[Var], grads: &GradStore, max_norm: f64) -> Result<(f64, GradStore)> {
     let mut total_sq_sum = 0.0f64;
 
     for var in vars {
@@ -61,11 +57,7 @@ pub fn clip_grad_norm(
 }
 
 /// Clips gradients element-wise within `[-clip_value, clip_value]`.
-pub fn clip_grad_value(
-    vars: &[Var],
-    grads: &GradStore,
-    clip_value: f64,
-) -> Result<GradStore> {
+pub fn clip_grad_value(vars: &[Var], grads: &GradStore, clip_value: f64) -> Result<GradStore> {
     let mut clipped_store = GradStore::default();
     for var in vars {
         let t = var.as_tensor();
@@ -237,7 +229,11 @@ impl TensorDataset {
                 });
             }
         }
-        Ok(Self { inputs, targets, length })
+        Ok(Self {
+            inputs,
+            targets,
+            length,
+        })
     }
 
     pub fn len(&self) -> usize {
@@ -259,7 +255,12 @@ pub struct DataLoader<'a> {
 }
 
 impl<'a> DataLoader<'a> {
-    pub fn new(dataset: &'a TensorDataset, batch_size: usize, shuffle: bool, drop_last: bool) -> Self {
+    pub fn new(
+        dataset: &'a TensorDataset,
+        batch_size: usize,
+        shuffle: bool,
+        drop_last: bool,
+    ) -> Self {
         Self::new_seeded(dataset, batch_size, shuffle, drop_last, 42)
     }
 
@@ -302,7 +303,8 @@ impl<'a> Iterator for DataLoader<'a> {
         }
 
         let cur_batch_size = remaining.min(self.batch_size);
-        let batch_indices: Vec<u32> = self.indices[self.current_idx..self.current_idx + cur_batch_size]
+        let batch_indices: Vec<u32> = self.indices
+            [self.current_idx..self.current_idx + cur_batch_size]
             .iter()
             .map(|&idx| idx as u32)
             .collect();

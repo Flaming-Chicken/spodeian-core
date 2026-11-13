@@ -2,7 +2,7 @@
 //! Testing f64, f32, bf16, f16, Posit32, and Information-Theoretic Gating.
 
 use sml_runtime::precision::{
-    compute_scaled_error_norm, get_precision, InformationRateGatingPolicy, NumericType,
+    InformationRateGatingPolicy, NumericType, compute_scaled_error_norm, get_precision,
 };
 use sml_runtime::solvers::{SelfOptimizingMetaIntegrator, SymplecticPreservingIntegrator};
 
@@ -39,7 +39,10 @@ fn test_scale_free_error_norm_invariance() {
     let x_mm = [1000.0, 2000.0]; // 1000x larger
     let norm_mm = compute_scaled_error_norm(&err_mm, &x_mm, &x_mm, 1e-1, 1e-3);
 
-    assert!((norm_m - norm_mm).abs() < 1e-4, "Scale-free norm must be unit-invariant!");
+    assert!(
+        (norm_m - norm_mm).abs() < 1e-4,
+        "Scale-free norm must be unit-invariant!"
+    );
 }
 
 #[test]
@@ -75,7 +78,7 @@ fn test_symplectic_integrator_precision_adaptation() {
 
     // Harmonic oscillator: force = -q, Hamiltonian = 0.5 * (p^2 + q^2)
     let force = |q: &[f32]| vec![-q[0], -q[1]];
-    let ham = |q: &[f32], p: &[f32]| 0.5 * (p[0]*p[0] + p[1]*p[1] + q[0]*q[0] + q[1]*q[1]);
+    let ham = |q: &[f32], p: &[f32]| 0.5 * (p[0] * p[0] + p[1] * p[1] + q[0] * q[0] + q[1] * q[1]);
 
     let (_, _, e_f64) = symp_f64.step(&q, &p, h, target_e, force, ham);
     let (_, _, e_bf16) = symp_bf16.step(&q, &p, h, target_e, force, ham);
@@ -87,7 +90,12 @@ fn test_symplectic_integrator_precision_adaptation() {
 
 #[test]
 fn test_self_optimizing_meta_integrator_with_different_precisions() {
-    for num_type in [NumericType::F64, NumericType::F32, NumericType::Posit32, NumericType::Bf16] {
+    for num_type in [
+        NumericType::F64,
+        NumericType::F32,
+        NumericType::Posit32,
+        NumericType::Bf16,
+    ] {
         let meta = SelfOptimizingMetaIntegrator::default().with_numeric_type(num_type);
         let x0 = vec![1.0, 0.0];
         let (final_x, diagnostics, nfe) = meta.solve_auto(&x0, |x, _t| vec![-x[1], x[0]]);

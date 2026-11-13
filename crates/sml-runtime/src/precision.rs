@@ -7,11 +7,11 @@
 
 pub use crate::conversion::{ConversionMode, ConversionReport, FormatConverter};
 pub use crate::distribution::DistributionFloat;
-use crate::logarithmic::{Log16, Log32, Log64, Log8};
+use crate::logarithmic::{Log8, Log16, Log32, Log64};
 use crate::quantization::{
-    decode_bf16, decode_fp16, decode_fp8_e4m3, decode_fp8_e5m2, decode_posit16, decode_posit8,
-    decode_tf32, encode_bf16, encode_fp16, encode_fp8_e4m3, encode_fp8_e5m2, encode_posit16,
-    encode_posit8, encode_tf32,
+    decode_bf16, decode_fp8_e4m3, decode_fp8_e5m2, decode_fp16, decode_posit8, decode_posit16,
+    decode_tf32, encode_bf16, encode_fp8_e4m3, encode_fp8_e5m2, encode_fp16, encode_posit8,
+    encode_posit16, encode_tf32,
 };
 use serde::{Deserialize, Serialize};
 
@@ -1721,11 +1721,11 @@ impl DataTypeSpec {
             NumericType::F64 => f64::EPSILON,
             NumericType::F32 => f32::EPSILON as f64,
             NumericType::Tf32 => 9.765625e-4, // 2^-10
-            NumericType::Bf16 => 7.8125e-3,    // 2^-7
-            NumericType::F16 => 9.765625e-4,   // 2^-10
-            NumericType::Fp8E4M3 => 0.125,     // 2^-3
-            NumericType::Fp8E5M2 => 0.25,      // 2^-2
-            NumericType::Nf4 => 0.05,          // QLoRA NormalFloat-4 average quantile step
+            NumericType::Bf16 => 7.8125e-3,   // 2^-7
+            NumericType::F16 => 9.765625e-4,  // 2^-10
+            NumericType::Fp8E4M3 => 0.125,    // 2^-3
+            NumericType::Fp8E5M2 => 0.25,     // 2^-2
+            NumericType::Nf4 => 0.05,         // QLoRA NormalFloat-4 average quantile step
             NumericType::Posit64 => {
                 if let Some(v) = val {
                     if v == 0.0 {
@@ -1806,10 +1806,19 @@ impl DataTypeSpec {
         match self.numeric_type {
             NumericType::Posit64 => 1e-15,
             NumericType::F64 | NumericType::Log64 => 1e-8,
-            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => 1e-6,
+            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => {
+                1e-6
+            }
             NumericType::Int64 => 1e-7,
-            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 | NumericType::Int32 => 1e-4,
-            NumericType::Fp8E4M3 | NumericType::Fp8E5M2 | NumericType::Posit8 | NumericType::Log8 => 1e-3,
+            NumericType::F16
+            | NumericType::Bf16
+            | NumericType::Posit16
+            | NumericType::Log16
+            | NumericType::Int32 => 1e-4,
+            NumericType::Fp8E4M3
+            | NumericType::Fp8E5M2
+            | NumericType::Posit8
+            | NumericType::Log8 => 1e-3,
             NumericType::Nf4 => 1e-2,
             NumericType::Ternary => 0.1,
         }
@@ -1822,9 +1831,18 @@ impl DataTypeSpec {
             NumericType::Posit64 => 1e-16,
             NumericType::F64 | NumericType::Log64 => 1e-12,
             NumericType::Int64 => 1e-8,
-            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => 1e-7,
-            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 | NumericType::Int32 => 1e-4,
-            NumericType::Fp8E4M3 | NumericType::Fp8E5M2 | NumericType::Posit8 | NumericType::Log8 => 1e-2,
+            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => {
+                1e-7
+            }
+            NumericType::F16
+            | NumericType::Bf16
+            | NumericType::Posit16
+            | NumericType::Log16
+            | NumericType::Int32 => 1e-4,
+            NumericType::Fp8E4M3
+            | NumericType::Fp8E5M2
+            | NumericType::Posit8
+            | NumericType::Log8 => 1e-2,
             NumericType::Nf4 => 1e-3,
             NumericType::Ternary => 0.1,
         }
@@ -1837,10 +1855,17 @@ impl DataTypeSpec {
             NumericType::Posit64 => 1e-16,
             NumericType::F64 | NumericType::Log64 => 1e-5,
             NumericType::Int64 => 1e-7,
-            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => 1e-3,
+            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => {
+                1e-3
+            }
             NumericType::Int32 => 1e-3,
-            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => 5e-2,
-            NumericType::Fp8E4M3 | NumericType::Fp8E5M2 | NumericType::Posit8 | NumericType::Log8 => 0.1,
+            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => {
+                5e-2
+            }
+            NumericType::Fp8E4M3
+            | NumericType::Fp8E5M2
+            | NumericType::Posit8
+            | NumericType::Log8 => 0.1,
             NumericType::Nf4 => 0.05,
             NumericType::Ternary => 0.1,
         }
@@ -1850,11 +1875,20 @@ impl DataTypeSpec {
     #[inline(always)]
     pub const fn pid_antiwindup_guard(&self) -> f64 {
         match self.numeric_type {
-            NumericType::Posit64 | NumericType::F64 | NumericType::Log64 | NumericType::Int64 => 1e-18,
-            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => 1e-9,
+            NumericType::Posit64 | NumericType::F64 | NumericType::Log64 | NumericType::Int64 => {
+                1e-18
+            }
+            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => {
+                1e-9
+            }
             NumericType::Int32 => 1e-7,
-            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => 1e-5,
-            NumericType::Fp8E4M3 | NumericType::Fp8E5M2 | NumericType::Posit8 | NumericType::Log8 => 1e-4,
+            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => {
+                1e-5
+            }
+            NumericType::Fp8E4M3
+            | NumericType::Fp8E5M2
+            | NumericType::Posit8
+            | NumericType::Log8 => 1e-4,
             NumericType::Nf4 => 1e-3,
             NumericType::Ternary => 1e-2,
         }
@@ -1867,10 +1901,17 @@ impl DataTypeSpec {
         match self.numeric_type {
             NumericType::Posit64 | NumericType::F64 | NumericType::Log64 => 50.0 * base,
             NumericType::Int64 => 20.0 * base,
-            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => 10.0 * base,
+            NumericType::F32 | NumericType::Tf32 | NumericType::Posit32 | NumericType::Log32 => {
+                10.0 * base
+            }
             NumericType::Int32 => 15.0 * base,
-            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => 5.0 * base,
-            NumericType::Fp8E4M3 | NumericType::Fp8E5M2 | NumericType::Posit8 | NumericType::Log8 => 2.0 * base,
+            NumericType::F16 | NumericType::Bf16 | NumericType::Posit16 | NumericType::Log16 => {
+                5.0 * base
+            }
+            NumericType::Fp8E4M3
+            | NumericType::Fp8E5M2
+            | NumericType::Posit8
+            | NumericType::Log8 => 2.0 * base,
             NumericType::Nf4 => 3.0 * base,
             NumericType::Ternary => 5.0 * base,
         }
@@ -2028,11 +2069,14 @@ impl QuantizationRanker {
                 let bytes = spec.storage_bytes.max(1);
 
                 // Dynamic range in dB: 20 * log10(max / min)
-                let dynamic_range_db = if spec.min_positive > 0.0 && spec.max_normal > spec.min_positive {
-                    20.0 * (spec.max_normal / spec.min_positive).log10().clamp(1.0, 700.0)
-                } else {
-                    12.0
-                };
+                let dynamic_range_db =
+                    if spec.min_positive > 0.0 && spec.max_normal > spec.min_positive {
+                        20.0 * (spec.max_normal / spec.min_positive)
+                            .log10()
+                            .clamp(1.0, 700.0)
+                    } else {
+                        12.0
+                    };
 
                 // Theoretical SQNR (Signal-to-Quantization-Noise Ratio): 6.02 * bits + 1.76 dB
                 let effective_bits = spec.mantissa_bits_max as f64 + 1.0;
@@ -2089,13 +2133,18 @@ impl QuantizationRanker {
                     QuantizationEvaluationMode::Integrator => {
                         format!(
                             "eps={:.1e}, DR={:.1}dB, bytes={}, speed={:.1}x",
-                            eps, dynamic_range_db, bytes, 1.0 / latency_rel
+                            eps,
+                            dynamic_range_db,
+                            bytes,
+                            1.0 / latency_rel
                         )
                     }
                     QuantizationEvaluationMode::AiOptimizer => {
                         format!(
                             "bytes={}, speed={:.1}x, SQNR={:.1}dB, noise-floor robust",
-                            bytes, 1.0 / latency_rel, sqnr_db
+                            bytes,
+                            1.0 / latency_rel,
+                            sqnr_db
                         )
                     }
                 };
@@ -2116,7 +2165,11 @@ impl QuantizationRanker {
             .collect();
 
         // Sort descending by Pareto score
-        entries.sort_by(|a, b| b.pareto_score.partial_cmp(&a.pareto_score).unwrap_or(std::cmp::Ordering::Equal));
+        entries.sort_by(|a, b| {
+            b.pareto_score
+                .partial_cmp(&a.pareto_score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         // Assign recommendation ranks 1..N
         for (i, entry) in entries.iter_mut().enumerate() {
@@ -2191,7 +2244,7 @@ impl Default for InformationRateGatingPolicy {
             eval_latency_ema_sec: 1e-5, // Initial prior: 10 µs per evaluation
             lambda_pareto: 1e5,         // 100,000 bits / sec default exchange rate
             ema_alpha: 0.1,
-            min_bits_threshold: 0.05,    // At least 0.05 bits of state uncertainty reduction
+            min_bits_threshold: 0.05, // At least 0.05 bits of state uncertainty reduction
         }
     }
 }
@@ -2213,7 +2266,12 @@ impl InformationRateGatingPolicy {
     }
 
     /// Computes the trajectory information gained (in bits) between two successive integration states.
-    pub fn compute_information_gain(&self, prior_state: &[f64], posterior_state: &[f64], tol: f64) -> f64 {
+    pub fn compute_information_gain(
+        &self,
+        prior_state: &[f64],
+        posterior_state: &[f64],
+        tol: f64,
+    ) -> f64 {
         let mut diff_sq = 0.0f64;
         for i in 0..prior_state.len() {
             let d = posterior_state[i] - prior_state[i];
@@ -2286,7 +2344,10 @@ mod tests {
 
         // In integrator mode, highest precision formats (Posit64, F64, Log64) dominate the top tier
         let top_integ_types: Vec<_> = integ_ranks.iter().take(4).map(|e| e.dtype).collect();
-        assert!(top_integ_types.contains(&NumericType::Posit64) || top_integ_types.contains(&NumericType::F64));
+        assert!(
+            top_integ_types.contains(&NumericType::Posit64)
+                || top_integ_types.contains(&NumericType::F64)
+        );
 
         // In AI mode, compact formats (F16, Posit16, Log16, Int32, Ternary) dominate due to memory bandwidth
         let top_ai_types: Vec<_> = ai_ranks.iter().take(5).map(|e| e.dtype).collect();
@@ -2301,7 +2362,10 @@ mod tests {
                     | NumericType::Fp8E4M3
             )
         });
-        assert!(has_compact, "Top AI types should favor compact representations");
+        assert!(
+            has_compact,
+            "Top AI types should favor compact representations"
+        );
     }
 
     #[test]

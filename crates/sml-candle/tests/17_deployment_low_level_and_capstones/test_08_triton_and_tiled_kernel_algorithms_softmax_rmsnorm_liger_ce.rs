@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c17_deployment_low_level_and_capstones::t08_triton_and_tiled_kernel_algorithms_softmax_rmsnorm_liger_ce as topic;
+use sml_candle::c17_deployment_low_level_and_capstones::t08_triton_and_tiled_kernel_algorithms_softmax_rmsnorm_liger_ce as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

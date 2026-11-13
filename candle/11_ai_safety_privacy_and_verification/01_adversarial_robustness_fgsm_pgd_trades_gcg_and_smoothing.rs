@@ -128,7 +128,7 @@ pub fn trades_loss(
 
 /// Normal quantile function (probit) via Acklam's rational approximation.
 pub fn probit(p: f32) -> f32 {
-    let p_clamped = p.max(1e-7).min(1.0 - 1e-7);
+    let p_clamped = p.clamp(1e-7, 1.0 - 1e-7);
     let a = [
         -3.969683028665376e+01,
         2.209460984245205e+02,

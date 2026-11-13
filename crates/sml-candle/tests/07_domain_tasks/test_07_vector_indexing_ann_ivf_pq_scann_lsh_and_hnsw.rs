@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t07_vector_indexing_ann_ivf_pq_scann_lsh_and_hnsw as topic;
+use sml_candle::c07_domain_tasks::t07_vector_indexing_ann_ivf_pq_scann_lsh_and_hnsw as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

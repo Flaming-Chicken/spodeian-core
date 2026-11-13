@@ -236,7 +236,7 @@ pub async fn dice_loss_wgpu(
     eps: f32,
 ) -> Option<f32> {
     let total_elements = probs.len() as u32;
-    let byte_size = (probs.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(probs) as u64;
 
     let p_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Dice Probs Buffer"),
@@ -404,7 +404,7 @@ pub async fn dice_loss_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_elements + 63) / 64;
+        let workgroups = total_elements.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -452,10 +452,10 @@ pub async fn soft_dice_auto(
     targets: &[f32],
     eps: f32,
 ) -> f32 {
-    if let Some(ctx) = context {
-        if let Some(res) = dice_loss_wgpu(&ctx.0, &ctx.1, probs, targets, eps).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = dice_loss_wgpu(&ctx.0, &ctx.1, probs, targets, eps).await
+    {
+        return res;
     }
     soft_dice_loss_cpu(probs, targets, eps)
 }

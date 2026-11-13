@@ -174,8 +174,8 @@ pub async fn rope_wgpu(
 ) -> Option<Vec<f32>> {
     let half_dim = (dim / 2) as u32;
     let total_pairs = (seq_len as u32) * half_dim;
-    let byte_size = (x.len() * std::mem::size_of::<f32>()) as u64;
-    let _angle_byte_size = (cos.len() * std::mem::size_of::<f32>()) as u64;
+    let byte_size = std::mem::size_of_val(x) as u64;
+    let _angle_byte_size = std::mem::size_of_val(cos) as u64;
 
     let in_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("RoPE Input Buffer"),
@@ -331,7 +331,7 @@ pub async fn rope_wgpu(
         });
         compute_pass.set_pipeline(&pipeline);
         compute_pass.set_bind_group(0, &bind_group, &[]);
-        let workgroups = (total_pairs + 63) / 64;
+        let workgroups = total_pairs.div_ceil(64);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
@@ -364,10 +364,10 @@ pub async fn rope_auto(
     seq_len: usize,
     dim: usize,
 ) -> Vec<f32> {
-    if let Some(ctx) = context {
-        if let Some(res) = rope_wgpu(&ctx.0, &ctx.1, x, cos, sin, seq_len, dim).await {
-            return res;
-        }
+    if let Some(ctx) = context
+        && let Some(res) = rope_wgpu(&ctx.0, &ctx.1, x, cos, sin, seq_len, dim).await
+    {
+        return res;
     }
     rope_cpu(x, cos, sin, seq_len, dim)
 }

@@ -412,12 +412,7 @@ impl UmbralIntegerState {
     /// - Tracks discrete sign-flips across lattice cells.
     /// - Scales displacement by $Q$ and accumulates into rational residues.
     /// - Updates lattice coordinates $N_i$ strictly via integer carries.
-    pub fn step_discrete(
-        &mut self,
-        diffs: &[i32],
-        lr_numerator: i32,
-        lr_denominator: i32,
-    ) {
+    pub fn step_discrete(&mut self, diffs: &[i32], lr_numerator: i32, lr_denominator: i32) {
         let mut coords = std::mem::take(&mut self.lattice_coords);
         self.step_discrete_in_place(&mut coords, diffs, lr_numerator, lr_denominator);
         self.lattice_coords = coords;
@@ -483,7 +478,11 @@ mod tests {
 
         // Must contract from 100 down toward 0 on the integer lattice
         let max_abs = state.lattice_coords.iter().map(|&x| x.abs()).max().unwrap();
-        assert!(max_abs <= 2, "Umbral integer state must contract to discrete neighborhood of origin, got max {}", max_abs);
+        assert!(
+            max_abs <= 2,
+            "Umbral integer state must contract to discrete neighborhood of origin, got max {}",
+            max_abs
+        );
     }
 
     #[test]
@@ -520,7 +519,11 @@ mod tests {
             state_i16.step_discrete_i16_in_place(&mut coords_i16, &diffs, 1, 1);
         }
         let max_abs_i16 = coords_i16.iter().map(|&x| x.abs()).max().unwrap();
-        assert!(max_abs_i16 <= 2, "i16 state must contract to origin, got max {}", max_abs_i16);
+        assert!(
+            max_abs_i16 <= 2,
+            "i16 state must contract to origin, got max {}",
+            max_abs_i16
+        );
 
         let mut state_i8 = UmbralIntegerState::new(n, 1024);
         let mut coords_i8 = vec![30i8; n];
@@ -529,7 +532,11 @@ mod tests {
             state_i8.step_discrete_i8_in_place(&mut coords_i8, &diffs, 1, 1);
         }
         let max_abs_i8 = coords_i8.iter().map(|&x| x.abs()).max().unwrap();
-        assert!(max_abs_i8 <= 2, "i8 state must contract to origin, got max {}", max_abs_i8);
+        assert!(
+            max_abs_i8 <= 2,
+            "i8 state must contract to origin, got max {}",
+            max_abs_i8
+        );
     }
 
     #[test]
@@ -543,7 +550,11 @@ mod tests {
             state_i64.step_discrete_i64_in_place(&mut coords_i64, &diffs, 1, 1);
         }
         let max_abs_i64 = coords_i64.iter().map(|&x| x.abs()).max().unwrap();
-        assert!(max_abs_i64 <= 2, "i64 state must contract to origin, got max {}", max_abs_i64);
+        assert!(
+            max_abs_i64 <= 2,
+            "i64 state must contract to origin, got max {}",
+            max_abs_i64
+        );
 
         // Test ternary {-1, 0, +1} lattice convergence
         let mut state_ternary = UmbralIntegerState::new(n, 1024);
@@ -553,10 +564,18 @@ mod tests {
             state_ternary.step_discrete_ternary_in_place(&mut coords_ternary, &diffs, 1, 1);
             // All coordinates must remain strictly in {-1, 0, 1}
             for &c in &coords_ternary {
-                assert!((-1..=1).contains(&c), "Ternary coordinate {} out of range", c);
+                assert!(
+                    (-1..=1).contains(&c),
+                    "Ternary coordinate {} out of range",
+                    c
+                );
             }
         }
         let max_abs_ternary = coords_ternary.iter().map(|&x| x.abs()).max().unwrap();
-        assert!(max_abs_ternary <= 1, "Ternary state must remain in bounds, got max {}", max_abs_ternary);
+        assert!(
+            max_abs_ternary <= 1,
+            "Ternary state must remain in bounds, got max {}",
+            max_abs_ternary
+        );
     }
 }

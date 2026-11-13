@@ -1,10 +1,10 @@
 //! Integration test for Category 03 Topic 01: Activation Functions Zoo (Candle Track).
 
-use ai_candle::c03_building_blocks_and_losses::t01_activation_functions_zoo::{
-    geglu_forward, leaky_relu_forward, relu_forward, selu_forward, silu_forward, snake_forward,
-    swiglu_forward, LinearAnchor,
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c03_building_blocks_and_losses::t01_activation_functions_zoo::{
+    LinearAnchor, geglu_forward, leaky_relu_forward, relu_forward, selu_forward, silu_forward,
+    snake_forward, swiglu_forward,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

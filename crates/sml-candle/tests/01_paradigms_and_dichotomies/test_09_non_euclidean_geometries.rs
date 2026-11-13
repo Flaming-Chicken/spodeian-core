@@ -1,6 +1,6 @@
 //! Integration test for Category 01 Topic 09: Non-Euclidean Geometries (Candle Track).
 
-use ai_candle::c01_paradigms_and_dichotomies::t09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd::{
+use sml_candle::c01_paradigms_and_dichotomies::t09_non_euclidean_geometries_hyperbolic_poincare_spherical_and_spd::{
     poincare_distance, poincare_exp_zero, poincare_log_zero, poincare_mobius_add,
     spd_log_euclidean_distance_2x2, spherical_alignment, spherical_distance,
 };

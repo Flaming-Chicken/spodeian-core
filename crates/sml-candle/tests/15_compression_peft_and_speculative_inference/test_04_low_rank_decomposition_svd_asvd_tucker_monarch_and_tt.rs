@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c15_compression_peft_and_speculative_inference::t04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt as topic;
+use sml_candle::c15_compression_peft_and_speculative_inference::t04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt.safetensors"),
+        common::get_weights_path(
+            "15_compression_peft_and_speculative_inference/01_pruning_sparsity_lowrank_and_distillation/04_low_rank_decomposition_svd_asvd_tucker_monarch_and_tt.safetensors",
+        ),
         &device,
     )?;
 

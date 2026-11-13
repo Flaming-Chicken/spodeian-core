@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c07_domain_tasks::t11_recommenders_dlrm_dcnv2_sasrec_and_tiger_semantic_ids as topic;
+use sml_candle::c07_domain_tasks::t11_recommenders_dlrm_dcnv2_sasrec_and_tiger_semantic_ids as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

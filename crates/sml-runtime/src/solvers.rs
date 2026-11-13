@@ -35,9 +35,7 @@ impl ErrorAggregationNorm {
                 let sum_sq: f32 = err_vec.iter().map(|&x| x * x).sum();
                 sum_sq.sqrt()
             }
-            Self::LInf => {
-                err_vec.iter().fold(0.0f32, |acc, &x| acc.max(x.abs()))
-            }
+            Self::LInf => err_vec.iter().fold(0.0f32, |acc, &x| acc.max(x.abs())),
             Self::L1Mean => {
                 let sum_abs: f32 = err_vec.iter().map(|&x| x.abs()).sum();
                 sum_abs / n as f32
@@ -212,10 +210,11 @@ impl Rk4FlowSolver {
     where
         F: FnMut(&[f32], f32) -> Vec<f32>,
     {
-        solve_fixed_trajectory_core(x0, num_steps, |x, t, dt| Self::step(x, t, dt, &mut velocity_fn))
+        solve_fixed_trajectory_core(x0, num_steps, |x, t, dt| {
+            Self::step(x, t, dt, &mut velocity_fn)
+        })
     }
 }
-
 
 // Adaptive Step-Size & Learned Runge-Kutta ODE Solvers for Neural Flow Matching.
 //
@@ -338,7 +337,9 @@ impl<const S: usize> ExplicitButcherTableau<S> {
             k[S - 1] = velocity_fn(&x_next, t + h);
         }
 
-        let e_weights = self.e.expect("adaptive_step requires embedded error weights e");
+        let e_weights = self
+            .e
+            .expect("adaptive_step requires embedded error weights e");
         let mut sum_sq_err = 0.0f32;
         for d in 0..n {
             let mut err_i = 0.0f32;
@@ -461,11 +462,43 @@ pub const DP45_TABLEAU: ExplicitButcherTableau<7> = ExplicitButcherTableau {
         [1.0 / 5.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         [3.0 / 40.0, 9.0 / 40.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         [44.0 / 45.0, -56.0 / 15.0, 32.0 / 9.0, 0.0, 0.0, 0.0, 0.0],
-        [19372.0 / 6561.0, -25360.0 / 2187.0, 64448.0 / 6561.0, -212.0 / 729.0, 0.0, 0.0, 0.0],
-        [9017.0 / 3168.0, -355.0 / 33.0, 46732.0 / 5247.0, 49.0 / 176.0, -5103.0 / 18656.0, 0.0, 0.0],
-        [35.0 / 384.0, 0.0, 500.0 / 1113.0, 125.0 / 192.0, -2187.0 / 6784.0, 11.0 / 84.0, 0.0],
+        [
+            19372.0 / 6561.0,
+            -25360.0 / 2187.0,
+            64448.0 / 6561.0,
+            -212.0 / 729.0,
+            0.0,
+            0.0,
+            0.0,
+        ],
+        [
+            9017.0 / 3168.0,
+            -355.0 / 33.0,
+            46732.0 / 5247.0,
+            49.0 / 176.0,
+            -5103.0 / 18656.0,
+            0.0,
+            0.0,
+        ],
+        [
+            35.0 / 384.0,
+            0.0,
+            500.0 / 1113.0,
+            125.0 / 192.0,
+            -2187.0 / 6784.0,
+            11.0 / 84.0,
+            0.0,
+        ],
     ],
-    b: [35.0 / 384.0, 0.0, 500.0 / 1113.0, 125.0 / 192.0, -2187.0 / 6784.0, 11.0 / 84.0, 0.0],
+    b: [
+        35.0 / 384.0,
+        0.0,
+        500.0 / 1113.0,
+        125.0 / 192.0,
+        -2187.0 / 6784.0,
+        11.0 / 84.0,
+        0.0,
+    ],
     e: Some([
         71.0 / 57600.0,
         0.0,
@@ -703,10 +736,16 @@ pub const TSIT54_TABLEAU: ExplicitButcherTableau<7> = ExplicitButcherTableau {
         [-0.008415641, 0.33541564, 0.0, 0.0, 0.0, 0.0, 0.0],
         [2.8971078, -6.3388076, 4.3416998, 0.0, 0.0, 0.0, 0.0],
         [1.6080186, -3.530745, 2.302485, 0.6002668, 0.0, 0.0, 0.0],
-        [1.7700564, -3.436595, 2.0665582, 0.49523602, 0.10474432, 0.0, 0.0],
-        [0.09646077, 0.01, 0.47988965, 1.3790085, -3.2900696, 2.3247106, 0.0],
+        [
+            1.7700564, -3.436595, 2.0665582, 0.49523602, 0.10474432, 0.0, 0.0,
+        ],
+        [
+            0.09646077, 0.01, 0.47988965, 1.3790085, -3.2900696, 2.3247106, 0.0,
+        ],
     ],
-    b: [0.09646077, 0.01, 0.47988965, 1.3790085, -3.2900696, 2.3247106, 0.0],
+    b: [
+        0.09646077, 0.01, 0.47988965, 1.3790085, -3.2900696, 2.3247106, 0.0,
+    ],
     e: Some([
         0.001780011,
         0.00081643446,
@@ -802,10 +841,7 @@ impl Tsitouras54 {
 /// Heun 2nd-Order Adaptive Butcher Tableau (Heun2).
 pub const HEUN2_TABLEAU: ExplicitButcherTableau<2> = ExplicitButcherTableau {
     c: [0.0, 1.0],
-    a: [
-        [0.0, 0.0],
-        [1.0, 0.0],
-    ],
+    a: [[0.0, 0.0], [1.0, 0.0]],
     b: [0.5, 0.5],
     e: Some([-0.5, 0.5]),
     is_fsal: false,
@@ -1133,7 +1169,10 @@ impl PcecAdamsMoulton4 {
         H: AsRef<[f32]>,
     {
         let n = x.len();
-        assert!(f_history.len() >= 4, "PCEC-4 requires at least 4 historical derivatives");
+        assert!(
+            f_history.len() >= 4,
+            "PCEC-4 requires at least 4 historical derivatives"
+        );
         let f0 = f_history[0].as_ref();
         let f1 = f_history[1].as_ref();
         let f2 = f_history[2].as_ref();
@@ -1186,7 +1225,8 @@ impl PcecAdamsMoulton4 {
 
         let dt = 1.0f32 / steps as f32;
         let mut current_x = x0.to_vec();
-        let mut f_history: std::collections::VecDeque<Vec<f32>> = std::collections::VecDeque::with_capacity(4);
+        let mut f_history: std::collections::VecDeque<Vec<f32>> =
+            std::collections::VecDeque::with_capacity(4);
 
         // Bootstrap the first 3 steps with RK4 to populate history
         for step_idx in 0..3 {
@@ -1201,12 +1241,8 @@ impl PcecAdamsMoulton4 {
         // Run remaining steps via PCEC
         for step_idx in 3..steps {
             let t = step_idx as f32 * dt;
-            let hist_refs: [&[f32]; 4] = [
-                &f_history[0],
-                &f_history[1],
-                &f_history[2],
-                &f_history[3],
-            ];
+            let hist_refs: [&[f32]; 4] =
+                [&f_history[0], &f_history[1], &f_history[2], &f_history[3]];
             let (next_x, next_f, _) = Self::step(&current_x, t, dt, &hist_refs, &mut velocity_fn);
             current_x = next_x;
             f_history.pop_back();
@@ -1260,12 +1296,7 @@ impl EulerMaruyamaSde {
 pub struct SymplecticVelocityVerlet;
 
 impl SymplecticVelocityVerlet {
-    pub fn step<F>(
-        q: &[f32],
-        p: &[f32],
-        h: f32,
-        mut force_fn: F,
-    ) -> (Vec<f32>, Vec<f32>)
+    pub fn step<F>(q: &[f32], p: &[f32], h: f32, mut force_fn: F) -> (Vec<f32>, Vec<f32>)
     where
         F: FnMut(&[f32]) -> Vec<f32>,
     {
@@ -1290,8 +1321,6 @@ impl SymplecticVelocityVerlet {
         (q_next, p_next)
     }
 }
-
-
 
 // ============================================================================
 // Extended Runge-Kutta & Implicit Solvers (RK1, RK2, RK3, RK34, Implicit Euler/Midpoint)
@@ -1355,11 +1384,7 @@ impl MidpointRk2 {
 /// Classical 3rd-Order Kutta Butcher Tableau (Kutta3).
 pub const KUTTA3_TABLEAU: ExplicitButcherTableau<3> = ExplicitButcherTableau {
     c: [0.0, 0.5, 1.0],
-    a: [
-        [0.0, 0.0, 0.0],
-        [0.5, 0.0, 0.0],
-        [-1.0, 2.0, 0.0],
-    ],
+    a: [[0.0, 0.0, 0.0], [0.5, 0.0, 0.0], [-1.0, 2.0, 0.0]],
     b: [1.0 / 6.0, 4.0 / 6.0, 1.0 / 6.0],
     e: None,
     is_fsal: false,
@@ -1458,7 +1483,14 @@ impl Fehlberg34 {
 pub struct ImplicitBackwardEuler;
 
 impl ImplicitBackwardEuler {
-    pub fn step<F>(x: &[f32], t: f32, h: f32, max_iters: usize, tol: f32, mut velocity_fn: F) -> Vec<f32>
+    pub fn step<F>(
+        x: &[f32],
+        t: f32,
+        h: f32,
+        max_iters: usize,
+        tol: f32,
+        mut velocity_fn: F,
+    ) -> Vec<f32>
     where
         F: FnMut(&[f32], f32) -> Vec<f32>,
     {
@@ -1505,7 +1537,14 @@ impl ImplicitBackwardEuler {
 pub struct ImplicitMidpoint;
 
 impl ImplicitMidpoint {
-    pub fn step<F>(x: &[f32], t: f32, h: f32, max_iters: usize, tol: f32, mut velocity_fn: F) -> Vec<f32>
+    pub fn step<F>(
+        x: &[f32],
+        t: f32,
+        h: f32,
+        max_iters: usize,
+        tol: f32,
+        mut velocity_fn: F,
+    ) -> Vec<f32>
     where
         F: FnMut(&[f32], f32) -> Vec<f32>,
     {
@@ -1557,35 +1596,65 @@ impl ImplicitMidpoint {
 /// Polymorphic trait for continuous probability flow solvers.
 pub trait ContinuousFlowSolver {
     /// Integrates trajectory from $t=0$ to $t=1$ over the specified step count.
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32>;
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32>;
 }
 
 impl ContinuousFlowSolver for Rk4FlowSolver {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         Self::solve_trajectory(x0, steps, |x, t| velocity_fn(x, t))
     }
 }
 
 impl ContinuousFlowSolver for EulerForwardRk1 {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         Self::solve_trajectory(x0, steps, |x, t| velocity_fn(x, t))
     }
 }
 
 impl ContinuousFlowSolver for MidpointRk2 {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         Self::solve_trajectory(x0, steps, |x, t| velocity_fn(x, t))
     }
 }
 
 impl ContinuousFlowSolver for KuttaRk3 {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         Self::solve_trajectory(x0, steps, |x, t| velocity_fn(x, t))
     }
 }
 
 impl ContinuousFlowSolver for PcecAdamsMoulton4 {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         Self::solve_trajectory(x0, steps, |x, t| velocity_fn(x, t))
     }
 }
@@ -1728,7 +1797,12 @@ impl TrainedPcecIntegrator {
         let curvature = (diff_norm_sq / v_norm_sq.max(denom_guard)).sqrt();
 
         // Helper closure to compute robust metrics and propagate error
-        let compute_metrics = |mode: EvalMode, nfe: usize, trunc_err: f32, v_eval: &[f32], acc_err: &mut Option<&mut [f32]>| -> StepMetrics {
+        let compute_metrics = |mode: EvalMode,
+                               nfe: usize,
+                               trunc_err: f32,
+                               v_eval: &[f32],
+                               acc_err: &mut Option<&mut [f32]>|
+         -> StepMetrics {
             if !self.robust_error_config.enabled {
                 return StepMetrics {
                     nfe,
@@ -1742,7 +1816,10 @@ impl TrainedPcecIntegrator {
                 };
             }
 
-            let v_err = self.robust_error_config.input_error.velocity_error_at(v_eval);
+            let v_err = self
+                .robust_error_config
+                .input_error
+                .velocity_error_at(v_eval);
             let given_l = self.robust_error_config.input_error.lipschitz_bound;
 
             let mut noise_active = false;
@@ -1774,7 +1851,8 @@ impl TrainedPcecIntegrator {
                 self.robust_error_config.aggregation_norm.compute(&temp_acc)
             };
 
-            let total_bound = self.robust_error_config.safety_factor * (trunc_err * trunc_err + prop_scalar * prop_scalar).sqrt();
+            let total_bound = self.robust_error_config.safety_factor
+                * (trunc_err * trunc_err + prop_scalar * prop_scalar).sqrt();
             if self.robust_error_config.noise_floor_aware_stepping && prop_scalar > trunc_err {
                 noise_active = true;
             }
@@ -1794,7 +1872,13 @@ impl TrainedPcecIntegrator {
         // Tier 1: Ultra-smooth regime -> PE (1 NFE)
         if curvature < self.curvature_threshold_pe {
             let trunc = curvature * h * h * 0.1;
-            let metrics = compute_metrics(EvalMode::Pe, total_nfe, trunc, &v_pred, &mut accumulated_input_err);
+            let metrics = compute_metrics(
+                EvalMode::Pe,
+                total_nfe,
+                trunc,
+                &v_pred,
+                &mut accumulated_input_err,
+            );
             return (x_pred, v_pred, metrics);
         }
 
@@ -1820,7 +1904,13 @@ impl TrainedPcecIntegrator {
 
         if should_stop_at_pec {
             let trunc = curvature * h * h * 0.05;
-            let metrics = compute_metrics(EvalMode::Pec, total_nfe, trunc, &v_pred, &mut accumulated_input_err);
+            let metrics = compute_metrics(
+                EvalMode::Pec,
+                total_nfe,
+                trunc,
+                &v_pred,
+                &mut accumulated_input_err,
+            );
             return (x_corr, v_pred, metrics);
         }
 
@@ -1831,7 +1921,13 @@ impl TrainedPcecIntegrator {
         // Tier 3: Moderate curvature -> PECE (2 NFE, derivative re-evaluated for accuracy)
         if curvature < self.curvature_threshold_pece {
             let trunc = curvature * h * h * 0.02;
-            let metrics = compute_metrics(EvalMode::Pece, total_nfe, trunc, &v_corr, &mut accumulated_input_err);
+            let metrics = compute_metrics(
+                EvalMode::Pece,
+                total_nfe,
+                trunc,
+                &v_corr,
+                &mut accumulated_input_err,
+            );
             return (x_corr, v_corr, metrics);
         }
 
@@ -1846,7 +1942,13 @@ impl TrainedPcecIntegrator {
         }
 
         let trunc = curvature * h * h * 0.005;
-        let metrics = compute_metrics(EvalMode::Pecec, total_nfe, trunc, &v_corr, &mut accumulated_input_err);
+        let metrics = compute_metrics(
+            EvalMode::Pecec,
+            total_nfe,
+            trunc,
+            &v_corr,
+            &mut accumulated_input_err,
+        );
         (x_refined, v_corr, metrics)
     }
 
@@ -1900,7 +2002,11 @@ impl TrainedPcecIntegrator {
         }
 
         let mut accumulated_err = if self.robust_error_config.enabled {
-            Some(self.robust_error_config.input_error.initial_state_error(&curr_x))
+            Some(
+                self.robust_error_config
+                    .input_error
+                    .initial_state_error(&curr_x),
+            )
         } else {
             None
         };
@@ -1965,7 +2071,11 @@ impl TrainedPcecIntegrator {
         }
 
         let mut accumulated_err = if self.robust_error_config.enabled {
-            Some(self.robust_error_config.input_error.initial_state_error(&curr_x))
+            Some(
+                self.robust_error_config
+                    .input_error
+                    .initial_state_error(&curr_x),
+            )
         } else {
             None
         };
@@ -2051,7 +2161,8 @@ impl TrainedPcecIntegrator {
         let mut v_curr = v0;
         for s in 0..num_steps {
             let t = s as f32 * dt;
-            let (next_x, v_next, step_metric) = self.step(&curr_x, &history, t, dt, &mut velocity_fn);
+            let (next_x, v_next, step_metric) =
+                self.step(&curr_x, &history, t, dt, &mut velocity_fn);
 
             dense.push_segment(
                 t,
@@ -2078,7 +2189,12 @@ impl TrainedPcecIntegrator {
 }
 
 impl ContinuousFlowSolver for TrainedPcecIntegrator {
-    fn solve_flow(&self, x0: &[f32], steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         let (res, _) = self.solve_trajectory(x0, steps, |x, t| velocity_fn(x, t));
         res
     }
@@ -2133,7 +2249,12 @@ impl CurvatureGatedStepper {
         self
     }
 
-    pub fn compute_step_size_robust(&self, current_h: f32, curvature: f32, input_error_floor: Option<f32>) -> (f32, bool) {
+    pub fn compute_step_size_robust(
+        &self,
+        current_h: f32,
+        curvature: f32,
+        input_error_floor: Option<f32>,
+    ) -> (f32, bool) {
         let prec = DataTypeSpec::of(self.numeric_type);
         let min_eps = prec.machine_epsilon(None) as f32 * 5.0;
         let antiwindup = prec.pid_antiwindup_guard() as f32;
@@ -2144,19 +2265,20 @@ impl CurvatureGatedStepper {
         let est_error = curvature * current_h * current_h;
 
         // Noise floor guard: relax target tolerance when input noise exceeds truncation precision
-        let (eff_target_error, noise_active) = if self.robust_error_config.noise_floor_aware_stepping {
-            if let Some(err_floor) = input_error_floor {
-                if err_floor > self.target_error {
-                    (self.target_error.max(0.5 * err_floor), true)
+        let (eff_target_error, noise_active) =
+            if self.robust_error_config.noise_floor_aware_stepping {
+                if let Some(err_floor) = input_error_floor {
+                    if err_floor > self.target_error {
+                        (self.target_error.max(0.5 * err_floor), true)
+                    } else {
+                        (self.target_error, false)
+                    }
                 } else {
                     (self.target_error, false)
                 }
             } else {
                 (self.target_error, false)
-            }
-        } else {
-            (self.target_error, false)
-        };
+            };
 
         let ratio = eff_target_error / est_error.max(antiwindup);
         let scale = self.safety_factor * ratio.sqrt().clamp(0.2, 2.5);
@@ -2187,7 +2309,11 @@ impl CurvatureGatedStepper {
         let denom_guard = prec.denominator_guard() as f32;
 
         let mut accumulated_err = if self.robust_error_config.enabled {
-            Some(self.robust_error_config.input_error.initial_state_error(&curr_x))
+            Some(
+                self.robust_error_config
+                    .input_error
+                    .initial_state_error(&curr_x),
+            )
         } else {
             None
         };
@@ -2234,7 +2360,8 @@ impl CurvatureGatedStepper {
                         let phi = 1.0 + h * l_eff;
                         acc[i] = phi * acc[i] + h * v_err[i];
                     }
-                    current_err_scalar = Some(self.robust_error_config.aggregation_norm.compute(acc));
+                    current_err_scalar =
+                        Some(self.robust_error_config.aggregation_norm.compute(acc));
                 }
             }
 
@@ -2248,7 +2375,8 @@ impl CurvatureGatedStepper {
         let (prop_err, total_err) = if self.robust_error_config.enabled {
             if let Some(ref acc) = accumulated_err {
                 let p = self.robust_error_config.aggregation_norm.compute(acc);
-                let tot = self.robust_error_config.safety_factor * (final_trunc_err * final_trunc_err + p * p).sqrt();
+                let tot = self.robust_error_config.safety_factor
+                    * (final_trunc_err * final_trunc_err + p * p).sqrt();
                 (Some(p), Some(tot))
             } else {
                 (None, None)
@@ -2372,7 +2500,8 @@ impl SymplecticPreservingIntegrator {
         let norm_p_sq: f32 = p_next.iter().map(|&v| v * v).sum();
         let mut scale = 1.0f32;
         if norm_p_sq > denom_guard && delta_e.abs() > drift_guard {
-            scale = (1.0 - self.energy_correction_gain * delta_e / (norm_p_sq + denom_guard)).clamp(0.5, 1.5);
+            scale = (1.0 - self.energy_correction_gain * delta_e / (norm_p_sq + denom_guard))
+                .clamp(0.5, 1.5);
             for v in &mut p_corrected {
                 *v *= scale;
             }
@@ -2383,7 +2512,11 @@ impl SymplecticPreservingIntegrator {
         let (prop_err, total_err) = if self.robust_error_config.enabled {
             let n = q.len();
             let f_err = self.robust_error_config.input_error.velocity_error_at(p);
-            let given_l = self.robust_error_config.input_error.lipschitz_bound.unwrap_or(1.0);
+            let given_l = self
+                .robust_error_config
+                .input_error
+                .lipschitz_bound
+                .unwrap_or(1.0);
 
             let (q_err_scalar, p_err_scalar) = match (acc_err_q, acc_err_p) {
                 (Some(eq), Some(ep)) => {
@@ -2421,7 +2554,8 @@ impl SymplecticPreservingIntegrator {
             };
 
             let combined_prop = (q_err_scalar * q_err_scalar + p_err_scalar * p_err_scalar).sqrt();
-            let total_bound = self.robust_error_config.safety_factor * (delta_e.abs() + combined_prop);
+            let total_bound =
+                self.robust_error_config.safety_factor * (delta_e.abs() + combined_prop);
             (Some(combined_prop), Some(total_bound))
         } else {
             (None, None)
@@ -2443,16 +2577,8 @@ impl SymplecticPreservingIntegrator {
         F: FnMut(&[f32]) -> Vec<f32>,
         H: Fn(&[f32], &[f32]) -> f32,
     {
-        let (q_next, p_corr, energy, _, _) = self.step_robust(
-            q,
-            p,
-            h,
-            target_energy,
-            force_fn,
-            hamiltonian_fn,
-            None,
-            None,
-        );
+        let (q_next, p_corr, energy, _, _) =
+            self.step_robust(q, p, h, target_energy, force_fn, hamiltonian_fn, None, None);
         (q_next, p_corr, energy)
     }
 
@@ -2501,7 +2627,9 @@ impl SymplecticPreservingIntegrator {
 
         let norm_p_sq: f64 = p_next.iter().map(|&v| v * v).sum();
         if norm_p_sq > denom_guard && delta_e.abs() > drift_guard {
-            let scale = (1.0 - (self.energy_correction_gain as f64) * delta_e / (norm_p_sq + denom_guard)).clamp(0.5, 1.5);
+            let scale = (1.0
+                - (self.energy_correction_gain as f64) * delta_e / (norm_p_sq + denom_guard))
+                .clamp(0.5, 1.5);
             for v in &mut p_corrected {
                 *v *= scale;
             }
@@ -2674,7 +2802,11 @@ pub fn apply_smooth_gate(z: f32, method: SmoothGatingMethod) -> f32 {
             u * u * (3.0 - 2.0 * u)
         }
         SmoothGatingMethod::HardThreshold => {
-            if z > 0.0 { 1.0 } else { 0.0 }
+            if z > 0.0 {
+                1.0
+            } else {
+                0.0
+            }
         }
     }
 }
@@ -2805,7 +2937,12 @@ impl RoughItoIntegrator {
 
         let mut x_pred = vec![0.0f32; n];
         for i in 0..n {
-            let clamped_drift = apply_smooth_clamp(v1[i] - strat_correction[i], -clamp_limit, clamp_limit, self.clamping_method);
+            let clamped_drift = apply_smooth_clamp(
+                v1[i] - strat_correction[i],
+                -clamp_limit,
+                clamp_limit,
+                self.clamping_method,
+            );
             x_pred[i] = x[i] + h * clamped_drift + sqrt_h * s1[i] * noise_dw[i];
         }
 
@@ -2816,7 +2953,12 @@ impl RoughItoIntegrator {
         match self.order_mode {
             SdeOrderMode::PredictorCorrectorHeun => {
                 for i in 0..n {
-                    let clamped_v2 = apply_smooth_clamp(v2[i] - strat_correction[i], -clamp_limit, clamp_limit, self.clamping_method);
+                    let clamped_v2 = apply_smooth_clamp(
+                        v2[i] - strat_correction[i],
+                        -clamp_limit,
+                        clamp_limit,
+                        self.clamping_method,
+                    );
                     let avg_drift = 0.5 * (v1[i] - strat_correction[i] + clamped_v2);
                     let avg_diff = 0.5 * (s1[i] + s2[i]);
                     x_next[i] = x[i] + h * avg_drift + sqrt_h * avg_diff * noise_dw[i];
@@ -2830,7 +2972,12 @@ impl RoughItoIntegrator {
                 let s_pert = diffusion_fn(&x_pert, t);
 
                 for i in 0..n {
-                    let clamped_v2 = apply_smooth_clamp(v2[i] - strat_correction[i], -clamp_limit, clamp_limit, self.clamping_method);
+                    let clamped_v2 = apply_smooth_clamp(
+                        v2[i] - strat_correction[i],
+                        -clamp_limit,
+                        clamp_limit,
+                        self.clamping_method,
+                    );
                     let avg_drift = 0.5 * (v1[i] - strat_correction[i] + clamped_v2);
                     let dw = noise_dw[i];
                     let milstein_correction = 0.5 * (s_pert[i] - s1[i]) * (dw * dw - 1.0) * sqrt_h;
@@ -2842,7 +2989,11 @@ impl RoughItoIntegrator {
         let (prop_err, total_err) = if self.robust_error_config.enabled {
             let v_err = self.robust_error_config.input_error.velocity_error_at(&v1);
             let s_err = self.robust_error_config.input_error.velocity_error_at(&s1);
-            let given_l = self.robust_error_config.input_error.lipschitz_bound.unwrap_or(1.0);
+            let given_l = self
+                .robust_error_config
+                .input_error
+                .lipschitz_bound
+                .unwrap_or(1.0);
 
             let mut diff_v_norm = 0.0f32;
             let mut diff_s_norm = 0.0f32;
@@ -2850,7 +3001,8 @@ impl RoughItoIntegrator {
                 diff_v_norm += (v2[i] - v1[i]).abs();
                 diff_s_norm += (s2[i] - s1[i]).abs();
             }
-            let local_trunc = (0.5 * h * diff_v_norm + 0.5 * sqrt_h * diff_s_norm) / n.max(1) as f32;
+            let local_trunc =
+                (0.5 * h * diff_v_norm + 0.5 * sqrt_h * diff_s_norm) / n.max(1) as f32;
 
             let prop_scalar = if let Some(acc) = acc_err {
                 for i in 0..n {
@@ -2862,12 +3014,14 @@ impl RoughItoIntegrator {
                 let mut temp_acc = self.robust_error_config.input_error.initial_state_error(x);
                 for i in 0..n {
                     let phi = (1.0 + 0.5 * h * given_l) / (1.0 + 0.1 * h * given_l);
-                    temp_acc[i] = phi * temp_acc[i] + h * v_err[i] + sqrt_h * noise_dw[i].abs() * s_err[i];
+                    temp_acc[i] =
+                        phi * temp_acc[i] + h * v_err[i] + sqrt_h * noise_dw[i].abs() * s_err[i];
                 }
                 self.robust_error_config.aggregation_norm.compute(&temp_acc)
             };
 
-            let total = self.robust_error_config.safety_factor * (local_trunc * local_trunc + prop_scalar * prop_scalar).sqrt();
+            let total = self.robust_error_config.safety_factor
+                * (local_trunc * local_trunc + prop_scalar * prop_scalar).sqrt();
             (Some(prop_scalar), Some(total))
         } else {
             (None, None)
@@ -2889,7 +3043,8 @@ impl RoughItoIntegrator {
         F: FnMut(&[f32], f32) -> Vec<f32>,
         S: FnMut(&[f32], f32) -> Vec<f32>,
     {
-        self.step_robust(x, t, h, noise_dw, drift_fn, diffusion_fn, None).0
+        self.step_robust(x, t, h, noise_dw, drift_fn, diffusion_fn, None)
+            .0
     }
 }
 
@@ -3036,8 +3191,16 @@ impl RateDistortionResidualBuffer {
             let num_levels = 1.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             self.packed_dibits1.fill(0);
             self.packed_dibits2.fill(0);
@@ -3060,8 +3223,16 @@ impl RateDistortionResidualBuffer {
             let num_levels = 7.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             self.packed_nibbles1.fill(0);
             self.packed_nibbles2.fill(0);
@@ -3084,8 +3255,16 @@ impl RateDistortionResidualBuffer {
             let num_levels = 127.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             for i in 0..n {
                 let q1 = ((v1[i] - v0[i]) * inv1).round().clamp(-127.0, 127.0) as i8;
@@ -3125,8 +3304,16 @@ impl RateDistortionResidualBuffer {
             let num_levels = 1.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             self.packed_dibits1.fill(0);
             self.packed_dibits2.fill(0);
@@ -3149,8 +3336,16 @@ impl RateDistortionResidualBuffer {
             let num_levels = 7.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             self.packed_nibbles1.fill(0);
             self.packed_nibbles2.fill(0);
@@ -3173,12 +3368,24 @@ impl RateDistortionResidualBuffer {
             let num_levels = 127.0f32;
             self.scale1 = max_abs1 / num_levels;
             self.scale2 = max_abs2 / num_levels;
-            let inv1 = if self.scale1 > 1e-12 { 1.0 / self.scale1 } else { 0.0 };
-            let inv2 = if self.scale2 > 1e-12 { 1.0 / self.scale2 } else { 0.0 };
+            let inv1 = if self.scale1 > 1e-12 {
+                1.0 / self.scale1
+            } else {
+                0.0
+            };
+            let inv2 = if self.scale2 > 1e-12 {
+                1.0 / self.scale2
+            } else {
+                0.0
+            };
 
             for i in 0..n {
-                let q1 = ((history[i][0] - v0[i]) * inv1).round().clamp(-127.0, 127.0) as i8;
-                let q2 = ((history[i][1] - v0[i]) * inv2).round().clamp(-127.0, 127.0) as i8;
+                let q1 = ((history[i][0] - v0[i]) * inv1)
+                    .round()
+                    .clamp(-127.0, 127.0) as i8;
+                let q2 = ((history[i][1] - v0[i]) * inv2)
+                    .round()
+                    .clamp(-127.0, 127.0) as i8;
                 self.delta1_quant[i] = q1;
                 self.delta2_quant[i] = q2;
             }
@@ -3202,8 +3409,16 @@ impl RateDistortionResidualBuffer {
             let shift = (i & 1) * 4;
             let raw1 = (self.packed_nibbles1[byte_idx] >> shift) & 0x0F;
             let raw2 = (self.packed_nibbles2[byte_idx] >> shift) & 0x0F;
-            let s1 = if raw1 >= 8 { (raw1 as i8) - 16 } else { raw1 as i8 };
-            let s2 = if raw2 >= 8 { (raw2 as i8) - 16 } else { raw2 as i8 };
+            let s1 = if raw1 >= 8 {
+                (raw1 as i8) - 16
+            } else {
+                raw1 as i8
+            };
+            let s2 = if raw2 >= 8 {
+                (raw2 as i8) - 16
+            } else {
+                raw2 as i8
+            };
             (s1, s2)
         } else {
             (self.delta1_quant[i], self.delta2_quant[i])
@@ -3433,7 +3648,10 @@ impl SelfOptimizingMetaIntegrator {
     /// Configures an arbitrary user-defined precision provider implementing `NumericPrecision`.
     /// Allows seamless plug-and-play support for custom floating-point, unum, logarithmic,
     /// normal-float, integer, or exotic arithmetic formats.
-    pub fn with_custom_precision(mut self, precision: std::sync::Arc<dyn crate::precision::NumericPrecision>) -> Self {
+    pub fn with_custom_precision(
+        mut self,
+        precision: std::sync::Arc<dyn crate::precision::NumericPrecision>,
+    ) -> Self {
         self.custom_precision = Some(precision);
         self
     }
@@ -3476,7 +3694,8 @@ impl SelfOptimizingMetaIntegrator {
     /// for high-precision symplectic integration.
     pub fn auto_select_quantization(&mut self) -> NumericType {
         let ranker = crate::precision::QuantizationRanker::for_integrator();
-        let recommended = ranker.recommend_dtype(crate::precision::QuantizationEvaluationMode::Integrator);
+        let recommended =
+            ranker.recommend_dtype(crate::precision::QuantizationEvaluationMode::Integrator);
         self.numeric_type = recommended;
         self.pcec.numeric_type = recommended;
         self.curvature_stepper.numeric_type = recommended;
@@ -3600,7 +3819,9 @@ impl SelfOptimizingMetaIntegrator {
         // Dynamic 5-step backward starter for multi-step history (stack-inlined for n <= 64)
         let mut history: SmallVec<[[f32; 5]; 64]> = smallvec![[0.0f32; 5]; n];
 
-        let use_fast_starter = self.fast_starter || effective_cost_regime == FunctionCostRegime::Expensive || self.max_steps <= 2;
+        let use_fast_starter = self.fast_starter
+            || effective_cost_regime == FunctionCostRegime::Expensive
+            || self.max_steps <= 2;
         if use_fast_starter {
             // Fast 1-NFE instant starter: avoids 2 backward evaluations when step budget is small or evaluation is expensive
             for i in 0..n {
@@ -3635,7 +3856,9 @@ impl SelfOptimizingMetaIntegrator {
         let mut rk_stage_x: SmallVec<[f32; 64]> = smallvec![0.0f32; n];
         let mut rd_buffer = RateDistortionResidualBuffer::new(n);
         let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
-            self.robust_error_config.input_error.initial_state_error(&curr_x)
+            self.robust_error_config
+                .input_error
+                .initial_state_error(&curr_x)
         } else {
             smallvec![]
         };
@@ -3654,7 +3877,8 @@ impl SelfOptimizingMetaIntegrator {
             // Detect evanescent WKB laminar tails (e.g. Airy Ai(t) -> 0 for t > 0) where
             // 5-step explicit extrapolation excites parasitic growing modes Bi(t)
             let prev_v_norm_sq: f32 = (0..n).map(|i| history[i][0] * history[i][0]).sum();
-            let is_evanescent_laminar = n >= 2 && prev_v_norm_sq <= 0.10f32 && prev_curvature < 0.25f32;
+            let is_evanescent_laminar =
+                n >= 2 && prev_v_norm_sq <= 0.10f32 && prev_curvature < 0.25f32;
 
             // 1. Predictor step with dynamic order extension/retraction:
             // - Smooth laminar flow (prev_curvature < 0.3, non-evanescent): EXTEND to Order-5 Adams-Bashforth (LTE = O(h^6))
@@ -3669,7 +3893,10 @@ impl SelfOptimizingMetaIntegrator {
                 // Adams-Bashforth 5th order explicit predictor (LTE = 95/288 * h^6)
                 for i in 0..n {
                     let h_hist = history[i];
-                    let v_ab5 = (1901.0 * h_hist[0] - 2774.0 * h_hist[1] + 2616.0 * h_hist[2] - 1274.0 * h_hist[3] + 251.0 * h_hist[4]) / 720.0;
+                    let v_ab5 = (1901.0 * h_hist[0] - 2774.0 * h_hist[1] + 2616.0 * h_hist[2]
+                        - 1274.0 * h_hist[3]
+                        + 251.0 * h_hist[4])
+                        / 720.0;
                     x_pred[i] = curr_x[i] + h * v_ab5;
                 }
             } else if prev_curvature > 1.2 {
@@ -3678,7 +3905,9 @@ impl SelfOptimizingMetaIntegrator {
                 for i in 0..n {
                     x_pred[i] = curr_x[i] + h * history[i][0] * scale;
                 }
-            } else if self.discontinuity_handling == DiscontinuityHandling::TvdMinModLimiter && step_count >= 2 {
+            } else if self.discontinuity_handling == DiscontinuityHandling::TvdMinModLimiter
+                && step_count >= 2
+            {
                 for i in 0..n {
                     let d1 = history[i][0] - history[i][1];
                     let d2 = history[i][1] - history[i][2];
@@ -3738,14 +3967,20 @@ impl SelfOptimizingMetaIntegrator {
             // Mixed Relative-Absolute Curvature Norm (Hairer & Wanner, Solving ODEs II):
             // Prevents false singularity detection when velocities decay asymptotically toward zero (e.g. Airy Ai(x) -> 0).
             // Derived from user tolerance and machine epsilon: atol_v_sq = max(tol, 10 * eps_mach).
-            let atol_v_sq = self.target_tolerance.max(10.0f32 * eps_mach).max(denom_guard * denom_guard);
+            let atol_v_sq = self
+                .target_tolerance
+                .max(10.0f32 * eps_mach)
+                .max(denom_guard * denom_guard);
             let curvature = (diff_sq / (v_norm_sq + atol_v_sq)).sqrt();
             let cos_angle = dot_prod / (norm_pred_sq.sqrt() * v_norm_sq.sqrt() + denom_guard);
             let is_discontinuous_flip = cos_angle < -0.2f32 && curvature > 0.8f32;
             let is_singular = curvature > 1.5;
 
             // Invalidate and re-bootstrap history when switching across singular regime boundary
-            if is_singular != last_regime_is_singular && step_count > 0 && !self.super_smooth_routing {
+            if is_singular != last_regime_is_singular
+                && step_count > 0
+                && !self.super_smooth_routing
+            {
                 let v_curr = velocity_fn(&curr_x, t);
                 total_nfe += 1;
                 for i in 0..n {
@@ -3767,7 +4002,12 @@ impl SelfOptimizingMetaIntegrator {
                 other => other,
             };
 
-            let (step_nfe, regime, err) = if (effective_discontinuity == DiscontinuityHandling::MoreauFilippovSliding || (self.discontinuity_handling == DiscontinuityHandling::Auto && is_discontinuous_flip)) && is_discontinuous_flip {
+            let (step_nfe, regime, err) = if (effective_discontinuity
+                == DiscontinuityHandling::MoreauFilippovSliding
+                || (self.discontinuity_handling == DiscontinuityHandling::Auto
+                    && is_discontinuous_flip))
+                && is_discontinuous_flip
+            {
                 // Filippov Sliding Mode on Non-Differentiable / Discontinuous Boundary (e.g. Coulomb friction, signum)
                 let alpha = 0.5f32;
                 for i in 0..n {
@@ -3776,8 +4016,16 @@ impl SelfOptimizingMetaIntegrator {
                     v_damped_vec[i] = v_slide;
                 }
                 let slide_err = (1.0f32 + cos_angle.abs()) * h * 0.04f32;
-                (1, "Filippov Sliding Mode (Discontinuous Surface)", slide_err)
-            } else if effective_cost_regime == FunctionCostRegime::Free && self.super_smooth_routing && curvature > 0.05 && curvature < 1.5 {
+                (
+                    1,
+                    "Filippov Sliding Mode (Discontinuous Surface)",
+                    slide_err,
+                )
+            } else if effective_cost_regime == FunctionCostRegime::Free
+                && self.super_smooth_routing
+                && curvature > 0.05
+                && curvature < 1.5
+            {
                 // Free Function: Evaluate embedded 4th-order Runge-Kutta stages using pre-allocated rk_stage_x
                 for i in 0..n {
                     rk_stage_x[i] = curr_x[i] + 0.5 * h * history[i][0];
@@ -3801,18 +4049,31 @@ impl SelfOptimizingMetaIntegrator {
             } else if effective_cost_regime == FunctionCostRegime::Expensive {
                 // Expensive Function: Strictly 1 NFE per step. Use 3rd-order Adams-Bashforth extrapolation
                 for i in 0..n {
-                    let v_ab3 = (23.0 * history[i][0] - 16.0 * history[i][1] + 5.0 * history[i][2]) / 12.0;
+                    let v_ab3 =
+                        (23.0 * history[i][0] - 16.0 * history[i][1] + 5.0 * history[i][2]) / 12.0;
                     stabilized_x[i] = curr_x[i] + h * v_ab3;
                     v_damped_vec[i] = v_ab3;
                 }
                 let ab3_err = (curvature * h * h * 0.02).max(1e-6);
-                (1, "Adams-Bashforth 3 Extrapolation (Expensive Function, 1 NFE)", ab3_err)
-            } else if self.order_5_abm && self.super_smooth_routing && step_count >= 4 && !is_evanescent_laminar && curvature < 1.0 {
+                (
+                    1,
+                    "Adams-Bashforth 3 Extrapolation (Expensive Function, 1 NFE)",
+                    ab3_err,
+                )
+            } else if self.order_5_abm
+                && self.super_smooth_routing
+                && step_count >= 4
+                && !is_evanescent_laminar
+                && curvature < 1.0
+            {
                 // High-Order 5th-Order Adams-Bashforth-Moulton (ABM5, 1 NFE)
                 // AM5 Corrector: LTE = -19/1440 * h^6 * y^(6). Milne's device: 1/26 * |x_corr - x_pred|
                 for i in 0..n {
                     let h_hist = history[i];
-                    let v_am5 = (251.0 * v_pred[i] + 646.0 * h_hist[0] - 264.0 * h_hist[1] + 106.0 * h_hist[2] - 19.0 * h_hist[3]) / 720.0;
+                    let v_am5 = (251.0 * v_pred[i] + 646.0 * h_hist[0] - 264.0 * h_hist[1]
+                        + 106.0 * h_hist[2]
+                        - 19.0 * h_hist[3])
+                        / 720.0;
                     stabilized_x[i] = curr_x[i] + h * v_am5;
                     v_damped_vec[i] = v_am5;
                 }
@@ -3823,7 +4084,9 @@ impl SelfOptimizingMetaIntegrator {
                 }
                 let abm5_err = (lte_sq / n.max(1) as f32).sqrt().max(1e-12);
                 (1, "Order-5 Adams-Bashforth-Moulton (ABM5, 1 NFE)", abm5_err)
-            } else if effective_cost_regime == FunctionCostRegime::Moderate && curvature > self.pcec.curvature_threshold_pece {
+            } else if effective_cost_regime == FunctionCostRegime::Moderate
+                && curvature > self.pcec.curvature_threshold_pece
+            {
                 // Intermediary Cost: Dynamic Corrector ROI Gating (PECE, 2 NFE)
                 for i in 0..n {
                     let hist = history[i];
@@ -3835,23 +4098,34 @@ impl SelfOptimizingMetaIntegrator {
                 let v_corr = velocity_fn(&stabilized_x, t + h);
                 total_nfe += 1;
                 v_damped_vec[..n].copy_from_slice(&v_corr[..n]);
-                (2, "Intermediary Cost (PECE, Dynamic ROI Corrector)", curvature * h * h * h * 0.03)
+                (
+                    2,
+                    "Intermediary Cost (PECE, Dynamic ROI Corrector)",
+                    curvature * h * h * h * 0.03,
+                )
             } else if self.super_smooth_routing {
                 // Super-Smooth C^\infty Soft Gating: Blends 3rd-order Adams-Moulton PEC and Conformal Stiff Damping.
                 let h_factor = h.clamp(1e-4, 0.25).sqrt().sqrt();
                 let beta_euler = 40.0f32 / h_factor;
                 let beta_stiff = 10.0f32 / h_factor;
 
-                let w_euler = 1.0f32 - apply_smooth_gate(beta_euler * (curvature - 0.035f32), self.gating_method);
-                let w_stiff = apply_smooth_gate(beta_stiff * (curvature - 1.2f32), self.gating_method);
-                let w_pec = apply_smooth_max(1.0f32 - w_euler - w_stiff, 0.0f32, 1e-4, self.max_method);
-                let sum_w = apply_smooth_max(w_euler + w_pec + w_stiff, 1e-6, 1e-6, self.max_method);
+                let w_euler = 1.0f32
+                    - apply_smooth_gate(beta_euler * (curvature - 0.035f32), self.gating_method);
+                let w_stiff =
+                    apply_smooth_gate(beta_stiff * (curvature - 1.2f32), self.gating_method);
+                let w_pec =
+                    apply_smooth_max(1.0f32 - w_euler - w_stiff, 0.0f32, 1e-4, self.max_method);
+                let sum_w =
+                    apply_smooth_max(w_euler + w_pec + w_stiff, 1e-6, 1e-6, self.max_method);
                 let (w_euler, w_pec, w_stiff) = (w_euler / sum_w, w_pec / sum_w, w_stiff / sum_w);
                 let w_smooth = w_euler + w_pec;
 
                 let conformal_scale = 1.0f32 / (1.0f32 + 0.5f32 * curvature);
-                let x_norm: f32 = (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
-                let clamp_limit = prec.adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64) as f32;
+                let x_norm: f32 =
+                    (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
+                let clamp_limit = prec
+                    .adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64)
+                    as f32;
 
                 for i in 0..n {
                     let hist = history[i];
@@ -3861,7 +4135,12 @@ impl SelfOptimizingMetaIntegrator {
                     let v_damped = if self.energy_target.is_some() {
                         0.5 * (v_pred[i] + hist[0])
                     } else if is_singular {
-                        apply_smooth_clamp(v_pred[i] * conformal_scale, -clamp_limit, clamp_limit, self.clamping_method)
+                        apply_smooth_clamp(
+                            v_pred[i] * conformal_scale,
+                            -clamp_limit,
+                            clamp_limit,
+                            self.clamping_method,
+                        )
                     } else {
                         v_pred[i] * conformal_scale
                     };
@@ -3886,8 +4165,11 @@ impl SelfOptimizingMetaIntegrator {
                 (1, "Super-Smooth MoM (C^inf Soft-Gated)", smooth_err)
             } else if is_singular {
                 // Regime A: Singular / High Curvature / Stiff Boundary -> Conformal Spectral Proximal Damping
-                let x_norm: f32 = (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
-                let clamp_limit = prec.adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64) as f32;
+                let x_norm: f32 =
+                    (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
+                let clamp_limit = prec
+                    .adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64)
+                    as f32;
                 let conformal_scale = 1.0f32 / (1.0f32 + 0.5f32 * curvature);
                 for i in 0..n {
                     let v_damped = v_pred[i] * conformal_scale;
@@ -3902,7 +4184,11 @@ impl SelfOptimizingMetaIntegrator {
                     stabilized_x[i] = curr_x[i] + h * history[i][0];
                 }
                 v_damped_vec[..n].copy_from_slice(&v_pred[..n]);
-                (1, "Laminar Linear (Euler Fast-Path, 1 NFE)", curvature * h * h * 0.01)
+                (
+                    1,
+                    "Laminar Linear (Euler Fast-Path, 1 NFE)",
+                    curvature * h * h * 0.01,
+                )
             } else if curvature < self.pcec.curvature_threshold_pe {
                 // Regime B: Ultra-smooth laminar flow -> PE (1 NFE)
                 stabilized_x[..n].copy_from_slice(&x_pred[..n]);
@@ -3994,38 +4280,46 @@ impl SelfOptimizingMetaIntegrator {
                 }
             }
 
-            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
-                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_damped_vec);
-                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) =
+                if self.robust_error_config.enabled {
+                    let v_err = self
+                        .robust_error_config
+                        .input_error
+                        .velocity_error_at(&v_damped_vec);
+                    let given_l = self.robust_error_config.input_error.lipschitz_bound;
 
-                for i in 0..n {
-                    let l_eff = if let Some(l) = given_l {
-                        l
-                    } else {
-                        let dx = (stabilized_x[i] - curr_x[i]).abs();
-                        let dv = (v_pred[i] - history[i][0]).abs();
-                        (dv / (dx + denom_guard)).min(1e4)
-                    };
+                    for i in 0..n {
+                        let l_eff = if let Some(l) = given_l {
+                            l
+                        } else {
+                            let dx = (stabilized_x[i] - curr_x[i]).abs();
+                            let dv = (v_pred[i] - history[i][0]).abs();
+                            (dv / (dx + denom_guard)).min(1e4)
+                        };
 
-                    let phi = if is_singular || curvature > 1.2 {
-                        (1.0 + 0.5 * h * l_eff) / (1.0 + 0.1 * h * l_eff)
-                    } else {
-                        1.0 + h * l_eff
-                    };
+                        let phi = if is_singular || curvature > 1.2 {
+                            (1.0 + 0.5 * h * l_eff) / (1.0 + 0.1 * h * l_eff)
+                        } else {
+                            1.0 + h * l_eff
+                        };
 
-                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
-                }
+                        accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
+                    }
 
-                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
-                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+                    let prop_scalar = self
+                        .robust_error_config
+                        .aggregation_norm
+                        .compute(&accumulated_input_err);
+                    let total_bound = self.robust_error_config.safety_factor
+                        * (err * err + prop_scalar * prop_scalar).sqrt();
 
-                let noise_active = self.robust_error_config.noise_floor_aware_stepping
-                    && prop_scalar > self.target_tolerance;
+                    let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                        && prop_scalar > self.target_tolerance;
 
-                (Some(prop_scalar), Some(total_bound), noise_active)
-            } else {
-                (None, None, false)
-            };
+                    (Some(prop_scalar), Some(total_bound), noise_active)
+                } else {
+                    (None, None, false)
+                };
 
             if self.record_diagnostics && diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
@@ -4056,7 +4350,9 @@ impl SelfOptimizingMetaIntegrator {
             };
             let safety = match effective_cost_regime {
                 FunctionCostRegime::Expensive => 0.95f32,
-                FunctionCostRegime::Moderate | FunctionCostRegime::Auto => (0.5f32).powf(1.0 / (p_order + 1.0)),
+                FunctionCostRegime::Moderate | FunctionCostRegime::Auto => {
+                    (0.5f32).powf(1.0 / (p_order + 1.0))
+                }
                 FunctionCostRegime::Free => 0.85f32,
             };
             let exp_p = 1.0 / (p_order + 1.0);
@@ -4081,7 +4377,9 @@ impl SelfOptimizingMetaIntegrator {
                 let kd = 0.05f32 / (p_order + 1.0);
                 let r_i = (effective_tol / e_curr).powf(ki);
                 let r_p = (prev_err.max(antiwindup) / e_curr).powf(kp);
-                let r_d = ((prev_err.max(antiwindup) * prev_err.max(antiwindup)) / (e_curr * prev_err2.max(antiwindup))).powf(kd);
+                let r_d = ((prev_err.max(antiwindup) * prev_err.max(antiwindup))
+                    / (e_curr * prev_err2.max(antiwindup)))
+                .powf(kd);
                 safety * r_i * r_p * r_d
             } else {
                 let error_ratio = effective_tol / e_curr;
@@ -4135,7 +4433,9 @@ impl SelfOptimizingMetaIntegrator {
         let mut x_pred = vec![0.0f32; n];
         let mut x_next = vec![0.0f32; n];
         let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
-            self.robust_error_config.input_error.initial_state_error(&curr_x)
+            self.robust_error_config
+                .input_error
+                .initial_state_error(&curr_x)
         } else {
             smallvec![]
         };
@@ -4174,7 +4474,11 @@ impl SelfOptimizingMetaIntegrator {
                 for i in 0..n {
                     x_next[i] = curr_x[i] + h * v_curr[i] + sqrt_h * s_curr[i] * dw[i];
                 }
-                (0, "SDE: Diffusion-Dominated (Euler-Maruyama, 1 NFE)", s_norm * sqrt_h * 0.1)
+                (
+                    0,
+                    "SDE: Diffusion-Dominated (Euler-Maruyama, 1 NFE)",
+                    s_norm * sqrt_h * 0.1,
+                )
             } else {
                 // Drift-Dominated / Curved Stochastic: Predictor-Corrector Stochastic Heun
                 for i in 0..n {
@@ -4201,37 +4505,53 @@ impl SelfOptimizingMetaIntegrator {
                     let s_eff = 0.5 * (s_curr[i] + s_pred[i]);
                     x_next[i] = curr_x[i] + h * v_eff + sqrt_h * s_eff * dw[i];
                 }
-                (2, "SDE: Drift-Curved (Conformal Stochastic Heun, 2 NFE)", curvature * h * h * 0.05 + 0.05 * s_norm * sqrt_h)
+                (
+                    2,
+                    "SDE: Drift-Curved (Conformal Stochastic Heun, 2 NFE)",
+                    curvature * h * h * 0.05 + 0.05 * s_norm * sqrt_h,
+                )
             };
 
-            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
-                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_curr);
-                let s_err = self.robust_error_config.input_error.velocity_error_at(&s_curr);
-                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) =
+                if self.robust_error_config.enabled {
+                    let v_err = self
+                        .robust_error_config
+                        .input_error
+                        .velocity_error_at(&v_curr);
+                    let s_err = self
+                        .robust_error_config
+                        .input_error
+                        .velocity_error_at(&s_curr);
+                    let given_l = self.robust_error_config.input_error.lipschitz_bound;
 
-                for i in 0..n {
-                    let l_eff = if let Some(l) = given_l {
-                        l
-                    } else {
-                        let dx = (x_next[i] - curr_x[i]).abs();
-                        let dv = (v_curr[i] * h).abs();
-                        (dv / (dx + 1e-6)).min(1e4)
-                    };
+                    for i in 0..n {
+                        let l_eff = if let Some(l) = given_l {
+                            l
+                        } else {
+                            let dx = (x_next[i] - curr_x[i]).abs();
+                            let dv = (v_curr[i] * h).abs();
+                            (dv / (dx + 1e-6)).min(1e4)
+                        };
 
-                    let phi = 1.0 + h * l_eff;
-                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i] + sqrt_h * s_err[i];
-                }
+                        let phi = 1.0 + h * l_eff;
+                        accumulated_input_err[i] =
+                            phi * accumulated_input_err[i] + h * v_err[i] + sqrt_h * s_err[i];
+                    }
 
-                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
-                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+                    let prop_scalar = self
+                        .robust_error_config
+                        .aggregation_norm
+                        .compute(&accumulated_input_err);
+                    let total_bound = self.robust_error_config.safety_factor
+                        * (err * err + prop_scalar * prop_scalar).sqrt();
 
-                let noise_active = self.robust_error_config.noise_floor_aware_stepping
-                    && prop_scalar > self.target_tolerance;
+                    let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                        && prop_scalar > self.target_tolerance;
 
-                (Some(prop_scalar), Some(total_bound), noise_active)
-            } else {
-                (None, None, false)
-            };
+                    (Some(prop_scalar), Some(total_bound), noise_active)
+                } else {
+                    (None, None, false)
+                };
 
             if diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
@@ -4277,7 +4597,12 @@ impl SelfOptimizingMetaIntegrator {
         &self,
         x0: &[f32],
         mut velocity_fn: F,
-    ) -> (Vec<f32>, DenseHermiteTrajectory<f32>, Vec<MetaStepDiagnostics>, usize)
+    ) -> (
+        Vec<f32>,
+        DenseHermiteTrajectory<f32>,
+        Vec<MetaStepDiagnostics>,
+        usize,
+    )
     where
         F: FnMut(&[f32], f32) -> Vec<f32>,
     {
@@ -4301,7 +4626,9 @@ impl SelfOptimizingMetaIntegrator {
 
         let mut history = vec![[0.0f32; 3]; n];
         let mut accumulated_input_err: SmallVec<[f32; 64]> = if self.robust_error_config.enabled {
-            self.robust_error_config.input_error.initial_state_error(&curr_x)
+            self.robust_error_config
+                .input_error
+                .initial_state_error(&curr_x)
         } else {
             smallvec![]
         };
@@ -4355,7 +4682,10 @@ impl SelfOptimizingMetaIntegrator {
                 diff_sq += d * d;
                 v_norm_sq += history[i][0] * history[i][0];
             }
-            let atol_v_sq = self.target_tolerance.max(10.0f32 * eps_mach).max(denom_guard * denom_guard);
+            let atol_v_sq = self
+                .target_tolerance
+                .max(10.0f32 * eps_mach)
+                .max(denom_guard * denom_guard);
             let curvature = (diff_sq / (v_norm_sq + atol_v_sq)).sqrt();
             let is_singular = has_nan || curvature > 1.5;
 
@@ -4369,20 +4699,40 @@ impl SelfOptimizingMetaIntegrator {
             last_regime_is_singular = is_singular;
 
             let (next_x, v_next, step_nfe, regime, err) = if is_singular {
-                let x_norm: f32 = (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
-                let clamp_limit = prec.adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64) as f32;
+                let x_norm: f32 =
+                    (curr_x.iter().map(|&v| v * v).sum::<f32>() / n.max(1) as f32).sqrt();
+                let clamp_limit = prec
+                    .adaptive_clamp_bound(x_norm as f64, self.rough.subgradient_clamping as f64)
+                    as f32;
                 let mut clamped_x = vec![0.0f32; n];
                 for i in 0..n {
                     let clamped = if self.super_smooth_routing {
-                        apply_smooth_clamp(v_pred[i], -clamp_limit, clamp_limit, self.clamping_method)
+                        apply_smooth_clamp(
+                            v_pred[i],
+                            -clamp_limit,
+                            clamp_limit,
+                            self.clamping_method,
+                        )
                     } else {
                         v_pred[i].clamp(-clamp_limit, clamp_limit)
                     };
                     clamped_x[i] = curr_x[i] + h * clamped;
                 }
-                (clamped_x, v_pred, 1, "Rough/Singular (Subgradient Clamped)", 0.01)
+                (
+                    clamped_x,
+                    v_pred,
+                    1,
+                    "Rough/Singular (Subgradient Clamped)",
+                    0.01,
+                )
             } else if curvature < self.pcec.curvature_threshold_pe {
-                (x_pred, v_pred, 1, "Smooth Laminar (PE, 1 NFE)", curvature * h * h * 0.1)
+                (
+                    x_pred,
+                    v_pred,
+                    1,
+                    "Smooth Laminar (PE, 1 NFE)",
+                    curvature * h * h * 0.1,
+                )
             } else if curvature < self.pcec.curvature_threshold_pec {
                 let mut x_corr = vec![0.0f32; n];
                 for i in 0..n {
@@ -4392,7 +4742,13 @@ impl SelfOptimizingMetaIntegrator {
                         + self.pcec.corr_weights[2] * hist[1];
                     x_corr[i] = curr_x[i] + h * v_corr;
                 }
-                (x_corr, v_pred, 1, "Mild Curvature (PEC, 1 NFE)", curvature * h * h * 0.05)
+                (
+                    x_corr,
+                    v_pred,
+                    1,
+                    "Mild Curvature (PEC, 1 NFE)",
+                    curvature * h * h * 0.05,
+                )
             } else {
                 let mut x_corr = vec![0.0f32; n];
                 for i in 0..n {
@@ -4435,33 +4791,41 @@ impl SelfOptimizingMetaIntegrator {
                 history[i][0] = v_next[i];
             }
 
-            let (prop_err_scalar, total_err_bound, is_noise_floor_active) = if self.robust_error_config.enabled {
-                let v_err = self.robust_error_config.input_error.velocity_error_at(&v_next);
-                let given_l = self.robust_error_config.input_error.lipschitz_bound;
+            let (prop_err_scalar, total_err_bound, is_noise_floor_active) =
+                if self.robust_error_config.enabled {
+                    let v_err = self
+                        .robust_error_config
+                        .input_error
+                        .velocity_error_at(&v_next);
+                    let given_l = self.robust_error_config.input_error.lipschitz_bound;
 
-                for i in 0..n {
-                    let l_eff = if let Some(l) = given_l {
-                        l
-                    } else {
-                        let dx = (next_x[i] - curr_x[i]).abs();
-                        let dv = (v_next[i] - v_curr[i]).abs();
-                        (dv / (dx + denom_guard)).min(1e4)
-                    };
+                    for i in 0..n {
+                        let l_eff = if let Some(l) = given_l {
+                            l
+                        } else {
+                            let dx = (next_x[i] - curr_x[i]).abs();
+                            let dv = (v_next[i] - v_curr[i]).abs();
+                            (dv / (dx + denom_guard)).min(1e4)
+                        };
 
-                    let phi = 1.0 + h * l_eff;
-                    accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
-                }
+                        let phi = 1.0 + h * l_eff;
+                        accumulated_input_err[i] = phi * accumulated_input_err[i] + h * v_err[i];
+                    }
 
-                let prop_scalar = self.robust_error_config.aggregation_norm.compute(&accumulated_input_err);
-                let total_bound = self.robust_error_config.safety_factor * (err * err + prop_scalar * prop_scalar).sqrt();
+                    let prop_scalar = self
+                        .robust_error_config
+                        .aggregation_norm
+                        .compute(&accumulated_input_err);
+                    let total_bound = self.robust_error_config.safety_factor
+                        * (err * err + prop_scalar * prop_scalar).sqrt();
 
-                let noise_active = self.robust_error_config.noise_floor_aware_stepping
-                    && prop_scalar > self.target_tolerance;
+                    let noise_active = self.robust_error_config.noise_floor_aware_stepping
+                        && prop_scalar > self.target_tolerance;
 
-                (Some(prop_scalar), Some(total_bound), noise_active)
-            } else {
-                (None, None, false)
-            };
+                    (Some(prop_scalar), Some(total_bound), noise_active)
+                } else {
+                    (None, None, false)
+                };
 
             if diagnostics.len() < 2000 {
                 diagnostics.push(MetaStepDiagnostics {
@@ -4521,7 +4885,12 @@ impl SelfOptimizingMetaIntegrator {
 }
 
 impl ContinuousFlowSolver for SelfOptimizingMetaIntegrator {
-    fn solve_flow(&self, x0: &[f32], _steps: usize, velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>) -> Vec<f32> {
+    fn solve_flow(
+        &self,
+        x0: &[f32],
+        _steps: usize,
+        velocity_fn: &mut dyn FnMut(&[f32], f32) -> Vec<f32>,
+    ) -> Vec<f32> {
         let (res, _, _) = self.solve_auto(x0, |x, t| velocity_fn(x, t));
         res
     }
@@ -4575,25 +4944,29 @@ mod tests {
     #[test]
     fn test_self_optimizing_meta_integrator_with_custom_precision() {
         let prec = Arc::new(CustomHalfStepPrecision);
-        let integrator = SelfOptimizingMetaIntegrator::new(1e-4)
-            .with_custom_precision(prec.clone());
+        let integrator =
+            SelfOptimizingMetaIntegrator::new(1e-4).with_custom_precision(prec.clone());
 
         assert!(integrator.custom_precision.is_some());
-        assert_eq!(integrator.custom_precision.as_ref().unwrap().name(), "custom_half_step");
+        assert_eq!(
+            integrator.custom_precision.as_ref().unwrap().name(),
+            "custom_half_step"
+        );
 
         // Integrate dx/dt = -x on [0, 1] with x(0) = 2.0
-        let (final_x, nfe) = integrator.solve_interval_with_precision(
-            prec.as_ref(),
-            &[2.0],
-            0.0,
-            1.0,
-            |x, _t| vec![-x[0]],
-        );
+        let (final_x, nfe) =
+            integrator.solve_interval_with_precision(prec.as_ref(), &[2.0], 0.0, 1.0, |x, _t| {
+                vec![-x[0]]
+            });
 
         assert!(nfe > 0);
         // Result must be aligned to the 0.5 lattice
         let mult = (final_x[0] * 2.0).round();
-        assert!((final_x[0] - mult / 2.0).abs() < 1e-12, "Result {} not quantized to 0.5 lattice", final_x[0]);
+        assert!(
+            (final_x[0] - mult / 2.0).abs() < 1e-12,
+            "Result {} not quantized to 0.5 lattice",
+            final_x[0]
+        );
     }
 
     #[test]
@@ -4612,11 +4985,31 @@ mod tests {
             let g_pos = apply_smooth_gate(5.0, m);
             let g_neg = apply_smooth_gate(-5.0, m);
 
-            assert!(g_pos >= g_zero, "{:?} must be monotonic at positive inputs", m);
-            assert!(g_zero >= g_neg, "{:?} must be monotonic at negative inputs", m);
-            assert!((0.0..=1.0).contains(&g_zero), "{:?} zero value must be in [0, 1]", m);
-            assert!((0.0..=1.0).contains(&g_pos), "{:?} positive value must be in [0, 1]", m);
-            assert!((0.0..=1.0).contains(&g_neg), "{:?} negative value must be in [0, 1]", m);
+            assert!(
+                g_pos >= g_zero,
+                "{:?} must be monotonic at positive inputs",
+                m
+            );
+            assert!(
+                g_zero >= g_neg,
+                "{:?} must be monotonic at negative inputs",
+                m
+            );
+            assert!(
+                (0.0..=1.0).contains(&g_zero),
+                "{:?} zero value must be in [0, 1]",
+                m
+            );
+            assert!(
+                (0.0..=1.0).contains(&g_pos),
+                "{:?} positive value must be in [0, 1]",
+                m
+            );
+            assert!(
+                (0.0..=1.0).contains(&g_neg),
+                "{:?} negative value must be in [0, 1]",
+                m
+            );
         }
     }
 
@@ -4638,9 +5031,21 @@ mod tests {
             let c_far_left = apply_smooth_clamp(-100.0, min_val, max_val, m);
             let c_far_right = apply_smooth_clamp(100.0, min_val, max_val, m);
 
-            assert!(c_far_left >= min_val - 1e-3, "{:?} left clamp must bound below", m);
-            assert!(c_far_right <= max_val + 1e-3, "{:?} right clamp must bound above", m);
-            assert!(c_far_left < c_within && c_within < c_far_right, "{:?} must be strictly monotonic", m);
+            assert!(
+                c_far_left >= min_val - 1e-3,
+                "{:?} left clamp must bound below",
+                m
+            );
+            assert!(
+                c_far_right <= max_val + 1e-3,
+                "{:?} right clamp must bound above",
+                m
+            );
+            assert!(
+                c_far_left < c_within && c_within < c_far_right,
+                "{:?} must be strictly monotonic",
+                m
+            );
         }
     }
 
@@ -4658,10 +5063,19 @@ mod tests {
 
         for &m in &methods {
             let s_max = apply_smooth_max(a, b, delta, m);
-            assert!((s_max - 4.0).abs() < 0.1, "{:?} smooth max of (1, 4) must be approx 4, got {}", m, s_max);
+            assert!(
+                (s_max - 4.0).abs() < 0.1,
+                "{:?} smooth max of (1, 4) must be approx 4, got {}",
+                m,
+                s_max
+            );
 
             let s_max_equal = apply_smooth_max(2.0, 2.0, delta, m);
-            assert!(s_max_equal >= 2.0, "{:?} smooth max of equal elements must upper bound", m);
+            assert!(
+                s_max_equal >= 2.0,
+                "{:?} smooth max of equal elements must upper bound",
+                m
+            );
         }
     }
 
@@ -4700,7 +5114,10 @@ mod tests {
         assert!(x_strat[0].is_finite());
         assert!(x_milstein[0].is_finite());
         // Stratonovich drift should differ from Itô drift due to correction:
-        assert!((x_ito[0] - x_strat[0]).abs() > 1e-6, "Itô and Stratonovich steps must reflect drift conversion");
+        assert!(
+            (x_ito[0] - x_strat[0]).abs() > 1e-6,
+            "Itô and Stratonovich steps must reflect drift conversion"
+        );
     }
 
     #[test]
@@ -4711,18 +5128,31 @@ mod tests {
             .with_max_method(SmoothMaxMethod::LogSumExp);
 
         assert_eq!(integrator.gating_method, SmoothGatingMethod::RationalHill4);
-        assert_eq!(integrator.clamping_method, SmoothClampingMethod::QuarticRoot);
+        assert_eq!(
+            integrator.clamping_method,
+            SmoothClampingMethod::QuarticRoot
+        );
         assert_eq!(integrator.max_method, SmoothMaxMethod::LogSumExp);
 
         // Integrate dx/dt = -x on [0, 1] with custom smooth methods
         let (final_x, diag, nfe) = integrator.solve_auto(&[1.0], |x, _t| vec![-x[0]]);
-        println!("FINAL_X: {:?}, NFE: {}, DIAG_COUNT: {}", final_x, nfe, diag.len());
+        println!(
+            "FINAL_X: {:?}, NFE: {}, DIAG_COUNT: {}",
+            final_x,
+            nfe,
+            diag.len()
+        );
         for d in diag.iter().take(5) {
             println!("  diag: {:?}", d);
         }
         assert!(nfe > 0);
         let target = (-1.0f32).exp();
-        assert!((final_x[0] - target).abs() < 1e-2, "Integration error: expected {}, got {}", target, final_x[0]);
+        assert!(
+            (final_x[0] - target).abs() < 1e-2,
+            "Integration error: expected {}, got {}",
+            target,
+            final_x[0]
+        );
     }
 
     #[test]
@@ -4732,17 +5162,26 @@ mod tests {
         let v_fn = |x: &[f32], _t: f32| vec![-0.5 * x[0]];
 
         // Case 1: Toggled OFF (default)
-        let integrator_off = SelfOptimizingMetaIntegrator::new(1e-4)
-            .with_robust_error_estimation(false);
+        let integrator_off =
+            SelfOptimizingMetaIntegrator::new(1e-4).with_robust_error_estimation(false);
         assert!(!integrator_off.robust_error_config.enabled);
 
         let (res_off, diag_off, nfe_off) = integrator_off.solve_interval(&x0, 0.0, 1.0, v_fn);
         assert!(nfe_off > 0);
         assert!(!diag_off.is_empty());
         for d in &diag_off {
-            assert!(d.propagated_input_error.is_none(), "When toggled OFF, propagated_input_error must be None");
-            assert!(d.total_error_bound.is_none(), "When toggled OFF, total_error_bound must be None");
-            assert!(!d.noise_floor_active, "When toggled OFF, noise_floor_active must be false");
+            assert!(
+                d.propagated_input_error.is_none(),
+                "When toggled OFF, propagated_input_error must be None"
+            );
+            assert!(
+                d.total_error_bound.is_none(),
+                "When toggled OFF, total_error_bound must be None"
+            );
+            assert!(
+                !d.noise_floor_active,
+                "When toggled OFF, noise_floor_active must be false"
+            );
             assert!(d.local_truncation_error >= 0.0);
         }
 
@@ -4751,8 +5190,7 @@ mod tests {
             .with_state_rel_error(0.005)
             .with_velocity_rel_error(0.002);
 
-        let integrator_on = SelfOptimizingMetaIntegrator::new(1e-4)
-            .with_input_error(input_err);
+        let integrator_on = SelfOptimizingMetaIntegrator::new(1e-4).with_input_error(input_err);
         assert!(integrator_on.robust_error_config.enabled);
 
         let (res_on, diag_on, nfe_on) = integrator_on.solve_interval(&x0, 0.0, 1.0, v_fn);
@@ -4760,20 +5198,43 @@ mod tests {
         assert!(!diag_on.is_empty());
 
         // Numerical solutions should be close
-        assert!((res_off[0] - res_on[0]).abs() < 0.05, "Numerical solution drifted excessively");
+        assert!(
+            (res_off[0] - res_on[0]).abs() < 0.05,
+            "Numerical solution drifted excessively"
+        );
 
         // Verify robust error invariants
         for d in &diag_on {
-            assert!(d.propagated_input_error.is_some(), "When toggled ON, propagated_input_error must be Some");
-            assert!(d.total_error_bound.is_some(), "When toggled ON, total_error_bound must be Some");
+            assert!(
+                d.propagated_input_error.is_some(),
+                "When toggled ON, propagated_input_error must be Some"
+            );
+            assert!(
+                d.total_error_bound.is_some(),
+                "When toggled ON, total_error_bound must be Some"
+            );
 
             let prop = d.propagated_input_error.unwrap();
             let total = d.total_error_bound.unwrap();
             let lte = d.local_truncation_error;
 
-            assert!(prop >= 0.02, "Propagated error {} must reflect initial state uncertainty >= 0.02", prop);
-            assert!(total >= prop, "Total error bound {} must be >= propagated input error {}", total, prop);
-            assert!(total >= lte, "Total error bound {} must be >= local truncation error {}", total, lte);
+            assert!(
+                prop >= 0.02,
+                "Propagated error {} must reflect initial state uncertainty >= 0.02",
+                prop
+            );
+            assert!(
+                total >= prop,
+                "Total error bound {} must be >= propagated input error {}",
+                total,
+                prop
+            );
+            assert!(
+                total >= lte,
+                "Total error bound {} must be >= local truncation error {}",
+                total,
+                lte
+            );
         }
     }
 
@@ -4784,14 +5245,12 @@ mod tests {
 
         // Run with small noise: sigma_x = 1e-4
         let err_small = InputErrorEstimate::from_state_noise(1e-4);
-        let integrator_small = SelfOptimizingMetaIntegrator::new(1e-4)
-            .with_input_error(err_small);
+        let integrator_small = SelfOptimizingMetaIntegrator::new(1e-4).with_input_error(err_small);
         let (_, diag_small, _) = integrator_small.solve_interval(&x0, 0.0, 1.0, v_fn);
 
         // Run with large noise: sigma_x = 1e-1
         let err_large = InputErrorEstimate::from_state_noise(1e-1);
-        let integrator_large = SelfOptimizingMetaIntegrator::new(1e-4)
-            .with_input_error(err_large);
+        let integrator_large = SelfOptimizingMetaIntegrator::new(1e-4).with_input_error(err_large);
         let (_, diag_large, _) = integrator_large.solve_interval(&x0, 0.0, 1.0, v_fn);
 
         let last_small_prop = diag_small.last().unwrap().propagated_input_error.unwrap();
@@ -4799,14 +5258,22 @@ mod tests {
 
         // Ratio of propagated errors should scale proportionally (~1000x)
         let ratio = last_large_prop / last_small_prop;
-        assert!(ratio > 500.0 && ratio < 1500.0, "Propagated error ratio {} should be ~1000x", ratio);
+        assert!(
+            ratio > 500.0 && ratio < 1500.0,
+            "Propagated error ratio {} should be ~1000x",
+            ratio
+        );
 
         // Test aggregation norms
         let err_slice = [0.1f32, 0.2f32];
-        assert!((ErrorAggregationNorm::L2.compute(&err_slice) - (0.01f32 + 0.04).sqrt()).abs() < 1e-6);
+        assert!(
+            (ErrorAggregationNorm::L2.compute(&err_slice) - (0.01f32 + 0.04).sqrt()).abs() < 1e-6
+        );
         assert_eq!(ErrorAggregationNorm::LInf.compute(&err_slice), 0.2);
         assert!((ErrorAggregationNorm::L1Mean.compute(&err_slice) - 0.15).abs() < 1e-6);
-        assert!((ErrorAggregationNorm::Rms.compute(&err_slice) - (0.05f32 / 2.0).sqrt()).abs() < 1e-6);
+        assert!(
+            (ErrorAggregationNorm::Rms.compute(&err_slice) - (0.05f32 / 2.0).sqrt()).abs() < 1e-6
+        );
     }
 
     #[test]
@@ -4839,11 +5306,20 @@ mod tests {
 
         // Verify noise_floor_active triggered in aware mode
         let active_count = diag_aware.iter().filter(|d| d.noise_floor_active).count();
-        assert!(active_count > 0, "Noise floor guard should activate when LTE < 0.5 * input_error");
+        assert!(
+            active_count > 0,
+            "Noise floor guard should activate when LTE < 0.5 * input_error"
+        );
 
         // Aware stepping should require fewer or equal evaluations by not over-refining below noise floor
-        println!("AWARE NFE: {}, UNAWARE NFE: {}, ACTIVE STEPS: {}", nfe_aware, nfe_unaware, active_count);
-        assert!(diag_aware.len() <= diag_unaware.len(), "Aware controller should take fewer or equal steps");
+        println!(
+            "AWARE NFE: {}, UNAWARE NFE: {}, ACTIVE STEPS: {}",
+            nfe_aware, nfe_unaware, active_count
+        );
+        assert!(
+            diag_aware.len() <= diag_unaware.len(),
+            "Aware controller should take fewer or equal steps"
+        );
     }
 
     #[test]
@@ -4856,31 +5332,44 @@ mod tests {
         let input_err = InputErrorEstimate::from_state_and_velocity_noise(0.03, 0.01);
 
         // Test SDE with robust error
-        let integrator_sde = SelfOptimizingMetaIntegrator::new(1e-3)
-            .with_input_error(input_err.clone());
-        let (x_sde, diag_sde, nfe_sde) = integrator_sde.solve_sde(&x0, 0.0, 1.0, drift, diff, noise);
+        let integrator_sde =
+            SelfOptimizingMetaIntegrator::new(1e-3).with_input_error(input_err.clone());
+        let (x_sde, diag_sde, nfe_sde) =
+            integrator_sde.solve_sde(&x0, 0.0, 1.0, drift, diff, noise);
 
         assert!(nfe_sde > 0);
         assert!(x_sde[0].is_finite());
         assert!(!diag_sde.is_empty());
         for d in &diag_sde {
-            assert!(d.propagated_input_error.is_some(), "SDE must report propagated input error");
-            assert!(d.total_error_bound.is_some(), "SDE must report total error bound");
+            assert!(
+                d.propagated_input_error.is_some(),
+                "SDE must report propagated input error"
+            );
+            assert!(
+                d.total_error_bound.is_some(),
+                "SDE must report total error bound"
+            );
             assert!(d.total_error_bound.unwrap() >= d.propagated_input_error.unwrap());
         }
 
         // Test Dense trajectory with robust error
-        let integrator_dense = SelfOptimizingMetaIntegrator::new(1e-3)
-            .with_input_error(input_err);
-        let (x_dense, dense_traj, diag_dense, nfe_dense) = integrator_dense.solve_auto_dense(&x0, |x, _t| vec![-0.5 * x[0]]);
+        let integrator_dense = SelfOptimizingMetaIntegrator::new(1e-3).with_input_error(input_err);
+        let (x_dense, dense_traj, diag_dense, nfe_dense) =
+            integrator_dense.solve_auto_dense(&x0, |x, _t| vec![-0.5 * x[0]]);
 
         assert!(nfe_dense > 0);
         assert!(x_dense[0].is_finite());
         let mid_sample = dense_traj.evaluate_at(0.5);
         assert!(mid_sample.is_some());
         for d in &diag_dense {
-            assert!(d.propagated_input_error.is_some(), "Dense must report propagated input error");
-            assert!(d.total_error_bound.is_some(), "Dense must report total error bound");
+            assert!(
+                d.propagated_input_error.is_some(),
+                "Dense must report propagated input error"
+            );
+            assert!(
+                d.total_error_bound.is_some(),
+                "Dense must report total error bound"
+            );
         }
     }
 
@@ -4907,8 +5396,14 @@ mod tests {
         assert_eq!(metrics2.len(), 20);
         assert!(x_out2[0].is_finite());
         for m in &metrics2 {
-            assert!(m.propagated_input_error.is_some(), "Propagated error must be Some when enabled");
-            assert!(m.total_error_bound.is_some(), "Total bound must be Some when enabled");
+            assert!(
+                m.propagated_input_error.is_some(),
+                "Propagated error must be Some when enabled"
+            );
+            assert!(
+                m.total_error_bound.is_some(),
+                "Total bound must be Some when enabled"
+            );
             assert!(m.total_error_bound.unwrap() >= m.propagated_input_error.unwrap());
         }
 
@@ -4917,7 +5412,10 @@ mod tests {
         assert!(x_int[0].is_finite());
         assert!(!metrics_int.is_empty());
         let noise_active_count = metrics_int.iter().filter(|m| m.noise_floor_active).count();
-        assert!(noise_active_count > 0, "Noise floor guard should activate during adaptive interval");
+        assert!(
+            noise_active_count > 0,
+            "Noise floor guard should activate during adaptive interval"
+        );
     }
 
     #[test]
@@ -4927,7 +5425,8 @@ mod tests {
 
         // Case A: Robust error disabled
         let stepper_disabled = CurvatureGatedStepper::default();
-        let (xf1, steps1, nfe1, prop1, tot1) = stepper_disabled.solve_adaptive_trajectory_robust(&x0, v_fn);
+        let (xf1, steps1, nfe1, prop1, tot1) =
+            stepper_disabled.solve_adaptive_trajectory_robust(&x0, v_fn);
         assert!(steps1 > 0 && nfe1 > 0 && xf1[0].is_finite());
         assert!(prop1.is_none());
         assert!(tot1.is_none());
@@ -4935,7 +5434,8 @@ mod tests {
         // Case B: Robust error enabled
         let input_err = InputErrorEstimate::from_state_noise(0.03);
         let stepper_enabled = CurvatureGatedStepper::default().with_input_error(input_err);
-        let (xf2, steps2, nfe2, prop2, tot2) = stepper_enabled.solve_adaptive_trajectory_robust(&x0, v_fn);
+        let (xf2, steps2, nfe2, prop2, tot2) =
+            stepper_enabled.solve_adaptive_trajectory_robust(&x0, v_fn);
         assert!(steps2 > 0 && nfe2 > 0 && xf2[0].is_finite());
         assert!(prop2.is_some());
         assert!(tot2.is_some());
@@ -4943,10 +5443,14 @@ mod tests {
 
         // Case C: Noise floor step scaling check
         let (h_clean, active_clean) = stepper_enabled.compute_step_size_robust(0.01, 10.0, None);
-        let (h_noisy, active_noisy) = stepper_enabled.compute_step_size_robust(0.01, 10.0, Some(0.1));
+        let (h_noisy, active_noisy) =
+            stepper_enabled.compute_step_size_robust(0.01, 10.0, Some(0.1));
         assert!(!active_clean);
         assert!(active_noisy);
-        assert!(h_noisy >= h_clean, "Noise floor guard should prevent excessive step shrinkage");
+        assert!(
+            h_noisy >= h_clean,
+            "Noise floor guard should prevent excessive step shrinkage"
+        );
     }
 
     #[test]
@@ -4961,9 +5465,8 @@ mod tests {
 
         // Case A: Robust error disabled
         let symp_disabled = SymplecticPreservingIntegrator::default();
-        let (q1, p1, e1, prop1, tot1) = symp_disabled.step_robust(
-            &q0, &p0, h, target_energy, force_fn, ham_fn, None, None,
-        );
+        let (q1, p1, e1, prop1, tot1) =
+            symp_disabled.step_robust(&q0, &p0, h, target_energy, force_fn, ham_fn, None, None);
         assert!(q1[0].is_finite() && p1[0].is_finite() && e1.is_finite());
         assert!(prop1.is_none());
         assert!(tot1.is_none());
@@ -4974,13 +5477,23 @@ mod tests {
         let mut err_q = [0.01f32];
         let mut err_p = [0.01f32];
         let (q2, p2, e2, prop2, tot2) = symp_enabled.step_robust(
-            &q0, &p0, h, target_energy, force_fn, ham_fn, Some(&mut err_q), Some(&mut err_p),
+            &q0,
+            &p0,
+            h,
+            target_energy,
+            force_fn,
+            ham_fn,
+            Some(&mut err_q),
+            Some(&mut err_p),
         );
         assert!(q2[0].is_finite() && p2[0].is_finite() && e2.is_finite());
         assert!(prop2.is_some());
         assert!(tot2.is_some());
         assert!(tot2.unwrap() >= prop2.unwrap());
-        assert!(err_q[0] > 0.01f32, "Uncertainty in q must propagate forward");
+        assert!(
+            err_q[0] > 0.01f32,
+            "Uncertainty in q must propagate forward"
+        );
     }
 
     #[test]
@@ -5001,15 +5514,17 @@ mod tests {
         // Case B: Robust error enabled across Ito, Stratonovich, Milstein
         let input_err = InputErrorEstimate::from_state_and_velocity_noise(0.02, 0.01);
         for form in [SdeIntegrationForm::Ito, SdeIntegrationForm::Stratonovich] {
-            for mode in [SdeOrderMode::PredictorCorrectorHeun, SdeOrderMode::MilsteinHigherOrder] {
+            for mode in [
+                SdeOrderMode::PredictorCorrectorHeun,
+                SdeOrderMode::MilsteinHigherOrder,
+            ] {
                 let ito_enabled = RoughItoIntegrator::default()
                     .with_sde_form(form)
                     .with_order_mode(mode)
                     .with_input_error(input_err.clone());
                 let mut acc_err = [0.02f32];
-                let (x_sde, prop_sde, tot_sde) = ito_enabled.step_robust(
-                    &x0, 0.0, h, &noise, drift, diff, Some(&mut acc_err),
-                );
+                let (x_sde, prop_sde, tot_sde) =
+                    ito_enabled.step_robust(&x0, 0.0, h, &noise, drift, diff, Some(&mut acc_err));
                 assert!(x_sde[0].is_finite());
                 assert!(prop_sde.is_some());
                 assert!(tot_sde.is_some());

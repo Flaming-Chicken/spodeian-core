@@ -1,8 +1,11 @@
 //! Device and context management for CPU and WebGPU backends.
 
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
+#[cfg(not(target_arch = "wasm32"))]
+use std::sync::OnceLock;
 
 /// Cached singleton WebGPU context across threads/tests to prevent graphics driver lock contention.
+#[cfg(not(target_arch = "wasm32"))]
 static GLOBAL_WGPU_CONTEXT: OnceLock<Option<WgpuContext>> = OnceLock::new();
 
 /// WebGPU device and queue context.
@@ -16,8 +19,15 @@ pub struct WgpuContext {
 
 impl WgpuContext {
     /// Returns the global singleton WebGPU context, initializing it once if available.
+    ///
+    /// On wasm32 this is always `None` (CPU fallback): device setup blocks on
+    /// `pollster`, which can't drive the browser's WebGPU futures, and wgpu
+    /// handles there are neither `Send` nor `Sync`.
     pub fn global() -> Option<Self> {
-        GLOBAL_WGPU_CONTEXT.get_or_init(Self::new).clone()
+        #[cfg(not(target_arch = "wasm32"))]
+        return GLOBAL_WGPU_CONTEXT.get_or_init(Self::new).clone();
+        #[cfg(target_arch = "wasm32")]
+        None
     }
 
     #[cfg(feature = "wgpu")]

@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c14_quantisation::t26_quantization_method_selection_matrix_and_head_to_head_benchmark as topic;
+use sml_candle::c14_quantisation::t26_quantization_method_selection_matrix_and_head_to_head_benchmark as topic;
 
 #[path = "../common/mod.rs"]
 mod common;

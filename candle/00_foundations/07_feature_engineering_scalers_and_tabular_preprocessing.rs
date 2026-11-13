@@ -16,7 +16,7 @@
 //! # Examples
 //! ```rust
 //! use candle_core::{Device, Tensor};
-//! use ai_candle::c00_foundations::t07_feature_engineering_scalers_and_tabular_preprocessing::{
+//! use sml_candle::c00_foundations::t07_feature_engineering_scalers_and_tabular_preprocessing::{
 //!     StandardScaler, FusedTabularLinear
 //! };
 //!

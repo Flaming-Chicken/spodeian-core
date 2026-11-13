@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c05_architectures::t29_diffusion_conditioning_controlnet_and_ip_adapter as topic;
+use sml_candle::c05_architectures::t29_diffusion_conditioning_controlnet_and_ip_adapter as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -8,7 +8,12 @@ mod common;
 #[test]
 fn test_29_diffusion_conditioning_controlnet_and_ip_adapter_parity() -> Result<()> {
     let device = Device::Cpu;
-    let w = load(common::get_weights_path("05_architectures/05_generative_models/06_diffusion_conditioning_controlnet_and_ip_adapter.safetensors"), &device)?;
+    let w = load(
+        common::get_weights_path(
+            "05_architectures/05_generative_models/06_diffusion_conditioning_controlnet_and_ip_adapter.safetensors",
+        ),
+        &device,
+    )?;
 
     // 1. Linear anchor
     let y = topic::linear_anchor(&w["test_input"], &w["weight"], &w["bias"])?;

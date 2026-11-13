@@ -95,11 +95,7 @@ pub fn h2o_evict_mask(
     let scores_vec = cumulative_scores.flatten_all()?.to_vec1::<f32>()?;
     let mut mask_vec = vec![0.0f32; batch * seq_len];
 
-    let recent_start = if seq_len > local_window {
-        seq_len - local_window
-    } else {
-        0
-    };
+    let recent_start = seq_len.saturating_sub(local_window);
 
     for b in 0..batch {
         let b_offset = b * seq_len;
@@ -166,7 +162,7 @@ pub fn yoco_cross_layer_forward(
     w_out: &Tensor,
 ) -> Result<Tensor> {
     let (b, s, dim) = h_mid.dims3()?;
-    let scale = (1.0f64 / (dim as f64).sqrt()) as f64;
+    let scale = 1.0f64 / (dim as f64).sqrt();
 
     let q = h_mid
         .reshape((b * s, dim))?

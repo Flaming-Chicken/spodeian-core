@@ -1,9 +1,9 @@
 //! Integration test for Topic 09: Nested, Ragged & Specialized Sparse Tensors (Candle Track).
 
-use ai_candle::c00_foundations::t09_nested_ragged_and_specialized_sparse_tensors::{
-    csr_spmv, ragged_mean_pool, ragged_to_padded, RaggedLinear,
+use candle_core::{Device, Result, safetensors::load};
+use sml_candle::c00_foundations::t09_nested_ragged_and_specialized_sparse_tensors::{
+    RaggedLinear, csr_spmv, ragged_mean_pool, ragged_to_padded,
 };
-use candle_core::{safetensors::load, Device, Result};
 
 #[path = "../common/mod.rs"]
 mod common;

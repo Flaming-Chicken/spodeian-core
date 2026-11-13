@@ -1,6 +1,6 @@
-use candle_core::{safetensors::load, Device, Result};
+use candle_core::{Device, Result, safetensors::load};
 
-use ai_candle::c13_precision_and_numerics::t02_posit_quire_takum_and_logarithmic_number_systems_lns as topic;
+use sml_candle::c13_precision_and_numerics::t02_posit_quire_takum_and_logarithmic_number_systems_lns as topic;
 
 #[path = "../common/mod.rs"]
 mod common;
@@ -9,7 +9,9 @@ mod common;
 fn test_02_posit_quire_takum_and_logarithmic_number_systems_lns_parity() -> Result<()> {
     let device = Device::Cpu;
     let w = load(
-        common::get_weights_path("13_precision_and_numerics/02_posit_quire_takum_and_logarithmic_number_systems_lns.safetensors"),
+        common::get_weights_path(
+            "13_precision_and_numerics/02_posit_quire_takum_and_logarithmic_number_systems_lns.safetensors",
+        ),
         &device,
     )?;
 

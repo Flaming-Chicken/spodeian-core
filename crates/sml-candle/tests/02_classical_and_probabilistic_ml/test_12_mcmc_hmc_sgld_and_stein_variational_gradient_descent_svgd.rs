@@ -1,5 +1,5 @@
-use ai_candle::c02_classical_and_probabilistic_ml::t12_mcmc_hmc_sgld_and_stein_variational_gradient_descent_svgd as mcmc;
 use candle_core::{Device, Result};
+use sml_candle::c02_classical_and_probabilistic_ml::t12_mcmc_hmc_sgld_and_stein_variational_gradient_descent_svgd as mcmc;
 use std::path::PathBuf;
 
 #[test]

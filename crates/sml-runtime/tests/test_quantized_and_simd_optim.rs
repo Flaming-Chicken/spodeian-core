@@ -1,12 +1,12 @@
 //! Unit & Parity Tests for Quantised Optimizer Buffers, SIMD Kernels & Multi-Precision Ladder.
 
 use sml_runtime::optim_kernels::{
-    sum_squares_f32, sum_squares_f64, update_coordinates_f32, KernelUpdateParams,
+    KernelUpdateParams, sum_squares_f32, sum_squares_f64, update_coordinates_f32,
 };
 use sml_runtime::optim_quantized::{
     QuantizedMetaParamState, QuantizedStateBuffer, StateQuantizationPolicy,
 };
-use sml_runtime::quantization::{compute_cosine_similarity, compute_sqnr, QuantizedFormat};
+use sml_runtime::quantization::{QuantizedFormat, compute_cosine_similarity, compute_sqnr};
 
 #[test]
 fn test_quantized_state_buffers_pack_unpack_ladder() {
@@ -61,7 +61,10 @@ fn test_quantized_state_buffers_pack_unpack_ladder() {
                 assert!(cos_sim > 0.999, "16-bit cosine similarity must be > 0.999");
                 assert!(sqnr > 30.0, "16-bit SQNR must be > 30 dB");
             }
-            QuantizedFormat::Fp8E4M3 | QuantizedFormat::Fp8E5M2 | QuantizedFormat::Int8 | QuantizedFormat::Posit8 => {
+            QuantizedFormat::Fp8E4M3
+            | QuantizedFormat::Fp8E5M2
+            | QuantizedFormat::Int8
+            | QuantizedFormat::Posit8 => {
                 assert!(cos_sim > 0.98, "8-bit cosine similarity must be > 0.98");
                 assert!(sqnr > 15.0, "8-bit SQNR must be > 15 dB");
             }
@@ -69,7 +72,10 @@ fn test_quantized_state_buffers_pack_unpack_ladder() {
                 assert!(cos_sim > 0.90, "4-bit cosine similarity must be > 0.90");
             }
             QuantizedFormat::Ternary158 | QuantizedFormat::Bnn1Bit => {
-                assert!(cos_sim > 0.65, "Ternary/BNN cosine similarity must be > 0.65");
+                assert!(
+                    cos_sim > 0.65,
+                    "Ternary/BNN cosine similarity must be > 0.65"
+                );
             }
             _ => {}
         }
@@ -94,10 +100,22 @@ fn test_memory_footprint_monotonic_scaling() {
     let rep_low = extreme_low.memory_footprint();
 
     println!("Exact F32: {:.2} B/param", rep_f32.bytes_per_param);
-    println!("Mixed BF16: {:.2} B/param (comp vs F64: {:.1}x)", rep_bf16.bytes_per_param, rep_bf16.compression_ratio_vs_f64);
-    println!("Compact 8Bit: {:.2} B/param (comp vs F64: {:.1}x)", rep_8bit.bytes_per_param, rep_8bit.compression_ratio_vs_f64);
-    println!("Compact 4Bit: {:.2} B/param (comp vs F64: {:.1}x)", rep_4bit.bytes_per_param, rep_4bit.compression_ratio_vs_f64);
-    println!("Extreme LowBit: {:.2} B/param (comp vs F64: {:.1}x)", rep_low.bytes_per_param, rep_low.compression_ratio_vs_f64);
+    println!(
+        "Mixed BF16: {:.2} B/param (comp vs F64: {:.1}x)",
+        rep_bf16.bytes_per_param, rep_bf16.compression_ratio_vs_f64
+    );
+    println!(
+        "Compact 8Bit: {:.2} B/param (comp vs F64: {:.1}x)",
+        rep_8bit.bytes_per_param, rep_8bit.compression_ratio_vs_f64
+    );
+    println!(
+        "Compact 4Bit: {:.2} B/param (comp vs F64: {:.1}x)",
+        rep_4bit.bytes_per_param, rep_4bit.compression_ratio_vs_f64
+    );
+    println!(
+        "Extreme LowBit: {:.2} B/param (comp vs F64: {:.1}x)",
+        rep_low.bytes_per_param, rep_low.compression_ratio_vs_f64
+    );
 
     // Verify monotonically decreasing memory footprint
     assert!(rep_f32.bytes_per_param <= 28.0);
@@ -157,8 +175,14 @@ fn test_simd_coordinate_update_convergence() {
 
     let final_loss = 0.5 * sum_squares_f32(&y);
     let per_coord_loss = final_loss / n as f64;
-    println!("SIMD kernel 200-step quadratic loss: {:.6e} (per coordinate: {:.6e})", final_loss, per_coord_loss);
-    assert!(per_coord_loss < 1e-4, "SIMD update kernel must converge to < 1e-4 per coordinate");
+    println!(
+        "SIMD kernel 200-step quadratic loss: {:.6e} (per coordinate: {:.6e})",
+        final_loss, per_coord_loss
+    );
+    assert!(
+        per_coord_loss < 1e-4,
+        "SIMD update kernel must converge to < 1e-4 per coordinate"
+    );
 }
 
 #[test]
@@ -172,5 +196,8 @@ fn test_parallel_chunked_sum_squares_parity() {
 
     let diff = (sum32 - sum64).abs();
     println!("Parallel sum diff: {:.6e}", diff);
-    assert!(diff < 1e-3, "f32 and f64 sum of squares must agree within f32 accumulation tolerance");
+    assert!(
+        diff < 1e-3,
+        "f32 and f64 sum of squares must agree within f32 accumulation tolerance"
+    );
 }
