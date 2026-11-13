@@ -1,6 +1,6 @@
 # 🧠 Spodeian ML
 
-[![CI](https://github.com/Flaming-Chicken/spodeian-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/Flaming-Chicken/spodeian-ml/actions)
+[![CI](https://github.com/Spodeian/spodeian-core/actions/workflows/ci.yml/badge.svg)](https://github.com/Spodeian/spodeian-core/actions)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Python: 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776AB.svg?logo=python)](https://python.org)
 [![PyTorch: 2.14+](https://img.shields.io/badge/PyTorch-2.14%2B-EE4C2C.svg?logo=pytorch)](https://pytorch.org)
@@ -27,7 +27,7 @@
    - Dual-speed online adaptation, Sharpness-Aware Minimization (SAM), and continuous velocity flow heads.
 
 3. **Data Lake Integration (`spodeian_ml.lake`)**:
-   - Zero-copy Apache Arrow streaming loader reading columnar Parquet partitions from `sml-lake` in `spodeian-ml-rs`.
+   - Zero-copy Apache Arrow streaming loader reading columnar Parquet partitions from `sml-lake` in spodeian-core.
    - Streaming data iterators, memory-mapped caching, and dataset validation.
 
 4. **Experiment Tracking & Terminal Studio (`spodeian_ml.ops`)**:
