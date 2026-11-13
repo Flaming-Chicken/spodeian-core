@@ -67,6 +67,17 @@ jobs:
           fi
           cargo ndk -t arm64-v8a check --workspace
 
+  licenses:
+    name: Dependency Licenses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check dependency licenses
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check licenses
+
   semver-checks:
     name: Semver Stability Gate
     runs-on: ubuntu-latest
