@@ -73,10 +73,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check dependency licenses
-        uses: EmbarkStudios/cargo-deny-action@v2
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@v2
         with:
-          command: check licenses
+          tool: cargo-deny
+
+      - name: Check dependency licenses
+        run: cargo deny --all-features check licenses
 
   semver-checks:
     name: Semver Stability Gate
