@@ -2861,7 +2861,7 @@ dependencies = [
 
 [[package]]
 name = "sml-lake"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "arrow-array",
  "arrow-schema",
@@ -2891,7 +2891,7 @@ dependencies = [
 
 [[package]]
 name = "sml-runtime"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ahash",
  "byteorder",
@@ -2965,7 +2965,7 @@ dependencies = [
 
 [[package]]
 name = "spodeian-core"
-version = "2.0.0"
+version = "2.1.0"
 dependencies = [
  "sml-lake",
  "sml-runtime",
