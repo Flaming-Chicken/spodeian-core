@@ -30,6 +30,13 @@ rayon = { workspace = true, optional = true }
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
+[dev-dependencies]
+criterion = { version = "0.5", default-features = false }
+
+[[bench]]
+name = "sml_meta_bench"
+harness = false
+
 [lints.clippy]
 needless_range_loop = "allow"
 while_let_on_iterator = "allow"

@@ -48,7 +48,9 @@ pub fn cross_entropy(
     reduction: Reduction,
 ) -> Result<Tensor> {
     let dims = logits.dims();
-    let num_classes = *dims.last().unwrap();
+    let num_classes = *dims.last().ok_or_else(|| {
+        candle_core::Error::Msg("cross_entropy requires non-scalar logits tensor".into())
+    })?;
 
     // Flatten leading dimensions if sequence or spatial: e.g. [B, T, C] -> [B*T, C]
     let (flat_logits, flat_targets) = if dims.len() > 2 {

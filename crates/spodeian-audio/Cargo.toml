@@ -1,0 +1,15 @@
+[package]
+name = "spodeian-audio"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Pure-Rust WAV PCM 16/24/32f encoder/decoder, linear resampling, acoustic quality metrics, and zero-allocation DSP utilities"
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true

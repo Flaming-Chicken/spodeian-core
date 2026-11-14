@@ -8,10 +8,12 @@
 //! - `tokens`: WCAG AAA design tokens, KaTeX math symbols, and color presets (`spodeian-tokens`).
 //! - `export`: Universal serialization (JSON, CSV, Bincode, SafeTensors, BSON) (`spodeian-export`).
 //! - `cache`: Preferential multi-tier caching (Web Cache API, IndexedDB, CAS) (`spodeian-cache`).
+//! - `persist`: Versioned cross-platform JSON/RON app-state persistence and browser storage health (`spodeian-persist`).
 //! - `web_utils`: WebAssembly DOM helpers, clipboard, and blob transfers (`spodeian-web-utils`).
+//! - `leptos_ui`: Web/Leptos UI helpers, DOM accessibility bridges, focus trapping, and view models (`spodeian-leptos-ui`).
 //! - `ui`: Reusable `egui` components, responsive layout constraints, and diagnostic viewers (`spodeian-ui`).
-//! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`spodeian-lake`).
-//! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`spodeian-ml-utils`).
+//! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`sml-lake`).
+//! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`sml-runtime`).
 //!
 //! # Example
 //!
@@ -42,11 +44,29 @@ pub use spodeian_export as export;
 #[cfg(feature = "cache")]
 pub use spodeian_cache as cache;
 
+#[cfg(feature = "persist")]
+pub use spodeian_persist as persist;
+
 #[cfg(feature = "web-utils")]
 pub use spodeian_web_utils as web_utils;
 
+#[cfg(feature = "leptos-ui")]
+pub use spodeian_leptos_ui as leptos_ui;
+
 #[cfg(feature = "ui")]
 pub use spodeian_ui as ui;
+
+#[cfg(feature = "provenance")]
+pub use spodeian_provenance as provenance;
+
+#[cfg(feature = "stats")]
+pub use spodeian_stats as stats;
+
+#[cfg(feature = "forecast")]
+pub use spodeian_forecast as forecast;
+
+#[cfg(feature = "audio")]
+pub use spodeian_audio as audio;
 
 #[cfg(feature = "lake")]
 pub use sml_lake as lake;

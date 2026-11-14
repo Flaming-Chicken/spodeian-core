@@ -19,8 +19,14 @@ full = [
     "tokens",
     "export",
     "cache",
+    "persist",
     "web-utils",
+    "leptos-ui",
     "ui",
+    "provenance",
+    "stats",
+    "forecast",
+    "audio",
     "lake",
     "ml-utils",
 ]
@@ -30,8 +36,14 @@ telemetry = ["dep:spodeian-telemetry"]
 tokens = ["dep:spodeian-tokens"]
 export = ["dep:spodeian-export"]
 cache = ["dep:spodeian-cache"]
+persist = ["dep:spodeian-persist"]
 web-utils = ["dep:spodeian-web-utils"]
+leptos-ui = ["dep:spodeian-leptos-ui"]
 ui = ["dep:spodeian-ui"]
+provenance = ["dep:spodeian-provenance"]
+stats = ["dep:spodeian-stats"]
+forecast = ["dep:spodeian-forecast"]
+audio = ["dep:spodeian-audio"]
 lake = ["dep:sml-lake"]
 ml-utils = ["dep:sml-runtime"]
 
@@ -41,7 +53,13 @@ spodeian-telemetry = { workspace = true, optional = true }
 spodeian-tokens = { workspace = true, optional = true }
 spodeian-export = { workspace = true, optional = true }
 spodeian-cache = { workspace = true, optional = true }
+spodeian-persist = { workspace = true, optional = true }
 spodeian-web-utils = { workspace = true, optional = true }
+spodeian-leptos-ui = { workspace = true, optional = true }
 spodeian-ui = { workspace = true, optional = true }
+spodeian-provenance = { workspace = true, optional = true }
+spodeian-stats = { workspace = true, optional = true }
+spodeian-forecast = { workspace = true, optional = true }
+spodeian-audio = { workspace = true, optional = true }
 sml-lake = { workspace = true, optional = true }
 sml-runtime = { workspace = true, optional = true }

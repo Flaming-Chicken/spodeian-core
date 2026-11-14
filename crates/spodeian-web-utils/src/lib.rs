@@ -9,6 +9,8 @@
 //! interface can tell users the truth instead of assuming success. The original
 //! fire-and-forget functions remain and log their errors.
 
+pub mod pwa;
+
 #[allow(unused_imports)]
 use tracing::{error, info};
 

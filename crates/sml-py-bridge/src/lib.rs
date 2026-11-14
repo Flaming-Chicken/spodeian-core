@@ -104,10 +104,85 @@ fn py_cross_entropy_loss(
         .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))
 }
 
+/// Stateful Python-facing wrapper for [`sml_runtime::optim::SelfOptimizingMeta`].
+#[pyclass]
+pub struct PySelfOptimizingMeta {
+    inner: sml_runtime::optim::SelfOptimizingMeta,
+}
+
+#[pymethods]
+impl PySelfOptimizingMeta {
+    #[new]
+    #[pyo3(signature = (lr=1e-3, weight_decay=0.0))]
+    fn new(lr: f64, weight_decay: f64) -> Self {
+        let cfg = sml_runtime::optim::SelfOptimizingMetaConfig {
+            lr,
+            weight_decay,
+            ..Default::default()
+        };
+        Self {
+            inner: sml_runtime::optim::SelfOptimizingMeta::new(Vec::new(), cfg),
+        }
+    }
+
+    /// Executes one coordinate-wise `SelfOptimizingMeta` update on `params` given `grads`.
+    fn step(&mut self, mut params: Vec<f32>, grads: Vec<f32>) -> PyResult<Vec<f32>> {
+        if params.len() != grads.len() {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "params len ({}) != grads len ({})",
+                params.len(),
+                grads.len()
+            )));
+        }
+        self.inner
+            .step_slice_in_place_f32(0, &grads, &mut params)
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+        Ok(params)
+    }
+}
+
+/// Integrates `dx/dt = f(x, t)` on `[t0, t1]` using `SelfOptimizingMetaIntegrator` and a Python callable `f(x, t) -> list[float]`.
+#[pyfunction]
+#[pyo3(signature = (x0, t0, t1, velocity_fn, tol=1e-4))]
+fn py_meta_integrate(
+    py: Python<'_>,
+    x0: Vec<f32>,
+    t0: f32,
+    t1: f32,
+    velocity_fn: PyObject,
+    tol: f32,
+) -> PyResult<(Vec<f32>, usize)> {
+    let solver = sml_runtime::solvers::SelfOptimizingMetaIntegrator::new(tol);
+    let mut call_err: Option<PyErr> = None;
+    let (xf, _diag, nfe) = solver.solve_interval(&x0, t0, t1, |state, t| {
+        if call_err.is_some() {
+            return vec![0.0; state.len()];
+        }
+        match velocity_fn.call1(py, (state.to_vec(), t)) {
+            Ok(res) => match res.extract::<Vec<f32>>(py) {
+                Ok(v) => v,
+                Err(e) => {
+                    call_err = Some(e);
+                    vec![0.0; state.len()]
+                }
+            },
+            Err(e) => {
+                call_err = Some(e);
+                vec![0.0; state.len()]
+            }
+        }
+    });
+    if let Some(e) = call_err {
+        return Err(e);
+    }
+    Ok((xf, nfe))
+}
+
 /// Spodeian PyO3 Python Module
 #[doc = "**Stability: Experimental** — API subject to change"]
 #[pymodule]
 fn spodeian_py_bridge(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PySelfOptimizingMeta>()?;
     m.add_function(wrap_pyfunction!(py_temporal_mask, m)?)?;
     m.add_function(wrap_pyfunction!(py_gaussian_jitter, m)?)?;
     m.add_function(wrap_pyfunction!(py_rolling_zscore, m)?)?;
@@ -120,5 +195,6 @@ fn spodeian_py_bridge(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_velocity_verlet_step, m)?)?;
     m.add_function(wrap_pyfunction!(py_flow_matching_loss, m)?)?;
     m.add_function(wrap_pyfunction!(py_cross_entropy_loss, m)?)?;
+    m.add_function(wrap_pyfunction!(py_meta_integrate, m)?)?;
     Ok(())
 }

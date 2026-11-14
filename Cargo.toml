@@ -9,14 +9,16 @@ members = [
     "crates/spodeian-export",
     "crates/spodeian-web-utils",
     "crates/spodeian-ui",
-    "crates/spodeian-lake",
-    "crates/spodeian-ml-utils",
+    "crates/spodeian-persist",
+    "crates/spodeian-leptos-ui",
+    "crates/spodeian-provenance",
+    "crates/spodeian-stats",
+    "crates/spodeian-forecast",
+    "crates/spodeian-audio",
     "crates/sml-runtime",
     "crates/sml-schema",
     "crates/sml-kernel",
     "crates/sml-lake",
-    "crates/sml-candle",
-    "crates/sml-tools",
     "crates/sml-py-bridge",
 ]
 
@@ -24,7 +26,7 @@ members = [
 # Release version of the workspace as a whole: the `spodeian-core` umbrella crate
 # inherits it and each release is tagged `v<version>`. Every other crate sets its
 # own version in its manifest, bumped by semver for that crate's own changes.
-version = "2.1.1"
+version = "3.0.0"
 authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "PolyForm-Noncommercial-1.0.0"
@@ -35,22 +37,24 @@ repository = "https://github.com/Spodeian/spodeian-core"
 [workspace.dependencies]
 # Internal crates: keep each requirement equal to that crate's own version.
 spodeian-parallel = { path = "crates/spodeian-parallel", version = "1.0.0" }
-spodeian-core = { path = "crates/spodeian-core", version = "^2.0.0" }
+spodeian-core = { path = "crates/spodeian-core", version = "^3.0.0" }
 spodeian-cache = { path = "crates/spodeian-cache", version = "1.1.0" }
 spodeian-tokens = { path = "crates/spodeian-tokens", version = "1.1.0" }
 spodeian-telemetry = { path = "crates/spodeian-telemetry", version = "1.1.0" }
 spodeian-export = { path = "crates/spodeian-export", version = "2.0.0" }
 spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "1.1.0" }
 spodeian-ui = { path = "crates/spodeian-ui", version = "1.0.0" }
-spodeian-lake = { path = "crates/spodeian-lake", version = "0.2.0" }
-spodeian-ml-utils = { path = "crates/spodeian-ml-utils", version = "0.3.0" }
+spodeian-persist = { path = "crates/spodeian-persist", version = "0.1.0" }
+spodeian-leptos-ui = { path = "crates/spodeian-leptos-ui", version = "0.1.0" }
+spodeian-provenance = { path = "crates/spodeian-provenance", version = "0.1.0" }
+spodeian-stats = { path = "crates/spodeian-stats", version = "0.1.0" }
+spodeian-forecast = { path = "crates/spodeian-forecast", version = "0.1.0" }
+spodeian-audio = { path = "crates/spodeian-audio", version = "0.1.0" }
 # Machine-learning systems crates (formerly spodeian-ml-rs)
 sml-runtime = { path = "crates/sml-runtime", version = "0.2.0" }
 sml-schema = { path = "crates/sml-schema", version = "0.1.0" }
 sml-kernel = { path = "crates/sml-kernel", version = "0.1.0" }
 sml-lake = { path = "crates/sml-lake", version = "0.2.0" }
-sml-candle = { path = "crates/sml-candle", version = "0.1.0" }
-sml-tools = { path = "crates/sml-tools", version = "0.1.0" }
 sml-py-bridge = { path = "crates/sml-py-bridge", version = "0.1.0" }
 
 # Machine Learning & Tensors
@@ -116,7 +120,10 @@ web-sys = { version = "0.3", features = [
     "FileSystemFileHandle",
     "Headers",
     "HtmlCanvasElement",
+    "HtmlElement",
     "Element",
+    "Node",
+    "NodeList",
     "Url",
     "HtmlAnchorElement",
     "HtmlDocument",

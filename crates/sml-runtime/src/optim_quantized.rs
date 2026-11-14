@@ -775,7 +775,7 @@ pub struct QuantizedMemoryReport {
     pub compression_ratio_vs_f32: f32,
 }
 
-/// Fully modular, component-quantised parameter state buffer for [`SelfOptimizingMeta`].
+/// Fully modular, component-quantised parameter state buffer for `SelfOptimizingMeta`.
 #[derive(Debug, Clone)]
 pub struct QuantizedMetaParamState {
     pub num_params: usize,

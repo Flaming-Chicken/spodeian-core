@@ -26,3 +26,10 @@ bson = { workspace = true, optional = true }
 miniz_oxide = { workspace = true, optional = true }
 safetensors = { workspace = true, optional = true }
 thiserror = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "serialization_benchmarks"
+harness = false

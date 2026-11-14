@@ -87,7 +87,7 @@ impl GoldenParityHarnessBuilder {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::GoldenParityHarness;
+/// use sml_runtime::GoldenParityHarness;
 ///
 /// let harness = GoldenParityHarness::new(1e-4);
 /// let candidate = vec![1.00001, 2.00002, 3.00001];

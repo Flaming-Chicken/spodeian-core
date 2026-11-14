@@ -58,7 +58,7 @@ pub struct InputErrorEstimate {
     pub velocity_rel_error: f32,
     /// Known or estimated upper bound on the Lipschitz constant $L = \|\nabla f\|$.
     /// When `None`, the meta-integrator autonomously computes the directional Lipschitz sensitivity online:
-    /// $L_{n, i} \approx \frac{|v_{pred, i} - history_{i}[0]|}{|x_{pred, i} - curr\_x_i| + \varepsilon_{denom}}$.
+    /// $L_{n, i} \approx \frac{|v_{pred, i} - history_{i}\[0\]|}{|x_{pred, i} - curr\_x_i| + \varepsilon_{denom}}$.
     pub lipschitz_bound: Option<f32>,
 }
 

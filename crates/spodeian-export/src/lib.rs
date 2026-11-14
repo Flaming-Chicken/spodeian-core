@@ -8,6 +8,14 @@
 //! - **BSON**: Compressed BSON binary serialization with Zlib compression.
 //! - **SafeTensors**: Tensor weight checkpoints and golden parity verification.
 //! - **Audio WAV**: Pure-Rust IEEE 32-bit float PCM RIFF/WAVE audio serialization.
+//! - **Directory Walking (`dir_walk`)**: Lazy UTF-8 directory crawling & deterministic tree serialization.
+//! - **Serde Compat (`serde_compat`)**: `u64`/`i64` bit-preserving wire compatibility for BSON.
+
+pub mod dir_walk;
+pub mod serde_compat;
+
+pub use dir_walk::{Directory, LazyFile};
+pub use serde_compat::u64_i64_compat;
 
 use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error;

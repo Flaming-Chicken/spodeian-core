@@ -185,7 +185,7 @@ impl GgufModel {
     }
 }
 
-/// Helper function to write a string in GGUF format: [length: u64][bytes].
+/// Helper function to write a string in GGUF format: `[length: u64][bytes]`.
 pub fn write_gguf_string<W: Write>(writer: &mut W, s: &str) -> Result<(), std::io::Error> {
     writer.write_u64::<LittleEndian>(s.len() as u64)?;
     writer.write_all(s.as_bytes())?;

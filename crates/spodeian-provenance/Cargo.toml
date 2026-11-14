@@ -1,0 +1,16 @@
+[package]
+name = "spodeian-provenance"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Whole-token license verification, unified media provenance ledger, and ATTRIBUTIONS.txt generation"
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
