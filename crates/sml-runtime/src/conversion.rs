@@ -30,7 +30,7 @@ pub enum ConversionMode {
     /// Compensated error-diffusion residue carry (guarantees total sum conservation $\sum y = \sum x$).
     #[default]
     Compensated,
-    /// Stochastic dithered rounding (guarantees unbiased expectation $\mathbb{E}[y] = x$).
+    /// Stochastic dithered rounding (guarantees unbiased expectation $\mathbb{E}\[y\] = x$).
     Stochastic { seed: u64 },
     /// Adaptive hybrid combining compensated error diffusion with localized boundary anti-windup.
     AdaptiveMinimalDrift,

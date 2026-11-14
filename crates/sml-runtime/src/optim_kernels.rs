@@ -3,7 +3,7 @@
 //! Provides hardware-accelerated coordinate updates:
 //! - Auto-vectorized 8-lane `f32` and 4-lane `f64` inner loops with FMA.
 //! - Deterministic two-level chunked parallel reductions via `rayon` (when `feature = "parallel"`).
-//! - WebGPU WGSL compute shader for GPU execution of [`SelfOptimizingMeta`].
+//! - WebGPU WGSL compute shader for GPU execution of `SelfOptimizingMeta`.
 //! - Portable scalar fallbacks for `wasm32-unknown-unknown`.
 
 #[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
@@ -57,7 +57,7 @@ pub fn sum_squares_f64(slice: &[f64]) -> f64 {
     sum
 }
 
-/// Fused coordinate update kernel parameters for [`SelfOptimizingMeta`].
+/// Fused coordinate update kernel parameters for `SelfOptimizingMeta`.
 #[derive(Debug, Clone, Copy)]
 pub struct KernelUpdateParams {
     pub step: usize,
@@ -234,7 +234,7 @@ pub fn update_coordinates_f32(
     }
 }
 
-/// WebGPU WGSL compute shader source for hardware-accelerated [`SelfOptimizingMeta`] step execution.
+/// WebGPU WGSL compute shader source for hardware-accelerated `SelfOptimizingMeta` step execution.
 pub const SELF_OPTIMIZING_META_WGSL: &str = r#"
 // WebGPU Compute Shader: SelfOptimizingMeta Fused Step Kernel
 // Executes Fisher-preconditioned Bolzano-Secant step with Schedule-Free Polyak averaging.
