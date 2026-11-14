@@ -1,0 +1,16 @@
+[package]
+name = "spodeian-forecast"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Time-series forecasting primitives: Holt-Winters ETS, 1D Kalman state-space filter, GARCH(1,1) volatility, split-conformal intervals, pinball loss, and Gaussian CRPS"
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+spodeian-stats = { workspace = true }

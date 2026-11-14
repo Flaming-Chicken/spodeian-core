@@ -3076,6 +3076,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "spodeian-audio"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "spodeian-cache"
 version = "1.1.0"
 dependencies = [
@@ -3099,8 +3107,10 @@ version = "3.0.0"
 dependencies = [
  "sml-lake",
  "sml-runtime",
+ "spodeian-audio",
  "spodeian-cache",
  "spodeian-export",
+ "spodeian-forecast",
  "spodeian-leptos-ui",
  "spodeian-parallel",
  "spodeian-persist",
@@ -3122,6 +3132,15 @@ dependencies = [
  "safetensors 0.5.3",
  "serde",
  "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "spodeian-forecast"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "spodeian-stats",
  "thiserror 2.0.21",
 ]
 

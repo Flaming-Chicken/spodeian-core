@@ -62,6 +62,12 @@ pub use spodeian_provenance as provenance;
 #[cfg(feature = "stats")]
 pub use spodeian_stats as stats;
 
+#[cfg(feature = "forecast")]
+pub use spodeian_forecast as forecast;
+
+#[cfg(feature = "audio")]
+pub use spodeian_audio as audio;
+
 #[cfg(feature = "lake")]
 pub use sml_lake as lake;
 
