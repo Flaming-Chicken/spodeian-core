@@ -152,3 +152,125 @@ fn test_spodeian_widgets_rendering() {
     assert_eq!(card.title, "Sharpe Ratio");
     assert_eq!(card.value, "2.45");
 }
+
+#[test]
+fn undo_stack_bounded_history_and_redo_branch_clearing() {
+    let mut stack = spodeian_ui::UndoStack::new(2);
+    assert!(!stack.can_undo());
+    assert!(!stack.can_redo());
+
+    let mut current = 0_i32;
+    for next in 1..=3 {
+        stack.push(current);
+        current = next;
+    }
+    assert_eq!(current, 3);
+    assert_eq!(stack.undo_len(), 2);
+
+    current = stack.undo(current).expect("first undo");
+    assert_eq!(current, 2);
+    current = stack.undo(current).expect("second undo");
+    assert_eq!(current, 1);
+    assert!(stack.undo(current).is_none(), "oldest state (0) was evicted");
+
+    current = stack.redo(current).expect("first redo");
+    assert_eq!(current, 2);
+    assert!(stack.can_redo());
+
+    stack.push(current);
+    current = 99;
+    assert_eq!(current, 99);
+    assert!(!stack.can_redo(), "push must clear redo branch");
+
+    stack.clear();
+    assert!(!stack.can_undo());
+    assert!(!stack.can_redo());
+}
+
+#[test]
+fn command_palette_filters_and_executes_via_keyboard() {
+    let commands = vec![
+        spodeian_ui::CommandEntry::new("file.save", "Save Project", "Ctrl+S", "File"),
+        spodeian_ui::CommandEntry::new("view.theme", "Toggle Theme", "Ctrl+T", "View"),
+        spodeian_ui::CommandEntry::new("help.telemetry", "Open Telemetry", "", "Help"),
+    ];
+    let mut palette = spodeian_ui::CommandPaletteWidget::new(commands);
+    assert!(!palette.is_open());
+    assert_eq!(palette.filtered_indices(), vec![0, 1, 2]);
+
+    palette.open();
+    assert!(palette.is_open());
+    palette.set_query("Ctrl");
+    assert_eq!(palette.filtered_indices(), vec![0, 1]);
+
+    let ctx = egui::Context::default();
+    let mut nav_input = egui::RawInput::default();
+    nav_input.events.push(egui::Event::Key {
+        key: egui::Key::ArrowDown,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::NONE,
+    });
+    nav_input.events.push(egui::Event::Key {
+        key: egui::Key::Enter,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::NONE,
+    });
+
+    let mut executed = None;
+    let mut output = ctx.run_ui(nav_input, |ui| {
+        executed = palette.show(ui.ctx());
+    });
+    output.textures_delta.clear();
+    assert_eq!(executed.as_deref(), Some("view.theme"));
+    assert!(!palette.is_open());
+
+    palette.open();
+    let mut esc_input = egui::RawInput::default();
+    esc_input.events.push(egui::Event::Key {
+        key: egui::Key::Escape,
+        physical_key: None,
+        pressed: true,
+        repeat: false,
+        modifiers: egui::Modifiers::NONE,
+    });
+    let mut esc_output = ctx.run_ui(esc_input, |ui| {
+        assert!(palette.show(ui.ctx()).is_none());
+    });
+    esc_output.textures_delta.clear();
+    assert!(!palette.is_open());
+}
+
+#[test]
+fn telemetry_dashboard_modal_and_kpi_card_render_cleanly() {
+    let data = spodeian_telemetry::TelemetryDashboardData {
+        title: "Wave 1 Diagnostics".to_string(),
+        timestamp_utc: 1_700_000_000,
+        uptime_secs: 42,
+        total_operations: 1200,
+        success_rate: 99.75,
+        throughput_ops_sec: 480.0,
+        memory_mb: 34.5,
+        active_backend: "IndexedDB".to_string(),
+        channels: vec![spodeian_telemetry::TelemetryChannelMetric {
+            name: "Persist".to_string(),
+            count: 64,
+            latency_ms: 0.42,
+            status: "Healthy".to_string(),
+        }],
+    };
+
+    let ctx = egui::Context::default();
+    let mut open = true;
+    let mut output = ctx.run_ui(egui::RawInput::default(), |ui| {
+        spodeian_ui::render_telemetry_dashboard_modal(ui.ctx(), &mut open, &data);
+        egui::CentralPanel::default().show(ui, |ui| {
+            spodeian_ui::render_kpi_card(ui, "Latency", "0.42 ms", "p95");
+        });
+    });
+    output.textures_delta.clear();
+    assert!(open);
+}

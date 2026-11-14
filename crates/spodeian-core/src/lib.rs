@@ -8,6 +8,7 @@
 //! - `tokens`: WCAG AAA design tokens, KaTeX math symbols, and color presets (`spodeian-tokens`).
 //! - `export`: Universal serialization (JSON, CSV, Bincode, SafeTensors, BSON) (`spodeian-export`).
 //! - `cache`: Preferential multi-tier caching (Web Cache API, IndexedDB, CAS) (`spodeian-cache`).
+//! - `persist`: Versioned cross-platform JSON/RON app-state persistence and browser storage health (`spodeian-persist`).
 //! - `web_utils`: WebAssembly DOM helpers, clipboard, and blob transfers (`spodeian-web-utils`).
 //! - `ui`: Reusable `egui` components, responsive layout constraints, and diagnostic viewers (`spodeian-ui`).
 //! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`sml-lake`).
@@ -41,6 +42,9 @@ pub use spodeian_export as export;
 
 #[cfg(feature = "cache")]
 pub use spodeian_cache as cache;
+
+#[cfg(feature = "persist")]
+pub use spodeian_persist as persist;
 
 #[cfg(feature = "web-utils")]
 pub use spodeian_web_utils as web_utils;

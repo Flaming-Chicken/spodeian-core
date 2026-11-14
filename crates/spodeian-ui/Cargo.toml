@@ -11,8 +11,10 @@ readme = "README.md"
 [dependencies]
 egui = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 spodeian-tokens = { workspace = true }
 spodeian-telemetry = { workspace = true }
+spodeian-web-utils = { workspace = true }
 
 [lints]
 workspace = true

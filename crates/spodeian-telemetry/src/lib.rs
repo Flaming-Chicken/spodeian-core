@@ -408,3 +408,42 @@ pub fn init_telemetry(default_filter: &str) {
 pub fn init_default() {
     init_telemetry("info,wgpu=warn,egui=warn");
 }
+
+/// Performance metric breakdown for a single subsystem telemetry channel.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct TelemetryChannelMetric {
+    pub name: String,
+    pub count: usize,
+    pub latency_ms: f64,
+    pub status: String,
+}
+
+/// Shared structured performance telemetry snapshot consumed by UI dashboard modals and exporters.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct TelemetryDashboardData {
+    pub title: String,
+    pub timestamp_utc: i64,
+    pub uptime_secs: u64,
+    pub total_operations: usize,
+    pub success_rate: f64,
+    pub throughput_ops_sec: f64,
+    pub memory_mb: f64,
+    pub active_backend: String,
+    pub channels: Vec<TelemetryChannelMetric>,
+}
+
+impl Default for TelemetryDashboardData {
+    fn default() -> Self {
+        Self {
+            title: "System Performance Telemetry".to_string(),
+            timestamp_utc: 0,
+            uptime_secs: 0,
+            total_operations: 0,
+            success_rate: 100.0,
+            throughput_ops_sec: 0.0,
+            memory_mb: 0.0,
+            active_backend: String::new(),
+            channels: Vec::new(),
+        }
+    }
+}

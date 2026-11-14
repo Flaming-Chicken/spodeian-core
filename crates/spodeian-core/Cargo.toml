@@ -19,6 +19,7 @@ full = [
     "tokens",
     "export",
     "cache",
+    "persist",
     "web-utils",
     "ui",
     "lake",
@@ -30,6 +31,7 @@ telemetry = ["dep:spodeian-telemetry"]
 tokens = ["dep:spodeian-tokens"]
 export = ["dep:spodeian-export"]
 cache = ["dep:spodeian-cache"]
+persist = ["dep:spodeian-persist"]
 web-utils = ["dep:spodeian-web-utils"]
 ui = ["dep:spodeian-ui"]
 lake = ["dep:sml-lake"]
@@ -41,6 +43,7 @@ spodeian-telemetry = { workspace = true, optional = true }
 spodeian-tokens = { workspace = true, optional = true }
 spodeian-export = { workspace = true, optional = true }
 spodeian-cache = { workspace = true, optional = true }
+spodeian-persist = { workspace = true, optional = true }
 spodeian-web-utils = { workspace = true, optional = true }
 spodeian-ui = { workspace = true, optional = true }
 sml-lake = { workspace = true, optional = true }
