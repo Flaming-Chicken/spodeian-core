@@ -3034,6 +3034,7 @@ dependencies = [
  "byteorder",
  "candle-core",
  "candle-nn",
+ "criterion",
  "getrandom 0.3.4",
  "rand",
  "rayon",

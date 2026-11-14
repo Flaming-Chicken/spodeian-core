@@ -308,3 +308,55 @@ fn meta_step(@builtin(global_invocation_id) global_id: vec3<u32>) {
     y[idx] = (1.0 - cfg.beta_polyak) * z_new + cfg.beta_polyak * y[idx];
 }
 "#;
+
+/// WebGPU WGSL compute shader source for hardware-accelerated [`crate::solvers::SelfOptimizingMetaIntegrator`]
+/// conformal-damped stepping and $C^\infty$ hyperbolic symplectic momentum projection.
+pub const SELF_OPTIMIZING_META_INTEGRATOR_WGSL: &str = r#"
+// WebGPU Compute Shader: SelfOptimizingMetaIntegrator Conformal Step + Symplectic Scale Kernel
+
+struct IntegratorUniforms {
+    h: f32,
+    curvature: f32,
+    clamp_limit: f32,
+    symplectic_scale: f32,
+    n: u32,
+    half_n: u32,
+    apply_symplectic: u32,
+    _pad: u32,
+};
+
+@group(0) @binding(0) var<uniform> cfg: IntegratorUniforms;
+@group(0) @binding(1) var<storage, read> curr_x: array<f32>;
+@group(0) @binding(2) var<storage, read> v_pred: array<f32>;
+@group(0) @binding(3) var<storage, read_write> next_x: array<f32>;
+
+@compute @workgroup_size(256)
+fn meta_integrator_step(@builtin(global_invocation_id) global_id: vec3<u32>) {
+    let idx = global_id.x;
+    if (idx >= cfg.n) {
+        return;
+    }
+
+    let conformal_scale = 1.0 / (1.0 + 0.5 * cfg.curvature);
+    let v_scaled = clamp(v_pred[idx] * conformal_scale, -cfg.clamp_limit, cfg.clamp_limit);
+    var x_out = curr_x[idx] + cfg.h * v_scaled;
+
+    if (cfg.apply_symplectic != 0u && idx >= cfg.half_n) {
+        x_out = x_out * cfg.symplectic_scale;
+    }
+    next_x[idx] = x_out;
+}
+"#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_wgsl_kernel_sources_well_formed() {
+        assert!(SELF_OPTIMIZING_META_WGSL.contains("fn meta_step"));
+        assert!(SELF_OPTIMIZING_META_WGSL.contains("@workgroup_size(256)"));
+        assert!(SELF_OPTIMIZING_META_INTEGRATOR_WGSL.contains("fn meta_integrator_step"));
+        assert!(SELF_OPTIMIZING_META_INTEGRATOR_WGSL.contains("symplectic_scale"));
+    }
+}

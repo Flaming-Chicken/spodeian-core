@@ -278,7 +278,7 @@ impl<T: IntegratorScalar> DenseHermiteTrajectory<T> {
         if t_query < self.segments[0].t_start {
             Some(self.segments[0].x_start.clone())
         } else {
-            Some(self.segments.last().unwrap().x_end.clone())
+            self.segments.last().map(|s| s.x_end.clone())
         }
     }
 }
