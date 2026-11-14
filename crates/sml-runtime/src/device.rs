@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::ComputeDevice;
+/// use sml_runtime::ComputeDevice;
 ///
 /// let dev = ComputeDevice::Cpu;
 /// assert_eq!(dev.as_str(), "cpu");
@@ -112,7 +112,7 @@ pub struct ComputeCapabilities {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::{ComputeRouter, ComputeDevice};
+/// use sml_runtime::{ComputeRouter, ComputeDevice};
 ///
 /// let device = ComputeRouter::parse_device("cpu").unwrap();
 /// assert_eq!(device, ComputeDevice::Cpu);

@@ -524,7 +524,7 @@ impl ContinuousIntegrator<f64> for HeunPredictorCorrector {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::{Rk4Stepper, ContinuousIntegrator};
+/// use sml_runtime::{Rk4Stepper, ContinuousIntegrator};
 ///
 /// let stepper = Rk4Stepper;
 /// let y0 = vec![1.0];

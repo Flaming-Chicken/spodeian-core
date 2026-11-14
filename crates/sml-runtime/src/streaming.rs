@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::RollingWindow;
+/// use sml_runtime::RollingWindow;
 ///
 /// let mut window = RollingWindow::new(3);
 /// assert_eq!(window.push(10), None);
@@ -153,7 +153,7 @@ impl<T: Clone> RollingWindow<T> {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::OnlineSlidingStats;
+/// use sml_runtime::OnlineSlidingStats;
 ///
 /// let mut stats = OnlineSlidingStats::new(4);
 /// for val in [1.0, 2.0, 3.0, 4.0] {
@@ -282,7 +282,7 @@ impl OnlineSlidingStats {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::ExponentialMovingAverage;
+/// use sml_runtime::ExponentialMovingAverage;
 ///
 /// let mut ema = ExponentialMovingAverage::with_span(9);
 /// assert_eq!(ema.update(100.0), 100.0);
@@ -351,7 +351,7 @@ impl ExponentialMovingAverage {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::OnlineSlidingCovariance;
+/// use sml_runtime::OnlineSlidingCovariance;
 ///
 /// let mut cov = OnlineSlidingCovariance::new(5);
 /// for i in 1..=5 {

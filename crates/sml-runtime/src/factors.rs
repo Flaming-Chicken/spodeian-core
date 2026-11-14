@@ -1,6 +1,6 @@
 //! Pure Rust quantitative financial factors, time-series transforms, and data augmentations.
 //!
-//! Centralized in `spodeian-ml-utils` to guarantee bit-perfect mathematical parity
+//! Centralized in `sml-runtime` to guarantee bit-perfect mathematical parity
 //! between Python/PyTorch data augmentations (`spodeian-py-bridge`) and Rust production trading engines (`Risky Business`).
 
 /// Computes log returns: ln(P_t / P_{t-1}). First element is 0.0.

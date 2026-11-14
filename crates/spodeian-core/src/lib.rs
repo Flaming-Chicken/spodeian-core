@@ -10,8 +10,8 @@
 //! - `cache`: Preferential multi-tier caching (Web Cache API, IndexedDB, CAS) (`spodeian-cache`).
 //! - `web_utils`: WebAssembly DOM helpers, clipboard, and blob transfers (`spodeian-web-utils`).
 //! - `ui`: Reusable `egui` components, responsive layout constraints, and diagnostic viewers (`spodeian-ui`).
-//! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`spodeian-lake`).
-//! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`spodeian-ml-utils`).
+//! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`sml-lake`).
+//! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`sml-runtime`).
 //!
 //! # Example
 //!

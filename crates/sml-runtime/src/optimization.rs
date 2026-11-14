@@ -148,7 +148,7 @@ pub struct OptimizationResult {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_ml_utils::LbfgsOptimizer;
+/// use sml_runtime::LbfgsOptimizer;
 ///
 /// // Minimize quadratic: f(x, y) = (x - 3)^2 + 2*(y + 1)^2
 /// let optimizer = LbfgsOptimizer::new(50, 1e-6);

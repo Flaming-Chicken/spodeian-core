@@ -129,7 +129,7 @@ impl SimplePrng {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_lake::SyntheticMarketGenerator;
+/// use sml_lake::SyntheticMarketGenerator;
 ///
 /// let generator = SyntheticMarketGenerator::new(42);
 /// let ticks = generator.generate_ticks("AAPL", 10, 150.0, 0.25);
@@ -215,7 +215,7 @@ impl SyntheticMarketGenerator {
 /// # Examples
 ///
 /// ```rust
-/// use spodeian_lake::SyntheticAcousticGenerator;
+/// use sml_lake::SyntheticAcousticGenerator;
 ///
 /// let generator = SyntheticAcousticGenerator::new(42);
 /// let snapshots = generator.generate_telemetry(5);
