@@ -1,6 +1,8 @@
 use spodeian_stats::{
-    adf_statistic, chi2_sf, engle_granger_cointegration, huber_irls_regression, jarque_bera_stat,
-    newey_west_hac, normal_cdf, normal_ppf, ols, ridge_regression, student_t_cdf,
+    ObjectiveDirection, adf_statistic, chi2_sf, engle_granger_cointegration,
+    exact_non_dominated_indices, huber_irls_regression, hypervolume_2d, is_strict_pareto_frontier,
+    jarque_bera_stat, newey_west_hac, normal_cdf, normal_ppf, ols, ridge_regression,
+    select_utopia_knee_index, student_t_cdf,
 };
 
 #[test]
@@ -87,4 +89,25 @@ fn test_jarque_bera_and_engle_granger_cointegration() {
     assert!((slope - 2.0).abs() < 0.05);
     assert!(resid_adf < -3.0, "expected stationary residual ADF < -3, got {resid_adf}");
     assert!(adf_statistic(&x, 1).expect("rw adf") > resid_adf);
+}
+
+#[test]
+fn test_pareto_exact_dominance_knee_and_hypervolume() {
+    // Objectives: [minimize cost, maximize accuracy]
+    let dirs = [ObjectiveDirection::Minimize, ObjectiveDirection::Maximize];
+    let pts = vec![
+        vec![1.0, 0.70], // non-dominated
+        vec![2.0, 0.85], // knee
+        vec![2.5, 0.80], // dominated by [2.0, 0.85]
+        vec![4.0, 0.92], // non-dominated
+    ];
+    let idx = exact_non_dominated_indices(&pts, &dirs);
+    assert_eq!(idx, vec![0, 1, 3]);
+
+    let frontier: Vec<Vec<f64>> = idx.iter().map(|&i| pts[i].clone()).collect();
+    assert!(is_strict_pareto_frontier(&frontier, &dirs));
+    assert_eq!(select_utopia_knee_index(&frontier, &dirs), Some(1));
+
+    let hv = hypervolume_2d(&[(1.0, 4.0), (2.0, 2.0), (4.0, 1.0)], (5.0, 5.0));
+    assert!((hv - 11.0).abs() < 1e-9);
 }

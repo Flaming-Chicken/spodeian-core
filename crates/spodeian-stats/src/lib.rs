@@ -6,6 +6,12 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+pub mod pareto;
+pub use pareto::{
+    ObjectiveDirection, dominates, exact_non_dominated_indices, hypervolume_2d,
+    is_strict_pareto_frontier, select_utopia_knee_index,
+};
+
 /// Errors returned by statistical routines.
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum StatsError {
