@@ -3104,6 +3104,8 @@ dependencies = [
  "spodeian-leptos-ui",
  "spodeian-parallel",
  "spodeian-persist",
+ "spodeian-provenance",
+ "spodeian-stats",
  "spodeian-telemetry",
  "spodeian-tokens",
  "spodeian-ui",
@@ -3158,6 +3160,23 @@ dependencies = [
  "tracing",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "spodeian-provenance"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "spodeian-stats"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

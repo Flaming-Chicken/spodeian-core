@@ -23,6 +23,8 @@ full = [
     "web-utils",
     "leptos-ui",
     "ui",
+    "provenance",
+    "stats",
     "lake",
     "ml-utils",
 ]
@@ -36,6 +38,8 @@ persist = ["dep:spodeian-persist"]
 web-utils = ["dep:spodeian-web-utils"]
 leptos-ui = ["dep:spodeian-leptos-ui"]
 ui = ["dep:spodeian-ui"]
+provenance = ["dep:spodeian-provenance"]
+stats = ["dep:spodeian-stats"]
 lake = ["dep:sml-lake"]
 ml-utils = ["dep:sml-runtime"]
 
@@ -49,5 +53,7 @@ spodeian-persist = { workspace = true, optional = true }
 spodeian-web-utils = { workspace = true, optional = true }
 spodeian-leptos-ui = { workspace = true, optional = true }
 spodeian-ui = { workspace = true, optional = true }
+spodeian-provenance = { workspace = true, optional = true }
+spodeian-stats = { workspace = true, optional = true }
 sml-lake = { workspace = true, optional = true }
 sml-runtime = { workspace = true, optional = true }

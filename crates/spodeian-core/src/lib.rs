@@ -56,6 +56,12 @@ pub use spodeian_leptos_ui as leptos_ui;
 #[cfg(feature = "ui")]
 pub use spodeian_ui as ui;
 
+#[cfg(feature = "provenance")]
+pub use spodeian_provenance as provenance;
+
+#[cfg(feature = "stats")]
+pub use spodeian_stats as stats;
+
 #[cfg(feature = "lake")]
 pub use sml_lake as lake;
 

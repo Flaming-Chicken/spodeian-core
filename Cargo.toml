@@ -11,6 +11,8 @@ members = [
     "crates/spodeian-ui",
     "crates/spodeian-persist",
     "crates/spodeian-leptos-ui",
+    "crates/spodeian-provenance",
+    "crates/spodeian-stats",
     "crates/sml-runtime",
     "crates/sml-schema",
     "crates/sml-kernel",
@@ -42,6 +44,8 @@ spodeian-web-utils = { path = "crates/spodeian-web-utils", version = "1.1.0" }
 spodeian-ui = { path = "crates/spodeian-ui", version = "1.0.0" }
 spodeian-persist = { path = "crates/spodeian-persist", version = "0.1.0" }
 spodeian-leptos-ui = { path = "crates/spodeian-leptos-ui", version = "0.1.0" }
+spodeian-provenance = { path = "crates/spodeian-provenance", version = "0.1.0" }
+spodeian-stats = { path = "crates/spodeian-stats", version = "0.1.0" }
 # Machine-learning systems crates (formerly spodeian-ml-rs)
 sml-runtime = { path = "crates/sml-runtime", version = "0.2.0" }
 sml-schema = { path = "crates/sml-schema", version = "0.1.0" }
