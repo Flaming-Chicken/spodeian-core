@@ -24,7 +24,7 @@ members = [
 # Release version of the workspace as a whole: the `spodeian-core` umbrella crate
 # inherits it and each release is tagged `v<version>`. Every other crate sets its
 # own version in its manifest, bumped by semver for that crate's own changes.
-version = "2.1.0"
+version = "2.1.1"
 authors = ["Liam <spodeian@proton.me>"]
 edition = "2024"
 license = "PolyForm-Noncommercial-1.0.0"
