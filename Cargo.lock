@@ -2855,7 +2855,6 @@ dependencies = [
  "pollster",
  "serde",
  "serde_json",
- "sml-kernel",
  "wgpu",
 ]
 
@@ -2965,7 +2964,7 @@ dependencies = [
 
 [[package]]
 name = "spodeian-core"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "sml-lake",
  "sml-runtime",

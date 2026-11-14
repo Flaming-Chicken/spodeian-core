@@ -1,7 +1,7 @@
 # Spodeian Core
 
 [![CI](https://github.com/Spodeian/spodeian-core/actions/workflows/ci.yml/badge.svg)](https://github.com/Spodeian/spodeian-core/actions)
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](LICENSE.md)
 
 **Cross-Project Shared Ecosystem Foundation: Preferential Multi-Tier Caching, WCAG 2.1 AAA Design Tokens, Telemetry, Data Lake, Numerical Stability, and PyO3 Native Interop**
 
@@ -74,3 +74,12 @@ cargo clippy --workspace --exclude spodeian-py-bridge --all-targets -- -D warnin
 - **Zero Clippy Warnings**: Strict linting across all targets and unit tests.
 - **100% Test Coverage**: All tests isolated in dedicated integration test suites under `tests/`.
 - **Universal Accessibility**: Strict adherence to WCAG 2.1 AAA contrast and colorblind safety guidelines.
+
+---
+
+## License
+
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). You may use,
+change and share this software for any noncommercial purpose. For a
+commercial license, contact [Spodeian](https://github.com/Spodeian). Earlier
+releases keep the license they were published under.

@@ -2,7 +2,7 @@
 
 [![Rust Toolchain](https://img.shields.io/badge/Rust-1.85%2B%20%7C%202024%20Edition-orange.svg)](Cargo.toml)
 [![Candle Core](https://img.shields.io/badge/Candle-0.11-blue.svg)](../../crates/sml-candle)
-[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue.svg)](../../LICENSE.md)
 
 High-performance, zero-Python, memory-safe Rust machine learning runtime, local embedded columnar Parquet data lake, PyO3 bindings, and WebGPU/SIMD hardware compute kernels.
 
