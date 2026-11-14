@@ -118,7 +118,9 @@ pub fn encode_wav_bytes(
 /// Decodes a standard 44-byte-header RIFF/WAVE byte slice (`16-bit`, `24-bit`, or `32-bit float`).
 pub fn decode_wav_bytes(bytes: &[u8]) -> Result<AudioBuffer, AudioError> {
     if bytes.len() < 44 || &bytes[0..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
-        return Err(AudioError::MalformedWav("missing RIFF/WAVE header".to_string()));
+        return Err(AudioError::MalformedWav(
+            "missing RIFF/WAVE header".to_string(),
+        ));
     }
     let audio_fmt = u16::from_le_bytes([bytes[20], bytes[21]]);
     let channels = u16::from_le_bytes([bytes[22], bytes[23]]);

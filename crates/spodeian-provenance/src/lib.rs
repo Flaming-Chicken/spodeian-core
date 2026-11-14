@@ -94,9 +94,7 @@ impl LicenseVerifier {
 
     /// Normalizes a license label into uppercase hyphen-separated canonical form.
     pub fn normalize(raw: &str) -> String {
-        raw.trim()
-            .to_uppercase()
-            .replace([' ', '_'], "-")
+        raw.trim().to_uppercase().replace([' ', '_'], "-")
     }
 
     /// Checks whether `license` is permitted using whole-token matching (never substring matching).

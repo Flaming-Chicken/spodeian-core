@@ -128,7 +128,9 @@ impl LazyFile {
         if *self.is_text.get_or_init(|| is_some) != is_some {
             return Err("is_text already set differently");
         }
-        self.content.set(content).map_err(|_| "Content already set")?;
+        self.content
+            .set(content)
+            .map_err(|_| "Content already set")?;
         Ok(())
     }
 
@@ -402,7 +404,11 @@ mod tests {
             .write_all(&[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])?;
 
         let mut root_dir = Directory::from_path_slimmed(root_path, true)?;
-        let config_file = root_dir.files.iter().find(|f| f.name == "config.json").unwrap();
+        let config_file = root_dir
+            .files
+            .iter()
+            .find(|f| f.name == "config.json")
+            .unwrap();
         assert!(config_file.get_content().is_none());
 
         let base_parent = root_path.parent().unwrap();

@@ -64,10 +64,7 @@ pub fn exact_non_dominated_indices(
 }
 
 /// Verifies that no point in `points` dominates another point in `points`.
-pub fn is_strict_pareto_frontier(
-    points: &[Vec<f64>],
-    directions: &[ObjectiveDirection],
-) -> bool {
+pub fn is_strict_pareto_frontier(points: &[Vec<f64>], directions: &[ObjectiveDirection]) -> bool {
     for (i, pi) in points.iter().enumerate() {
         if pi.len() != directions.len() || pi.iter().any(|v| !v.is_finite()) {
             return false;

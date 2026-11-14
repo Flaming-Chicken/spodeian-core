@@ -23,8 +23,7 @@ fn test_wav_16_24_32f_roundtrips_and_resampling() {
         assert!(max_err < 1e-3, "format {fmt:?} max_err={max_err}");
     }
 
-    let downsampled =
-        resample_linear_interleaved(&samples, 1, 48_000, 24_000).expect("resample");
+    let downsampled = resample_linear_interleaved(&samples, 1, 48_000, 24_000).expect("resample");
     assert_eq!(downsampled.len(), 64);
 }
 

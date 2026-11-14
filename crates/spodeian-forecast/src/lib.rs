@@ -57,7 +57,12 @@ pub struct KalmanFilter1D {
 }
 
 impl KalmanFilter1D {
-    pub fn new(init_state: f64, init_var: f64, process_noise_q: f64, measurement_noise_r: f64) -> Self {
+    pub fn new(
+        init_state: f64,
+        init_var: f64,
+        process_noise_q: f64,
+        measurement_noise_r: f64,
+    ) -> Self {
         Self {
             state: init_state,
             variance: init_var.max(1e-9),

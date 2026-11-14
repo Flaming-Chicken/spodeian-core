@@ -88,11 +88,17 @@ fn test_atomic_file_save_and_corrupt_primary_backup_recovery() {
     };
     save_state_atomic_file(&save_path, &second, 1, 20.0).unwrap();
     assert!(bak_path.exists());
-    assert_eq!(load_state_atomic_file::<SampleState>(&save_path), Some(second));
+    assert_eq!(
+        load_state_atomic_file::<SampleState>(&save_path),
+        Some(second)
+    );
 
     // Corrupt primary save and verify .bak (first) is restored.
     std::fs::write(&save_path, "{corrupt json").unwrap();
-    assert_eq!(load_state_atomic_file::<SampleState>(&save_path), Some(first));
+    assert_eq!(
+        load_state_atomic_file::<SampleState>(&save_path),
+        Some(first)
+    );
 }
 
 #[test]

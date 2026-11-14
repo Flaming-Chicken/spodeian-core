@@ -155,11 +155,10 @@ pub fn remove_nonce(html: &str) -> String {
         return html.to_string();
     };
     let nonce = &html[value_start..value_start + len];
-    html.replace(&format!(" nonce=\"{nonce}\""), "")
-        .replace(
-            &format!(" crossorigin=\"{nonce}\""),
-            " crossorigin=\"anonymous\"",
-        )
+    html.replace(&format!(" nonce=\"{nonce}\""), "").replace(
+        &format!(" crossorigin=\"{nonce}\""),
+        " crossorigin=\"anonymous\"",
+    )
 }
 
 /// Rewrites `page` in-place with [`remove_nonce`] so static pre-rendered builds are deterministic
@@ -171,7 +170,10 @@ pub fn strip_nonce(page: &Path) -> std::io::Result<()> {
 
 /// Finalizes a static SSG build directory: rewrites [`CSP_PLACEHOLDER`] in `_headers` using
 /// [`inline_script_hashes`] across `pages`, and populates `sw.js` via [`populate_service_worker`].
-pub fn finalise_static_site(site_root: &Path, pages: &[PathBuf]) -> std::io::Result<Option<String>> {
+pub fn finalise_static_site(
+    site_root: &Path,
+    pages: &[PathBuf],
+) -> std::io::Result<Option<String>> {
     let mut hashes = BTreeSet::new();
     for page in pages {
         let html = std::fs::read_to_string(page)?;

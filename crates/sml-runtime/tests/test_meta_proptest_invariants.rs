@@ -25,9 +25,7 @@ fn prop_self_optimizing_meta_finiteness_and_descent() {
         let mut theta: Vec<f32> = (0..dim)
             .map(|_| rng.random_range(-5.0f32..=5.0f32))
             .collect();
-        let diag: Vec<f32> = (0..dim)
-            .map(|i| 1.0 + (i as f32) * 0.5)
-            .collect();
+        let diag: Vec<f32> = (0..dim).map(|i| 1.0 + (i as f32) * 0.5).collect();
 
         let initial_loss: f32 = theta
             .iter()
@@ -77,9 +75,8 @@ fn prop_meta_integrator_decay_and_symplectic_invariants() {
         let t1 = rng.random_range(0.5f32..=2.0f32);
         let solver = SelfOptimizingMetaIntegrator::new(1e-4);
 
-        let (xf, _diag, nfe) = solver.solve_interval(&x0, 0.0, t1, |x, _t| {
-            x.iter().map(|&v| -k * v).collect()
-        });
+        let (xf, _diag, nfe) =
+            solver.solve_interval(&x0, 0.0, t1, |x, _t| x.iter().map(|&v| -k * v).collect());
         assert!(nfe > 0, "Expected positive NFE on trial {trial}");
         assert!(xf.iter().all(|v| v.is_finite()));
 
@@ -105,9 +102,8 @@ fn prop_meta_integrator_decay_and_symplectic_invariants() {
             0.5 * (state[0] * state[0] + state[1] * state[1])
         })));
 
-        let (xf, _diag, _nfe) = solver.solve_interval(&[q0, p0], 0.0, 4.0, |s, _t| {
-            vec![s[1], -s[0]]
-        });
+        let (xf, _diag, _nfe) =
+            solver.solve_interval(&[q0, p0], 0.0, 4.0, |s, _t| vec![s[1], -s[0]]);
         assert!(xf.iter().all(|v| v.is_finite()));
         let final_e = 0.5 * (xf[0] * xf[0] + xf[1] * xf[1]);
         let drift = (final_e - target_e).abs() / target_e.max(1e-6);

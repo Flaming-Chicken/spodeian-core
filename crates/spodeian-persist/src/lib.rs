@@ -136,8 +136,7 @@ fn invoke_window_fn(name: &str, args: &[wasm_bindgen::JsValue]) -> bool {
     let Some(window) = web_sys::window() else {
         return false;
     };
-    let Ok(func_val) = js_sys::Reflect::get(&window, &wasm_bindgen::JsValue::from_str(name))
-    else {
+    let Ok(func_val) = js_sys::Reflect::get(&window, &wasm_bindgen::JsValue::from_str(name)) else {
         return false;
     };
     let Some(func) = func_val.dyn_ref::<js_sys::Function>() else {
@@ -515,7 +514,10 @@ pub fn load_state_atomic_file<T: DeserializeOwned>(path: impl AsRef<Path>) -> Op
                 return Some(state);
             }
             Err(e) => {
-                warn!("Backup save file {} is also corrupt: {e}", bak_path.display());
+                warn!(
+                    "Backup save file {} is also corrupt: {e}",
+                    bak_path.display()
+                );
             }
         }
     }

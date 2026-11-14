@@ -286,8 +286,7 @@ impl ErrorBoundaryRecovery {
             .filter(|s| !s.trim().is_empty())
             .collect();
         let summary = if details.is_empty() {
-            "An unexpected rendering error occurred. You can reset the view to recover."
-                .to_string()
+            "An unexpected rendering error occurred. You can reset the view to recover.".to_string()
         } else {
             format!(
                 "Encountered {} error{} while rendering this view. Your saved state remains intact.",

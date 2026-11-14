@@ -18,13 +18,18 @@ fn bench_meta_integrator_harmonic(c: &mut Criterion) {
     let solver = SelfOptimizingMetaIntegrator::new(1e-4);
     c.bench_function("SelfOptimizingMetaIntegrator_harmonic_0_to_2", |b| {
         b.iter(|| {
-            let (xf, _diag, _nfe) = solver.solve_interval(black_box(&[1.0f32, 0.0f32]), 0.0, 2.0, |s, _t| {
-                vec![s[1], -s[0]]
-            });
+            let (xf, _diag, _nfe) =
+                solver.solve_interval(black_box(&[1.0f32, 0.0f32]), 0.0, 2.0, |s, _t| {
+                    vec![s[1], -s[0]]
+                });
             black_box(xf);
         });
     });
 }
 
-criterion_group!(benches, bench_meta_optimizer_step, bench_meta_integrator_harmonic);
+criterion_group!(
+    benches,
+    bench_meta_optimizer_step,
+    bench_meta_integrator_harmonic
+);
 criterion_main!(benches);

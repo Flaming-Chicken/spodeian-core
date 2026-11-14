@@ -171,7 +171,10 @@ fn undo_stack_bounded_history_and_redo_branch_clearing() {
     assert_eq!(current, 2);
     current = stack.undo(current).expect("second undo");
     assert_eq!(current, 1);
-    assert!(stack.undo(current).is_none(), "oldest state (0) was evicted");
+    assert!(
+        stack.undo(current).is_none(),
+        "oldest state (0) was evicted"
+    );
 
     current = stack.redo(current).expect("first redo");
     assert_eq!(current, 2);

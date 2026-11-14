@@ -43,7 +43,10 @@ fn test_ols_ridge_hac_and_huber_outlier_resistance() {
     let ridge_res = ridge_regression(&y_clean, &x_rows, 10.0).expect("ridge");
     let ols_norm2: f64 = ols_res.beta.iter().map(|b| b * b).sum();
     let ridge_norm2: f64 = ridge_res.beta.iter().map(|b| b * b).sum();
-    assert!(ridge_norm2 < ols_norm2, "expected ridge L2 norm ({ridge_norm2}) < OLS L2 norm ({ols_norm2})");
+    assert!(
+        ridge_norm2 < ols_norm2,
+        "expected ridge L2 norm ({ridge_norm2}) < OLS L2 norm ({ols_norm2})"
+    );
 
     let hac_res = newey_west_hac(&y_clean, &x_rows, 2).expect("hac");
     assert_eq!(hac_res.beta.len(), 2);
@@ -66,9 +69,7 @@ fn test_jarque_bera_and_engle_granger_cointegration() {
             if i % 2 == 0 { z * 0.1 } else { -z * 0.1 }
         })
         .collect();
-    let skewed: Vec<f64> = (0..40)
-        .map(|i| if i < 38 { 0.01 } else { 5.0 })
-        .collect();
+    let skewed: Vec<f64> = (0..40).map(|i| if i < 38 { 0.01 } else { 5.0 }).collect();
     let jb_sym = jarque_bera_stat(&symmetric).expect("JB symmetric");
     let jb_skew = jarque_bera_stat(&skewed).expect("JB skewed");
     assert!(jb_skew > jb_sym * 10.0);
@@ -87,7 +88,10 @@ fn test_jarque_bera_and_engle_granger_cointegration() {
     }
     let (slope, resid_adf) = engle_granger_cointegration(&y, &x, 1).expect("cointegration");
     assert!((slope - 2.0).abs() < 0.05);
-    assert!(resid_adf < -3.0, "expected stationary residual ADF < -3, got {resid_adf}");
+    assert!(
+        resid_adf < -3.0,
+        "expected stationary residual ADF < -3, got {resid_adf}"
+    );
     assert!(adf_statistic(&x, 1).expect("rw adf") > resid_adf);
 }
 
