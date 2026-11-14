@@ -131,6 +131,26 @@ impl Default for StorageDiagnostics {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+fn invoke_window_fn(name: &str, args: &[wasm_bindgen::JsValue]) -> bool {
+    let Some(window) = web_sys::window() else {
+        return false;
+    };
+    let Ok(func_val) = js_sys::Reflect::get(&window, &wasm_bindgen::JsValue::from_str(name))
+    else {
+        return false;
+    };
+    let Some(func) = func_val.dyn_ref::<js_sys::Function>() else {
+        return false;
+    };
+    match args {
+        [] => func.call0(&window).is_ok(),
+        [a0] => func.call1(&window, a0).is_ok(),
+        [a0, a1] => func.call2(&window, a0, a1).is_ok(),
+        _ => false,
+    }
+}
+
 /// Queries current storage persistence and PWA status from the runtime environment.
 #[allow(unused_mut)]
 pub fn query_storage_diagnostics() -> StorageDiagnostics {
@@ -153,10 +173,9 @@ pub fn query_storage_diagnostics() -> StorageDiagnostics {
             if let Ok(val) = js_sys::Reflect::get(
                 &window,
                 &wasm_bindgen::JsValue::from_str("__storagePersisted"),
-            ) {
-                if let Some(b) = val.as_bool() {
-                    diag.is_persisted = Some(b);
-                }
+            ) && let Some(b) = val.as_bool()
+            {
+                diag.is_persisted = Some(b);
             }
         }
     }
@@ -173,36 +192,16 @@ pub fn query_storage_diagnostics() -> StorageDiagnostics {
 /// Requests durable browser storage permission via window hook (no-op on native).
 pub fn request_persistent_storage() {
     #[cfg(target_arch = "wasm32")]
-    {
-        if let Some(window) = web_sys::window() {
-            if let Ok(func) = js_sys::Reflect::get(
-                &window,
-                &wasm_bindgen::JsValue::from_str("__requestPersistentStorage"),
-            ) {
-                if let Some(func) = func.dyn_ref::<js_sys::Function>() {
-                    let _ = func.call0(&window);
-                    info!("Triggered __requestPersistentStorage from spodeian-persist");
-                }
-            }
-        }
+    if invoke_window_fn("__requestPersistentStorage", &[]) {
+        info!("Triggered __requestPersistentStorage from spodeian-persist");
     }
 }
 
 /// Triggers the browser PWA installation prompt via window hook (no-op on native).
 pub fn trigger_pwa_install() {
     #[cfg(target_arch = "wasm32")]
-    {
-        if let Some(window) = web_sys::window() {
-            if let Ok(func) = js_sys::Reflect::get(
-                &window,
-                &wasm_bindgen::JsValue::from_str("__triggerPWAInstall"),
-            ) {
-                if let Some(func) = func.dyn_ref::<js_sys::Function>() {
-                    let _ = func.call0(&window);
-                    info!("Triggered __triggerPWAInstall from spodeian-persist");
-                }
-            }
-        }
+    if invoke_window_fn("__triggerPWAInstall", &[]) {
+        info!("Triggered __triggerPWAInstall from spodeian-persist");
     }
 }
 
@@ -210,16 +209,7 @@ pub fn trigger_pwa_install() {
 pub fn set_screen_wake_lock(active: bool) {
     #[cfg(target_arch = "wasm32")]
     {
-        if let Some(window) = web_sys::window() {
-            if let Ok(func) =
-                js_sys::Reflect::get(&window, &wasm_bindgen::JsValue::from_str("__setWakeLock"))
-            {
-                if let Some(func) = func.dyn_ref::<js_sys::Function>() {
-                    let arg = wasm_bindgen::JsValue::from_bool(active);
-                    let _ = func.call1(&window, &arg);
-                }
-            }
-        }
+        let _ = invoke_window_fn("__setWakeLock", &[wasm_bindgen::JsValue::from_bool(active)]);
     }
     #[cfg(not(target_arch = "wasm32"))]
     {
@@ -328,20 +318,18 @@ pub fn load_state_multi_tier_keys<T: DeserializeOwned>(
     disk_fallback_path: Option<&Path>,
 ) -> Option<T> {
     #[cfg(target_arch = "wasm32")]
+    if let Some(window) = web_sys::window()
+        && let Ok(Some(local_storage)) = window.local_storage()
     {
-        if let Some(window) = web_sys::window() {
-            if let Ok(Some(local_storage)) = window.local_storage() {
-                for &key in keys {
-                    if let Ok(Some(content)) = local_storage.get_item(key) {
-                        match StateMigrator::deserialize_versioned_or_raw::<T>(&content) {
-                            Ok(state) => {
-                                info!("Restored state from localStorage [{key}]");
-                                return Some(state);
-                            }
-                            Err(e) => {
-                                warn!("Failed to parse state from localStorage [{key}]: {e}");
-                            }
-                        }
+        for &key in keys {
+            if let Ok(Some(content)) = local_storage.get_item(key) {
+                match StateMigrator::deserialize_versioned_or_raw::<T>(&content) {
+                    Ok(state) => {
+                        info!("Restored state from localStorage [{key}]");
+                        return Some(state);
+                    }
+                    Err(e) => {
+                        warn!("Failed to parse state from localStorage [{key}]: {e}");
                     }
                 }
             }
@@ -395,42 +383,27 @@ pub fn save_state_multi_tier(
     {
         let _ = (cas_namespace, disk_fallback_path);
         if let Some(window) = web_sys::window() {
-            if recommended_tier == StorageTier::CacheApi {
-                if let Ok(func) = js_sys::Reflect::get(
-                    &window,
-                    &wasm_bindgen::JsValue::from_str("__saveToCacheApi"),
-                ) {
-                    if let Some(func) = func.dyn_ref::<js_sys::Function>() {
-                        let k = wasm_bindgen::JsValue::from_str(key);
-                        let v = wasm_bindgen::JsValue::from_str(json_str);
-                        let _ = func.call2(&window, &k, &v);
-                        info!("Stored large payload in Cache API [{key}]");
-                        return Ok(StorageBackend::CacheApi);
-                    }
-                }
+            let k = wasm_bindgen::JsValue::from_str(key);
+            let v = wasm_bindgen::JsValue::from_str(json_str);
+            if recommended_tier == StorageTier::CacheApi
+                && invoke_window_fn("__saveToCacheApi", &[k.clone(), v.clone()])
+            {
+                info!("Stored large payload in Cache API [{key}]");
+                return Ok(StorageBackend::CacheApi);
             }
 
             let mut local_storage_saved = false;
-            if size < 16 * 1024 {
-                if let Ok(Some(storage)) = window.local_storage() {
-                    if storage.set_item(key, json_str).is_ok() {
-                        local_storage_saved = true;
-                    }
-                }
+            if size < 16 * 1024
+                && let Ok(Some(storage)) = window.local_storage()
+                && storage.set_item(key, json_str).is_ok()
+            {
+                local_storage_saved = true;
             }
 
-            if let Ok(func) = js_sys::Reflect::get(
-                &window,
-                &wasm_bindgen::JsValue::from_str("__saveToIndexedDB"),
-            ) {
-                if let Some(func) = func.dyn_ref::<js_sys::Function>() {
-                    let k = wasm_bindgen::JsValue::from_str(key);
-                    let v = wasm_bindgen::JsValue::from_str(json_str);
-                    let _ = func.call2(&window, &k, &v);
-                    info!("Synchronized payload to IndexedDB [{key}]");
-                    if !local_storage_saved {
-                        return Ok(StorageBackend::IndexedDb);
-                    }
+            if invoke_window_fn("__saveToIndexedDB", &[k, v]) {
+                info!("Synchronized payload to IndexedDB [{key}]");
+                if !local_storage_saved {
+                    return Ok(StorageBackend::IndexedDb);
                 }
             }
 
@@ -487,11 +460,12 @@ fn write_atomic_str(path: &Path, content: &str) -> Result<(), StorageError> {
     let tmp_path = companion_path(path, ".tmp");
     let bak_path = companion_path(path, ".bak");
 
-    let mut file = std::fs::File::create(&tmp_path)?;
-    file.write_all(content.as_bytes())?;
-    file.flush()?;
-    file.sync_all()?;
-    drop(file);
+    {
+        let mut file = std::fs::File::create(&tmp_path)?;
+        file.write_all(content.as_bytes())?;
+        file.flush()?;
+        file.sync_all()?;
+    }
 
     if path.exists() {
         let _ = std::fs::copy(path, &bak_path);

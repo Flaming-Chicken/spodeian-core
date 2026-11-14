@@ -125,6 +125,50 @@ pub fn populate_service_worker(site_root: &Path) -> std::io::Result<Option<Strin
     Ok(Some(build_id))
 }
 
+/// Returns every `.html` file under `dir`, sorted deterministically.
+pub fn html_files(dir: &Path) -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return found;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            found.extend(html_files(&path));
+        } else if path.extension().is_some_and(|ext| ext == "html") {
+            found.push(path);
+        }
+    }
+    found.sort();
+    found
+}
+
+/// Removes the per-render nonce added by SSR frameworks (`leptos_axum`) from `html` and normalizes
+/// any nonce-based `crossorigin` attributes on modulepreload links to `"anonymous"`.
+pub fn remove_nonce(html: &str) -> String {
+    const MARKER: &str = " nonce=\"";
+    let Some(start) = html.find(MARKER) else {
+        return html.to_string();
+    };
+    let value_start = start + MARKER.len();
+    let Some(len) = html[value_start..].find('"') else {
+        return html.to_string();
+    };
+    let nonce = &html[value_start..value_start + len];
+    html.replace(&format!(" nonce=\"{nonce}\""), "")
+        .replace(
+            &format!(" crossorigin=\"{nonce}\""),
+            " crossorigin=\"anonymous\"",
+        )
+}
+
+/// Rewrites `page` in-place with [`remove_nonce`] so static pre-rendered builds are deterministic
+/// and pair cleanly with hash-based Content Security Policy headers.
+pub fn strip_nonce(page: &Path) -> std::io::Result<()> {
+    let html = std::fs::read_to_string(page)?;
+    std::fs::write(page, remove_nonce(&html))
+}
+
 /// Finalizes a static SSG build directory: rewrites [`CSP_PLACEHOLDER`] in `_headers` using
 /// [`inline_script_hashes`] across `pages`, and populates `sw.js` via [`populate_service_worker`].
 pub fn finalise_static_site(site_root: &Path, pages: &[PathBuf]) -> std::io::Result<Option<String>> {
@@ -144,4 +188,49 @@ pub fn finalise_static_site(site_root: &Path, pages: &[PathBuf]) -> std::io::Res
     }
 
     populate_service_worker(site_root)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn removes_every_nonce_and_fixes_crossorigin() {
+        let html = r#"<link rel="modulepreload" href="/pkg/a.js" crossorigin="AbC123"><script type="module" nonce="AbC123">x()</script><script nonce="AbC123">y()</script>"#;
+        assert_eq!(
+            remove_nonce(html),
+            r#"<link rel="modulepreload" href="/pkg/a.js" crossorigin="anonymous"><script type="module">x()</script><script>y()</script>"#
+        );
+    }
+
+    #[test]
+    fn leaves_pages_without_a_nonce_unchanged() {
+        let html = "<html><body>plain</body></html>";
+        assert_eq!(remove_nonce(html), html);
+    }
+
+    #[test]
+    fn hashes_only_inline_scripts() {
+        let html = r#"<script src="/pwa.js" defer></script><script>alert(1)</script><script type="module">x()</script>"#;
+        let hashes = inline_script_hashes(html);
+        assert_eq!(hashes.len(), 2);
+        assert_eq!(hashes[0], "bhHHL3z2vDgxUt0W3dWQOrprscmda2Y5pLsLg4GF+pI=");
+    }
+
+    #[test]
+    fn precache_urls_match_how_static_hosts_serve_files() {
+        let root = Path::new("site");
+        let url = |p: &str| precache_url(root, &root.join(p));
+        assert_eq!(url("index.html").as_deref(), Some("/"));
+        assert_eq!(url("about.html").as_deref(), Some("/about"));
+        assert_eq!(url("404.html").as_deref(), Some("/404.html"));
+        assert_eq!(
+            url("pkg/web.abc.wasm").as_deref(),
+            Some("/pkg/web.abc.wasm")
+        );
+        assert_eq!(url("sw.js"), None);
+        assert_eq!(url("_headers"), None);
+        assert_eq!(url("pkg/web.d.abc.ts"), None);
+        assert_eq!(url("fonts/OFL.txt"), None);
+    }
 }

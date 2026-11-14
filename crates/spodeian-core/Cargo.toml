@@ -21,6 +21,7 @@ full = [
     "cache",
     "persist",
     "web-utils",
+    "leptos-ui",
     "ui",
     "lake",
     "ml-utils",
@@ -33,6 +34,7 @@ export = ["dep:spodeian-export"]
 cache = ["dep:spodeian-cache"]
 persist = ["dep:spodeian-persist"]
 web-utils = ["dep:spodeian-web-utils"]
+leptos-ui = ["dep:spodeian-leptos-ui"]
 ui = ["dep:spodeian-ui"]
 lake = ["dep:sml-lake"]
 ml-utils = ["dep:sml-runtime"]
@@ -45,6 +47,7 @@ spodeian-export = { workspace = true, optional = true }
 spodeian-cache = { workspace = true, optional = true }
 spodeian-persist = { workspace = true, optional = true }
 spodeian-web-utils = { workspace = true, optional = true }
+spodeian-leptos-ui = { workspace = true, optional = true }
 spodeian-ui = { workspace = true, optional = true }
 sml-lake = { workspace = true, optional = true }
 sml-runtime = { workspace = true, optional = true }

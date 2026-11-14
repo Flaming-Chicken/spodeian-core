@@ -3100,6 +3100,7 @@ dependencies = [
  "sml-runtime",
  "spodeian-cache",
  "spodeian-export",
+ "spodeian-leptos-ui",
  "spodeian-parallel",
  "spodeian-persist",
  "spodeian-telemetry",
@@ -3119,6 +3120,20 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "spodeian-leptos-ui"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "spodeian-persist",
+ "spodeian-telemetry",
+ "spodeian-tokens",
+ "spodeian-web-utils",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

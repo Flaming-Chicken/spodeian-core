@@ -10,6 +10,7 @@
 //! - `cache`: Preferential multi-tier caching (Web Cache API, IndexedDB, CAS) (`spodeian-cache`).
 //! - `persist`: Versioned cross-platform JSON/RON app-state persistence and browser storage health (`spodeian-persist`).
 //! - `web_utils`: WebAssembly DOM helpers, clipboard, and blob transfers (`spodeian-web-utils`).
+//! - `leptos_ui`: Web/Leptos UI helpers, DOM accessibility bridges, focus trapping, and view models (`spodeian-leptos-ui`).
 //! - `ui`: Reusable `egui` components, responsive layout constraints, and diagnostic viewers (`spodeian-ui`).
 //! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`sml-lake`).
 //! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`sml-runtime`).
@@ -48,6 +49,9 @@ pub use spodeian_persist as persist;
 
 #[cfg(feature = "web-utils")]
 pub use spodeian_web_utils as web_utils;
+
+#[cfg(feature = "leptos-ui")]
+pub use spodeian_leptos_ui as leptos_ui;
 
 #[cfg(feature = "ui")]
 pub use spodeian_ui as ui;
