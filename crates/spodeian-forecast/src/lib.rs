@@ -100,7 +100,14 @@ impl Garch11 {
         Ok(Self { omega, alpha, beta })
     }
 
-    /// Computes filtered conditional variances over `residuals` and `horizon`-step ahead variance forecasts.
+    /// Conditional variances of `residuals` and `horizon` variance forecasts beyond them.
+    ///
+    /// Uses $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$, so:
+    /// - `filtered[t]` is the variance of `residuals[t]`, which depends only on earlier
+    ///   residuals. `filtered[0]` is the sample variance of `residuals`, the usual start-up value.
+    /// - `forecasts[0]` is the variance of the first residual after the sample (one step
+    ///   ahead), and `forecasts[k]` reverts toward $\omega / (1 - \alpha - \beta)$ at rate
+    ///   $\alpha + \beta$.
     pub fn filter_and_forecast(
         &self,
         residuals: &[f64],
@@ -119,14 +126,17 @@ impl Garch11 {
         }
         let mut series = Vec::with_capacity(residuals.len());
         for &eps in residuals {
-            h_t = self.omega + self.alpha * eps * eps + self.beta * h_t;
+            // The variance of this residual is known before it is observed;
+            // it then feeds the variance of the next one.
             series.push(h_t);
+            h_t = self.omega + self.alpha * eps * eps + self.beta * h_t;
         }
+        // `h_t` is now the one-step-ahead variance.
         let mut forecasts = Vec::with_capacity(horizon);
         let mut next_h = h_t;
         for _ in 0..horizon {
-            next_h = self.omega + (self.alpha + self.beta) * next_h;
             forecasts.push(next_h);
+            next_h = self.omega + (self.alpha + self.beta) * next_h;
         }
         Ok((series, forecasts))
     }
