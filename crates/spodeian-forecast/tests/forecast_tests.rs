@@ -37,3 +37,35 @@ fn test_conformal_pinball_and_crps() {
     let crps_off = crps_gaussian(3.0, 0.0, 1.0);
     assert!(crps_exact > 0.0 && crps_off > crps_exact);
 }
+
+/// Hand-computed with omega = 0.1, alpha = 0.2, beta = 0.5 on residuals [1, 2, 0, 1].
+///
+/// sigma^2_0 = mean(eps^2) = 1.5, then sigma^2_t = 0.1 + 0.2 eps_{t-1}^2 + 0.5 sigma^2_{t-1}:
+/// 1.05, 1.425, 0.8125; the next (one-step-ahead) variance is 0.70625, and each
+/// further step is 0.1 + 0.7 * previous.
+#[test]
+fn test_garch_filter_and_forecast_match_hand_computation() {
+    let garch = Garch11::new(0.1, 0.2, 0.5).expect("garch");
+    let (filtered, ahead) = garch
+        .filter_and_forecast(&[1.0, 2.0, 0.0, 1.0], 3)
+        .expect("garch fc");
+
+    let want_filtered = [1.5, 1.05, 1.425, 0.8125];
+    let want_ahead = [0.70625, 0.594375, 0.5160625];
+    for (got, want) in filtered.iter().zip(want_filtered) {
+        assert!((got - want).abs() < 1e-12, "filtered {got} vs {want}");
+    }
+    for (got, want) in ahead.iter().zip(want_ahead) {
+        assert!((got - want).abs() < 1e-12, "forecast {got} vs {want}");
+    }
+}
+
+#[test]
+fn test_garch_forecast_reverts_to_the_long_run_variance() {
+    let garch = Garch11::new(0.1, 0.2, 0.5).expect("garch");
+    let (_, ahead) = garch
+        .filter_and_forecast(&[1.0, 2.0, 0.0, 1.0], 200)
+        .expect("garch fc");
+    let long_run = 0.1 / (1.0 - 0.2 - 0.5);
+    assert!((ahead[199] - long_run).abs() < 1e-9);
+}
