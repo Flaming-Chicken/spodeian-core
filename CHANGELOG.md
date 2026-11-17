@@ -3,6 +3,11 @@
 All notable changes to `spodeian-core` are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [3.0.1] - 2026-11-17
+
+### Fixed
+- `spodeian-forecast`: `Garch11::filter_and_forecast` returned a first forecast two steps ahead. `filtered[t]` is now the variance of `residuals[t]` (`filtered[0]` is the sample variance) and `forecasts[0]` is the one-step-ahead variance. Covered by tests against hand-computed values.
+
 ## [3.0.0] - 2026-11-14
 
 ### Added

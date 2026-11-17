@@ -3103,7 +3103,7 @@ dependencies = [
 
 [[package]]
 name = "spodeian-core"
-version = "3.0.0"
+version = "3.0.1"
 dependencies = [
  "sml-lake",
  "sml-runtime",
