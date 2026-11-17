@@ -477,8 +477,175 @@ pub fn jarque_bera_stat(series: &[f64]) -> Result<f64, StatsError> {
     Ok((n as f64 / 6.0) * (skew * skew + 0.25 * (kurt - 3.0).powi(2)))
 }
 
-/// Augmented Dickey-Fuller (ADF) unit-root t-statistic on `series` with `lags` difference lags.
+/// Augmented Dickey-Fuller (ADF) unit-root t-statistic on `series` with `lags` difference
+/// lags and a constant. See [`adf_test`] for critical values and a p-value.
 pub fn adf_statistic(series: &[f64], lags: usize) -> Result<f64, StatsError> {
+    adf_regression(series, lags, AdfRegression::Constant).map(|(statistic, _)| statistic)
+}
+
+/// Deterministic terms in the ADF regression.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AdfRegression {
+    /// No constant and no trend: for series that already have mean zero, such as residuals.
+    NoConstant,
+    /// A constant (the usual choice for levels without a deterministic trend).
+    Constant,
+    /// A constant and a linear time trend.
+    ConstantTrend,
+}
+
+impl AdfRegression {
+    fn deterministic_terms(self) -> usize {
+        match self {
+            Self::NoConstant => 0,
+            Self::Constant => 1,
+            Self::ConstantTrend => 2,
+        }
+    }
+}
+
+/// Response-surface coefficients for one ADF regression type, N = 1 (a single series).
+///
+/// `crit[k]` holds `[b_inf, b1, b2, b3]` for the 1%, 5% and 10% levels:
+/// `tau = b_inf + b1/T + b2/T^2 + b3/T^3` (MacKinnon, 2010, "Critical Values for
+/// Cointegration Tests", Queen's Economics Department Working Paper 1227). The p-value
+/// polynomials are from MacKinnon (1994), already scaled. Both are as tabulated in the
+/// statsmodels file `adfvalues.py`.
+struct MackinnonTable {
+    crit: [[f64; 4]; 3],
+    tau_max: f64,
+    tau_min: f64,
+    tau_star: f64,
+    small_p: [f64; 3],
+    large_p: [f64; 4],
+}
+
+const MACKINNON_NO_CONSTANT: MackinnonTable = MackinnonTable {
+    crit: [
+        [-2.56574, -2.2358, -3.627, 0.0],
+        [-1.94100, -0.2686, -3.365, 31.223],
+        [-1.61682, 0.2656, -2.714, 25.364],
+    ],
+    tau_max: f64::INFINITY,
+    tau_min: -19.04,
+    tau_star: -1.04,
+    small_p: [0.6344, 1.2378, 0.032496],
+    large_p: [0.4797, 0.93557, -0.06999, 0.033066],
+};
+
+const MACKINNON_CONSTANT: MackinnonTable = MackinnonTable {
+    crit: [
+        [-3.43035, -6.5393, -16.786, -79.433],
+        [-2.86154, -2.8903, -4.234, -40.040],
+        [-2.56677, -1.5384, -2.809, 0.0],
+    ],
+    tau_max: 2.74,
+    tau_min: -18.83,
+    tau_star: -1.61,
+    small_p: [2.1659, 1.4412, 0.038269],
+    large_p: [1.7339, 0.93202, -0.12745, -0.010368],
+};
+
+const MACKINNON_CONSTANT_TREND: MackinnonTable = MackinnonTable {
+    crit: [
+        [-3.95877, -9.0531, -28.428, -134.155],
+        [-3.41049, -4.3904, -9.036, -45.374],
+        [-3.12705, -2.5856, -3.925, -22.380],
+    ],
+    tau_max: 0.7,
+    tau_min: -16.18,
+    tau_star: -2.89,
+    small_p: [3.2512, 1.6047, 0.049588],
+    large_p: [2.5261, 0.61654, -0.37956, -0.060285],
+};
+
+fn mackinnon_table(regression: AdfRegression) -> &'static MackinnonTable {
+    match regression {
+        AdfRegression::NoConstant => &MACKINNON_NO_CONSTANT,
+        AdfRegression::Constant => &MACKINNON_CONSTANT,
+        AdfRegression::ConstantTrend => &MACKINNON_CONSTANT_TREND,
+    }
+}
+
+/// Finite-sample ADF critical value at `level` (0.01, 0.05 or 0.10) for a regression with
+/// `n_obs` observations: reject the unit-root null when the statistic is below it.
+pub fn adf_critical_value(
+    level: f64,
+    regression: AdfRegression,
+    n_obs: usize,
+) -> Result<f64, StatsError> {
+    if n_obs == 0 {
+        return Err(StatsError::InsufficientData {
+            required: 1,
+            actual: 0,
+        });
+    }
+    let row = if (level - 0.01).abs() < 1e-12 {
+        0
+    } else if (level - 0.05).abs() < 1e-12 {
+        1
+    } else if (level - 0.10).abs() < 1e-12 {
+        2
+    } else {
+        return Err(StatsError::InvalidParameter(
+            "level must be 0.01, 0.05 or 0.10".to_string(),
+        ));
+    };
+    let [b0, b1, b2, b3] = mackinnon_table(regression).crit[row];
+    let inv_t = 1.0 / n_obs as f64;
+    Ok(b0 + inv_t * (b1 + inv_t * (b2 + inv_t * b3)))
+}
+
+/// Approximate p-value of an ADF statistic (MacKinnon, 1994): the normal CDF of a cubic
+/// (quadratic in the left tail) polynomial of the statistic. Accurate to about three
+/// decimal places; not a replacement for simulation near the boundaries.
+pub fn adf_p_value(statistic: f64, regression: AdfRegression) -> f64 {
+    let table = mackinnon_table(regression);
+    if statistic > table.tau_max {
+        return 1.0;
+    }
+    if statistic < table.tau_min {
+        return 0.0;
+    }
+    let value = if statistic <= table.tau_star {
+        let [d0, d1, d2] = table.small_p;
+        d0 + statistic * (d1 + statistic * d2)
+    } else {
+        let [d0, d1, d2, d3] = table.large_p;
+        d0 + statistic * (d1 + statistic * (d2 + statistic * d3))
+    };
+    normal_cdf(value)
+}
+
+/// Result of [`adf_test`].
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AdfResult {
+    /// The t-statistic on the lagged level.
+    pub statistic: f64,
+    /// Approximate p-value (null: the series has a unit root).
+    pub p_value: f64,
+    pub critical_1pct: f64,
+    pub critical_5pct: f64,
+    pub critical_10pct: f64,
+    /// Number of lagged-difference terms.
+    pub lags: usize,
+    /// Observations in the regression.
+    pub n_obs: usize,
+    pub regression: AdfRegression,
+}
+
+impl AdfResult {
+    /// True if the unit-root null is rejected at the 5% level.
+    pub fn rejects_unit_root_at_5pct(&self) -> bool {
+        self.statistic < self.critical_5pct
+    }
+}
+
+fn adf_regression(
+    series: &[f64],
+    lags: usize,
+    regression: AdfRegression,
+) -> Result<(f64, usize), StatsError> {
     let min_len = lags + 8;
     if series.len() < min_len {
         return Err(StatsError::InsufficientData {
@@ -487,13 +654,18 @@ pub fn adf_statistic(series: &[f64], lags: usize) -> Result<f64, StatsError> {
         });
     }
     let diff: Vec<f64> = series.windows(2).map(|w| w[1] - w[0]).collect();
-    let start = lags;
-    let mut y = Vec::with_capacity(diff.len() - start);
-    let mut x_rows = Vec::with_capacity(diff.len() - start);
-    for t in start..diff.len() {
+    let n_obs = diff.len() - lags;
+    let mut y = Vec::with_capacity(n_obs);
+    let mut x_rows = Vec::with_capacity(n_obs);
+    for t in lags..diff.len() {
         y.push(diff[t]);
-        let mut row = Vec::with_capacity(2 + lags);
-        row.push(1.0);
+        let mut row = Vec::with_capacity(3 + lags);
+        if regression != AdfRegression::NoConstant {
+            row.push(1.0);
+        }
+        if regression == AdfRegression::ConstantTrend {
+            row.push(t as f64);
+        }
         row.push(series[t]);
         for l in 1..=lags {
             row.push(diff[t - l]);
@@ -501,7 +673,30 @@ pub fn adf_statistic(series: &[f64], lags: usize) -> Result<f64, StatsError> {
         x_rows.push(row);
     }
     let res = ols(&y, &x_rows)?;
-    Ok(res.t_stats[1])
+    Ok((res.t_stats[regression.deterministic_terms()], n_obs))
+}
+
+/// Augmented Dickey-Fuller unit-root test with critical values and a p-value.
+///
+/// Regresses the first difference on the lagged level, `lags` lagged differences and the
+/// deterministic terms of `regression`; the statistic is the t-statistic on the lagged
+/// level. Reject the unit-root null when it is below the critical value.
+pub fn adf_test(
+    series: &[f64],
+    lags: usize,
+    regression: AdfRegression,
+) -> Result<AdfResult, StatsError> {
+    let (statistic, n_obs) = adf_regression(series, lags, regression)?;
+    Ok(AdfResult {
+        statistic,
+        p_value: adf_p_value(statistic, regression),
+        critical_1pct: adf_critical_value(0.01, regression, n_obs)?,
+        critical_5pct: adf_critical_value(0.05, regression, n_obs)?,
+        critical_10pct: adf_critical_value(0.10, regression, n_obs)?,
+        lags,
+        n_obs,
+        regression,
+    })
 }
 
 /// KPSS stationarity test statistic (null hypothesis: level stationarity).
