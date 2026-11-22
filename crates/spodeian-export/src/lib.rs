@@ -216,6 +216,23 @@ pub fn export_to_json<T: Serialize>(data: &T) -> Result<String, ExportError> {
     serde_json::to_string_pretty(data).map_err(ExportError::Json)
 }
 
+/// Escapes HTML/XML special characters (`&`, `<`, `>`, `"`, `'`) for safe embedding in SVG and HTML reports.
+#[doc = "**Stability: Stable** — HTML/SVG text escaping utility"]
+pub fn escape_html(input: &str) -> String {
+    let mut escaped = String::with_capacity(input.len());
+    for ch in input.chars() {
+        match ch {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            '\'' => escaped.push_str("&#39;"),
+            other => escaped.push(other),
+        }
+    }
+    escaped
+}
+
 #[cfg(feature = "json")]
 /// Imports any deserializable data structure from a JSON string.
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
@@ -481,5 +498,14 @@ mod tests {
         assert_eq!(fields[0], "BHP.AX");
         assert_eq!(fields[1], "42.50");
         assert!(matches!(fields[0], std::borrow::Cow::Borrowed(_)));
+    }
+
+    #[test]
+    fn test_escape_html() {
+        assert_eq!(
+            escape_html(r#"<script>alert("x&y'z")</script>"#),
+            "&lt;script&gt;alert(&quot;x&amp;y&#39;z&quot;)&lt;/script&gt;"
+        );
+        assert_eq!(escape_html("plain text 123"), "plain text 123");
     }
 }

@@ -45,6 +45,7 @@ fn with_pipeline_cache<R>(f: impl FnOnce(&mut PipelineCache) -> R) -> R {
 }
 
 #[cfg(feature = "wgpu")]
+#[cfg_attr(target_arch = "wasm32", allow(clippy::arc_with_non_send_sync))]
 fn get_or_create_pipeline(
     device: &wgpu::Device,
     shader_src: &str,

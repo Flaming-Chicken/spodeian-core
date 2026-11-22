@@ -192,6 +192,33 @@ pub fn finalise_static_site(
     populate_service_worker(site_root)
 }
 
+/// Generates a deterministic XML sitemap (`sitemap.xml`) from `(path, priority)` route tuples.
+pub fn generate_sitemap_xml(base_url: &str, routes: &[(&str, &str)]) -> String {
+    let base = base_url.trim_end_matches('/');
+    let mut xml = String::from(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n",
+    );
+    for &(path, priority) in routes {
+        let normalized_path = if path.starts_with('/') {
+            path.to_string()
+        } else {
+            format!("/{path}")
+        };
+        let _ = writeln!(
+            xml,
+            "  <url><loc>{base}{normalized_path}</loc><priority>{priority}</priority></url>"
+        );
+    }
+    xml.push_str("</urlset>\n");
+    xml
+}
+
+/// Generates a `robots.txt` directive advertising `base_url/sitemap.xml`.
+pub fn generate_robots_txt(base_url: &str) -> String {
+    let base = base_url.trim_end_matches('/');
+    format!("User-agent: *\nAllow: /\nSitemap: {base}/sitemap.xml\n")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -234,5 +261,28 @@ mod tests {
         assert_eq!(url("_headers"), None);
         assert_eq!(url("pkg/web.d.abc.ts"), None);
         assert_eq!(url("fonts/OFL.txt"), None);
+    }
+
+    #[test]
+    fn generates_sitemap_and_robots_txt() {
+        let xml = generate_sitemap_xml(
+            "https://edge.spodeian.trade/",
+            &[("/", "1.0"), ("/analytics", "0.8"), ("about", "0.8")],
+        );
+        assert!(xml.contains("<loc>https://edge.spodeian.trade/</loc><priority>1.0</priority>"));
+        assert!(
+            xml.contains(
+                "<loc>https://edge.spodeian.trade/analytics</loc><priority>0.8</priority>"
+            )
+        );
+        assert!(
+            xml.contains("<loc>https://edge.spodeian.trade/about</loc><priority>0.8</priority>")
+        );
+
+        let robots = generate_robots_txt("https://edge.spodeian.trade/");
+        assert_eq!(
+            robots,
+            "User-agent: *\nAllow: /\nSitemap: https://edge.spodeian.trade/sitemap.xml\n"
+        );
     }
 }

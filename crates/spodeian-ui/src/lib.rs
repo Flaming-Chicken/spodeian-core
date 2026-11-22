@@ -17,7 +17,9 @@ pub mod widgets;
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub use accessibility::{configure_accessible_focus, render_accessibility_panel};
 #[doc = "**Stability: Experimental** — introduced in v3.0.0"]
-pub use command_palette::{CommandEntry, CommandPaletteWidget};
+pub use command_palette::{
+    CommandEntry, CommandPaletteWidget, detect_shortcut_conflicts, normalize_shortcut_hint,
+};
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]
 pub use layout::ScreenConstraints;
 #[doc = "**Stability: Stable** — semver-guaranteed since v1.0"]

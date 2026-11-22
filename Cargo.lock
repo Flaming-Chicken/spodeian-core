@@ -3105,8 +3105,10 @@ dependencies = [
 name = "spodeian-core"
 version = "3.0.1"
 dependencies = [
+ "sml-kernel",
  "sml-lake",
  "sml-runtime",
+ "sml-schema",
  "spodeian-audio",
  "spodeian-cache",
  "spodeian-export",

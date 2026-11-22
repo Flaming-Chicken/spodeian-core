@@ -232,3 +232,117 @@ impl CommandPaletteWidget {
         executed_id
     }
 }
+
+/// Normalizes a keyboard shortcut hint (such as `"ctrl + shift + k"`) into a canonical form
+/// (`"Ctrl+Shift+K"`) with modifiers ordered `Ctrl`, `Shift`, `Alt`, `Meta`.
+pub fn normalize_shortcut_hint(hint: &str) -> String {
+    let trimmed = hint.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+
+    let mut has_ctrl = false;
+    let mut has_shift = false;
+    let mut has_alt = false;
+    let mut has_meta = false;
+    let mut key_part: Option<String> = None;
+
+    for raw_part in trimmed.split('+') {
+        let token = raw_part.trim();
+        if token.is_empty() {
+            continue;
+        }
+        match token.to_ascii_lowercase().as_str() {
+            "ctrl" | "control" => has_ctrl = true,
+            "shift" => has_shift = true,
+            "alt" | "option" => has_alt = true,
+            "meta" | "cmd" | "command" | "super" | "win" => has_meta = true,
+            "esc" | "escape" => key_part = Some("Esc".to_string()),
+            "enter" | "return" => key_part = Some("Enter".to_string()),
+            "space" | "spacebar" => key_part = Some("Space".to_string()),
+            "del" | "delete" => key_part = Some("Delete".to_string()),
+            other => {
+                if other.len() == 1 {
+                    key_part = Some(other.to_ascii_uppercase());
+                } else if let Some(rest) = other.strip_prefix('f')
+                    && !rest.is_empty()
+                    && rest.chars().all(|c| c.is_ascii_digit())
+                {
+                    key_part = Some(format!("F{rest}"));
+                } else {
+                    key_part = Some(token.to_string());
+                }
+            }
+        }
+    }
+
+    let mut parts = Vec::with_capacity(5);
+    if has_ctrl {
+        parts.push("Ctrl".to_string());
+    }
+    if has_shift {
+        parts.push("Shift".to_string());
+    }
+    if has_alt {
+        parts.push("Alt".to_string());
+    }
+    if has_meta {
+        parts.push("Meta".to_string());
+    }
+    if let Some(key) = key_part {
+        parts.push(key);
+    }
+
+    parts.join("+")
+}
+
+/// Finds duplicate normalized shortcut hints across `entries`, returning sorted `(shortcut, command_ids)` pairs.
+pub fn detect_shortcut_conflicts(entries: &[CommandEntry]) -> Vec<(String, Vec<String>)> {
+    let mut by_shortcut: std::collections::BTreeMap<String, Vec<String>> =
+        std::collections::BTreeMap::new();
+
+    for entry in entries {
+        let normalized = normalize_shortcut_hint(&entry.shortcut_hint);
+        if normalized.is_empty() {
+            continue;
+        }
+        by_shortcut
+            .entry(normalized)
+            .or_default()
+            .push(entry.id.clone());
+    }
+
+    by_shortcut
+        .into_iter()
+        .filter(|(_, ids)| ids.len() > 1)
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn shortcut_normalization_and_conflict_detection() {
+        assert_eq!(normalize_shortcut_hint("  ctrl + k "), "Ctrl+K");
+        assert_eq!(normalize_shortcut_hint("Shift+Ctrl+l"), "Ctrl+Shift+L");
+        assert_eq!(normalize_shortcut_hint("f11"), "F11");
+        assert_eq!(normalize_shortcut_hint(""), "");
+
+        let entries = vec![
+            CommandEntry::new("cmd.palette", "Command Palette", "Ctrl+K", "Navigation"),
+            CommandEntry::new("cmd.search", "Search", "k + ctrl", "Navigation"),
+            CommandEntry::new("cmd.help", "Help", "F1", "Help"),
+            CommandEntry::new("cmd.none", "No Shortcut", "", "General"),
+        ];
+
+        let conflicts = detect_shortcut_conflicts(&entries);
+        assert_eq!(
+            conflicts,
+            vec![(
+                "Ctrl+K".to_string(),
+                vec!["cmd.palette".to_string(), "cmd.search".to_string()]
+            )]
+        );
+    }
+}

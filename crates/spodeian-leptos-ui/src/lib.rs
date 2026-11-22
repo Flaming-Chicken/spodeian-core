@@ -30,6 +30,16 @@ pub fn toggle_theme_value(current: &str) -> &'static str {
     ThemeMode::from_str(normalized).next().as_str()
 }
 
+/// Generates an inline pre-paint `<script>` snippet that restores both `<html data-theme="...">`
+/// and `<html data-dyslexia="true">` from `localStorage` before first paint to prevent FOUT/FOUC.
+pub fn prepaint_theme_and_dyslexia_script(theme_key: &str, dyslexia_key: &str) -> String {
+    let escaped_theme_key = theme_key.replace('\\', "\\\\").replace('\'', "\\'");
+    let escaped_dyslexia_key = dyslexia_key.replace('\\', "\\\\").replace('\'', "\\'");
+    format!(
+        "(function(){{try{{var t=localStorage.getItem('{escaped_theme_key}');if(t==='light'||t==='high-contrast-dark'||t==='high-contrast-light'){{document.documentElement.setAttribute('data-theme',t);}}else{{document.documentElement.setAttribute('data-theme','dark');}}if(localStorage.getItem('{escaped_dyslexia_key}')==='true'){{document.documentElement.setAttribute('data-dyslexia','true');}}}}catch(e){{}}}})();"
+    )
+}
+
 /// Applies `theme` to `<html data-theme="...">` and saves it under `storage_key` on `wasm32`.
 pub fn apply_document_theme_with_key(theme: &str, storage_key: &str) {
     let normalized = normalize_theme(theme);
@@ -416,6 +426,103 @@ impl TelemetrySummary {
     }
 }
 
+/// Generates a deterministic Schema.org `WebApplication` JSON-LD payload for static edge SSR
+/// `<head>` injection (`<script type="application/ld+json">...`).
+pub fn generate_json_ld_webapp(name: &str, url: &str, description: &str, version: &str) -> String {
+    let payload = serde_json::json!({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": name,
+        "url": url,
+        "description": description,
+        "softwareVersion": version,
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web, Linux, macOS, Windows"
+    });
+    serde_json::to_string(&payload).unwrap_or_else(|_| "{}".to_string())
+}
+
+/// Normalizes a keyboard shortcut hint (such as `"ctrl + k"`) into canonical display order
+/// (`"Ctrl+Shift+Alt+Meta+<Key>"`).
+pub fn normalize_shortcut_hint(hint: &str) -> String {
+    let trimmed = hint.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+
+    let mut has_ctrl = false;
+    let mut has_shift = false;
+    let mut has_alt = false;
+    let mut has_meta = false;
+    let mut key_part: Option<String> = None;
+
+    for raw_part in trimmed.split('+') {
+        let token = raw_part.trim();
+        if token.is_empty() {
+            continue;
+        }
+        match token.to_ascii_lowercase().as_str() {
+            "ctrl" | "control" => has_ctrl = true,
+            "shift" => has_shift = true,
+            "alt" | "option" => has_alt = true,
+            "meta" | "cmd" | "command" | "super" | "win" => has_meta = true,
+            "esc" | "escape" => key_part = Some("Esc".to_string()),
+            "enter" | "return" => key_part = Some("Enter".to_string()),
+            "space" | "spacebar" => key_part = Some("Space".to_string()),
+            "del" | "delete" => key_part = Some("Delete".to_string()),
+            other => {
+                if other.len() == 1 {
+                    key_part = Some(other.to_ascii_uppercase());
+                } else if let Some(rest) = other.strip_prefix('f')
+                    && !rest.is_empty()
+                    && rest.chars().all(|c| c.is_ascii_digit())
+                {
+                    key_part = Some(format!("F{rest}"));
+                } else {
+                    key_part = Some(token.to_string());
+                }
+            }
+        }
+    }
+
+    let mut parts = Vec::with_capacity(5);
+    if has_ctrl {
+        parts.push("Ctrl".to_string());
+    }
+    if has_shift {
+        parts.push("Shift".to_string());
+    }
+    if has_alt {
+        parts.push("Alt".to_string());
+    }
+    if has_meta {
+        parts.push("Meta".to_string());
+    }
+    if let Some(key) = key_part {
+        parts.push(key);
+    }
+
+    parts.join("+")
+}
+
+/// Detects duplicate normalized keyboard shortcut bindings across `(command_id, shortcut_hint)`
+/// pairs without requiring `egui`.
+pub fn detect_shortcut_conflicts(shortcuts: &[(&str, &str)]) -> Vec<(String, Vec<String>)> {
+    let mut grouped: std::collections::BTreeMap<String, Vec<String>> =
+        std::collections::BTreeMap::new();
+    for &(id, hint) in shortcuts {
+        let normalized = normalize_shortcut_hint(hint);
+        if normalized.is_empty() {
+            continue;
+        }
+        grouped.entry(normalized).or_default().push(id.to_string());
+    }
+    grouped
+        .into_iter()
+        .filter(|(_, ids)| ids.len() > 1)
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -485,5 +592,39 @@ mod tests {
         let shortcuts = default_web_shortcuts();
         assert!(shortcuts.iter().any(|s| s.keys == "Enter"));
         assert!(shortcuts.iter().any(|s| s.keys == "Escape"));
+    }
+
+    #[test]
+    fn prepaint_script_includes_theme_and_dyslexia_keys() {
+        let script = prepaint_theme_and_dyslexia_script("my_theme", "my_'dyslexia");
+        assert!(script.contains("localStorage.getItem('my_theme')"));
+        assert!(script.contains("localStorage.getItem('my_\\'dyslexia')"));
+        assert!(script.contains("data-theme"));
+        assert!(script.contains("data-dyslexia"));
+    }
+
+    #[test]
+    fn json_ld_and_shortcut_conflict_helpers_work() {
+        let json_ld = generate_json_ld_webapp(
+            "Edge App",
+            "https://edge.spodeian.trade",
+            "Static SSR + WASM template",
+            "0.1.0",
+        );
+        assert!(json_ld.contains("\"@type\":\"WebApplication\""));
+        assert!(json_ld.contains("\"name\":\"Edge App\""));
+
+        let conflicts = detect_shortcut_conflicts(&[
+            ("nav.palette", "Ctrl+K"),
+            ("nav.quick_find", "k + ctrl"),
+            ("nav.help", "F1"),
+        ]);
+        assert_eq!(
+            conflicts,
+            vec![(
+                "Ctrl+K".to_string(),
+                vec!["nav.palette".to_string(), "nav.quick_find".to_string()]
+            )]
+        );
     }
 }

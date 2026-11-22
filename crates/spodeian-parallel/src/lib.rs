@@ -29,9 +29,56 @@ extern crate alloc;
 #[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
 pub use rayon::prelude::*;
 
+/// Splits two closures across the Rayon work-stealing thread pool on native targets, or executes
+/// them sequentially on WebAssembly or when `feature = "parallel"` is disabled.
+#[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
+#[inline]
+pub fn join<A, B, RA, RB>(oper_a: A, oper_b: B) -> (RA, RB)
+where
+    A: FnOnce() -> RA + Send,
+    B: FnOnce() -> RB + Send,
+    RA: Send,
+    RB: Send,
+{
+    rayon::join(oper_a, oper_b)
+}
+
+/// Executes two closures sequentially on WebAssembly or when `feature = "parallel"` is disabled.
+#[cfg(any(not(feature = "parallel"), target_arch = "wasm32"))]
+#[inline(always)]
+pub fn join<A, B, RA, RB>(oper_a: A, oper_b: B) -> (RA, RB)
+where
+    A: FnOnce() -> RA + Send,
+    B: FnOnce() -> RB + Send,
+    RA: Send,
+    RB: Send,
+{
+    (oper_a(), oper_b())
+}
+
+/// Returns the active Rayon worker thread count on native targets, or `1` on WebAssembly / sequential builds.
+#[inline]
+pub fn current_num_threads() -> usize {
+    #[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
+    {
+        rayon::current_num_threads()
+    }
+    #[cfg(any(not(feature = "parallel"), target_arch = "wasm32"))]
+    {
+        1
+    }
+}
+
+/// Returns `true` when multi-threaded Rayon execution is compiled and active for this target.
+#[inline]
+pub const fn is_hardware_parallel() -> bool {
+    cfg!(all(feature = "parallel", not(target_arch = "wasm32")))
+}
+
 #[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
 pub mod prelude {
-    //! Re-exports Rayon prelude on native targets with `feature = "parallel"`.
+    //! Re-exports Rayon prelude and runtime helpers on native targets with `feature = "parallel"`.
+    pub use crate::{current_num_threads, is_hardware_parallel, join};
     pub use rayon::prelude::*;
 }
 
@@ -40,8 +87,9 @@ pub use fallback::*;
 
 #[cfg(any(not(feature = "parallel"), target_arch = "wasm32"))]
 pub mod prelude {
-    //! Re-exports zero-cost sequential fallback traits on WASM or when parallel is disabled.
+    //! Re-exports zero-cost sequential fallback traits and helpers on WASM or when parallel is disabled.
     pub use crate::fallback::*;
+    pub use crate::{current_num_threads, is_hardware_parallel, join};
 }
 
 #[cfg(any(not(feature = "parallel"), target_arch = "wasm32"))]
@@ -74,7 +122,7 @@ mod fallback {
         fn par_iter(&'data self) -> Self::Iter;
     }
 
-    impl<'data, I: 'data> IntoParallelRefIterator<'data> for I
+    impl<'data, I: ?Sized + 'data> IntoParallelRefIterator<'data> for I
     where
         &'data I: IntoIterator,
     {
@@ -96,7 +144,7 @@ mod fallback {
         fn par_iter_mut(&'data mut self) -> Self::Iter;
     }
 
-    impl<'data, I: 'data> IntoParallelRefMutIterator<'data> for I
+    impl<'data, I: ?Sized + 'data> IntoParallelRefMutIterator<'data> for I
     where
         &'data mut I: IntoIterator,
     {
@@ -236,6 +284,10 @@ mod tests {
         let v = vec![10, 20, 30];
         let sum: i32 = v.par_iter().sum();
         assert_eq!(sum, 60);
+
+        let slice: &[i32] = v.as_slice();
+        let doubled: Vec<i32> = slice.par_iter().map(|&x| x * 2).collect();
+        assert_eq!(doubled, vec![20, 40, 60]);
     }
 
     #[test]
@@ -268,5 +320,17 @@ mod tests {
         let mut data = vec![5, 1, 4, 2, 3];
         data.par_sort_unstable();
         assert_eq!(data, vec![1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_join_and_thread_introspection() {
+        let (a, b) = join(|| 21 * 2, || "spodeian");
+        assert_eq!(a, 42);
+        assert_eq!(b, "spodeian");
+        assert!(current_num_threads() >= 1);
+        #[cfg(all(feature = "parallel", not(target_arch = "wasm32")))]
+        assert!(is_hardware_parallel());
+        #[cfg(any(not(feature = "parallel"), target_arch = "wasm32"))]
+        assert!(!is_hardware_parallel());
     }
 }

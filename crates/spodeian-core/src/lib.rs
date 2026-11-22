@@ -14,6 +14,8 @@
 //! - `ui`: Reusable `egui` components, responsive layout constraints, and diagnostic viewers (`spodeian-ui`).
 //! - `lake`: Local Apache Parquet data lake, Arrow streaming, and metadata registry (`sml-lake`).
 //! - `ml_utils`: Candle neural inference, SafeTensors loader, RLS online adaptation, and dynamic heads (`sml-runtime`).
+//! - `kernel`: Hardware WebGPU (WGSL) compute shaders and CPU fallback contexts (`sml-kernel`).
+//! - `schema`: Typed schema validation and serialization contracts (`sml-schema`).
 //!
 //! # Example
 //!
@@ -74,10 +76,21 @@ pub use sml_lake as lake;
 #[cfg(feature = "ml-utils")]
 pub use sml_runtime as ml_utils;
 
+#[cfg(feature = "kernel")]
+pub use sml_kernel as kernel;
+
+#[cfg(feature = "schema")]
+pub use sml_schema as schema;
+
 /// Standard prelude re-exporting common ecosystem traits and types.
 pub mod prelude {
     #[cfg(feature = "parallel")]
     pub use spodeian_parallel::prelude::*;
+
+    #[cfg(feature = "web-utils")]
+    pub use spodeian_web_utils::{
+        RuntimeTarget, hardware_concurrency, has_webgpu_support, is_tauri_desktop, is_wasm_browser,
+    };
 
     #[cfg(feature = "telemetry")]
     pub use spodeian_telemetry::{
@@ -94,6 +107,9 @@ pub mod prelude {
     pub use sml_lake::{
         SyntheticAcousticGenerator, SyntheticMarketGenerator, TabularDataset, TabularSchema,
     };
+
+    #[cfg(feature = "kernel")]
+    pub use sml_kernel::{KernelBackendSummary, KernelDevice, WgpuContext};
 
     #[cfg(feature = "ml-utils")]
     pub use sml_runtime::{

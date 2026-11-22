@@ -29,7 +29,32 @@ full = [
     "audio",
     "lake",
     "ml-utils",
+    "kernel",
+    "schema",
 ]
+
+# Template preset bundles matching each Spodeian application starter
+preset-egui = [
+    "parallel",
+    "telemetry",
+    "tokens",
+    "export",
+    "cache",
+    "persist",
+    "web-utils",
+    "ui",
+]
+preset-leptos-edge = [
+    "parallel",
+    "telemetry",
+    "tokens",
+    "export",
+    "cache",
+    "persist",
+    "web-utils",
+    "leptos-ui",
+]
+preset-leptos-desktop = ["preset-leptos-edge"]
 
 parallel = ["dep:spodeian-parallel"]
 telemetry = ["dep:spodeian-telemetry"]
@@ -46,6 +71,9 @@ forecast = ["dep:spodeian-forecast"]
 audio = ["dep:spodeian-audio"]
 lake = ["dep:sml-lake"]
 ml-utils = ["dep:sml-runtime"]
+kernel = ["dep:sml-kernel"]
+wgpu = ["kernel", "sml-kernel/wgpu"]
+schema = ["dep:sml-schema"]
 
 [dependencies]
 spodeian-parallel = { workspace = true, optional = true }
@@ -63,3 +91,5 @@ spodeian-forecast = { workspace = true, optional = true }
 spodeian-audio = { workspace = true, optional = true }
 sml-lake = { workspace = true, optional = true }
 sml-runtime = { workspace = true, optional = true }
+sml-kernel = { workspace = true, optional = true }
+sml-schema = { workspace = true, optional = true }
