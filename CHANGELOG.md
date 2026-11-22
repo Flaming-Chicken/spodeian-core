@@ -3,6 +3,14 @@
 All notable changes to `spodeian-core` are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and Semantic Versioning.
 
+## [3.1.0] - 2026-11-23
+
+### Added
+- `spodeian-core`: Added `preset-egui`, `preset-leptos-edge`, `preset-leptos-desktop`, `kernel`, `wgpu`, and `schema` feature flags, plus `docs/TEMPLATE_INTEGRATION_GUIDE.md`.
+- `spodeian-forecast`: Added GARCH(1,1) QMLE and Holt linear parameter estimation (`fit`).
+- `spodeian-stats`: Added MacKinnon ADF critical values and p-value approximation.
+- `spodeian-ui` / `spodeian-leptos-ui` / `spodeian-web-utils` / `spodeian-export` / `spodeian-parallel` / `sml-kernel`: Added searchable `CommandPalette`, PWA/share-link web helpers, SVG/HTML export helpers, parallel sweep helpers, and WGSL compute context utilities.
+
 ## [3.0.1] - 2026-11-17
 
 ### Fixed

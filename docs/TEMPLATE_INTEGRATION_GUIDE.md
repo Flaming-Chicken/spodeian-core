@@ -20,15 +20,15 @@ You can depend either on individual focused micro-crates (recommended for minima
 
 ### Minimal Individual Dependencies (Used Inside Template Crates)
 ```toml
-spodeian-parallel  = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-tokens    = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-export    = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-persist   = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-cache     = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-telemetry = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-web-utils = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" }
-spodeian-leptos-ui = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" } # Leptos templates
-spodeian-ui        = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.0.0" } # egui template
+spodeian-parallel  = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-tokens    = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-export    = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-persist   = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-cache     = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-telemetry = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-web-utils = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" }
+spodeian-leptos-ui = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" } # Leptos templates
+spodeian-ui        = { git = "https://github.com/Spodeian/spodeian-core", tag = "v3.1.0" } # egui template
 ```
 
 ### Umbrella Presets (`crates/spodeian-core`)
